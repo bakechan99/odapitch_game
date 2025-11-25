@@ -1,0 +1,314 @@
+[
+  {
+    "id": 1,
+    "top": "生命",
+    "middle": "による",
+    "bottom": "実現"
+  },
+  {
+    "id": 2,
+    "top": "ニューロン",
+    "middle": "の",
+    "bottom": "戦略"
+  },
+  {
+    "id": 3,
+    "top": "人間",
+    "middle": "で",
+    "bottom": "展開"
+  },
+  {
+    "id": 4,
+    "top": "ゲノム",
+    "middle": "な",
+    "bottom": "発見"
+  },
+  {
+    "id": 5,
+    "top": "細胞",
+    "middle": "化",
+    "bottom": "イノベーション"
+  },
+  {
+    "id": 6,
+    "top": "ウイルス",
+    "middle": "性",
+    "bottom": "開拓"
+  },
+  {
+    "id": 7,
+    "top": "脳",
+    "middle": "を防ぐ",
+    "bottom": "革命"
+  },
+  {
+    "id": 8,
+    "top": "エネルギー",
+    "middle": "脱",
+    "bottom": "の可能性"
+  },
+  {
+    "id": 9,
+    "top": "生態",
+    "middle": "に及ぼす",
+    "bottom": "定義"
+  },
+  {
+    "id": 10,
+    "top": "ワクチン",
+    "middle": "包括的な",
+    "bottom": "で迫る"
+  },
+  {
+    "id": 11,
+    "top": "iPS",
+    "middle": "多様な",
+    "bottom": "確立"
+  },
+  {
+    "id": 12,
+    "top": "DNA",
+    "middle": "を",
+    "bottom": "の開発"
+  },
+  {
+    "id": 13,
+    "top": "タンパク質工学",
+    "middle": "が",
+    "bottom": "側面"
+  },
+  {
+    "id": 14,
+    "top": "コンピュータ",
+    "middle": "の",
+    "bottom": "解明"
+  },
+  {
+    "id": 15,
+    "top": "電池",
+    "middle": "と",
+    "bottom": "問題"
+  },
+  {
+    "id": 16,
+    "top": "ロボット",
+    "middle": "や",
+    "bottom": "制御"
+  },
+  {
+    "id": 17,
+    "top": "量子",
+    "middle": "系",
+    "bottom": "メカニズム"
+  },
+  {
+    "id": 18,
+    "top": "メタバース",
+    "middle": "学",
+    "bottom": "評価"
+  },
+  {
+    "id": 19,
+    "top": "深層学習",
+    "middle": "で目指す",
+    "bottom": "教育"
+  },
+  {
+    "id": 20,
+    "top": "半導体",
+    "middle": "低",
+    "bottom": "に挑む"
+  },
+  {
+    "id": 21,
+    "top": "ビッグデータ",
+    "middle": "に基づく",
+    "bottom": "理解"
+  },
+  {
+    "id": 22,
+    "top": "AI",
+    "middle": "基盤的な",
+    "bottom": "に備える"
+  },
+  {
+    "id": 23,
+    "top": "DX",
+    "middle": "強靭な",
+    "bottom": "探索"
+  },
+  {
+    "id": 24,
+    "top": "ドローン",
+    "middle": "に",
+    "bottom": "の研究"
+  },
+  {
+    "id": 25,
+    "top": "社会",
+    "middle": "メタ",
+    "bottom": "技法"
+  },
+  {
+    "id": 26,
+    "top": "ダイバーシティ",
+    "middle": "が",
+    "bottom": "開発"
+  },
+  {
+    "id": 27,
+    "top": "愛",
+    "middle": "の",
+    "bottom": "克服"
+  },
+  {
+    "id": 28,
+    "top": "プラスチック",
+    "middle": "と",
+    "bottom": "理論"
+  },
+  {
+    "id": 29,
+    "top": "貧困",
+    "middle": "に",
+    "bottom": "応用"
+  },
+  {
+    "id": 30,
+    "top": "フードロス",
+    "middle": "型",
+    "bottom": "シミュレーション"
+  },
+  {
+    "id": 31,
+    "top": "意識",
+    "middle": "で紐解く",
+    "bottom": "発見"
+  },
+  {
+    "id": 32,
+    "top": "ジェンダー",
+    "middle": "高",
+    "bottom": "による実現"
+  },
+  {
+    "id": 33,
+    "top": "健康",
+    "middle": "における",
+    "bottom": "宗教"
+  },
+  {
+    "id": 34,
+    "top": "サステイナブル",
+    "middle": "総合的な",
+    "bottom": "研究"
+  },
+  {
+    "id": 35,
+    "top": "SDGs",
+    "middle": "高信頼の",
+    "bottom": "への対策"
+  },
+  {
+    "id": 36,
+    "top": "QOL",
+    "middle": "で",
+    "bottom": "応用"
+  },
+  {
+    "id": 37,
+    "top": "ネットワーク",
+    "middle": "ポスト",
+    "bottom": "から探る"
+  },
+  {
+    "id": 38,
+    "top": "宇宙",
+    "middle": "による",
+    "bottom": "創出"
+  },
+  {
+    "id": 39,
+    "top": "ロケット",
+    "middle": "の",
+    "bottom": "構築"
+  },
+  {
+    "id": 40,
+    "top": "火星",
+    "middle": "で",
+    "bottom": "挑戦"
+  },
+  {
+    "id": 41,
+    "top": "ビッグバン",
+    "middle": "を",
+    "bottom": "フロンティア"
+  },
+  {
+    "id": 42,
+    "top": "核融合",
+    "middle": "的",
+    "bottom": "関係"
+  },
+  {
+    "id": 43,
+    "top": "カオス",
+    "middle": "超",
+    "bottom": "解放"
+  },
+  {
+    "id": 44,
+    "top": "温暖化",
+    "middle": "を用いた",
+    "bottom": "について"
+  },
+  {
+    "id": 45,
+    "top": "ダークマター",
+    "middle": "新",
+    "bottom": "意義"
+  },
+  {
+    "id": 46,
+    "top": "地球",
+    "middle": "に対する",
+    "bottom": "を見据える"
+  },
+  {
+    "id": 47,
+    "top": "ムーンショット",
+    "middle": "革新的な",
+    "bottom": "成長"
+  },
+  {
+    "id": 48,
+    "top": "ISS",
+    "middle": "次世代の",
+    "bottom": "による解明"
+  },
+  {
+    "id": 49,
+    "top": "UFO",
+    "middle": "と",
+    "bottom": "特異点"
+  },
+  {
+    "id": 50,
+    "top": "ハビタブルゾーン",
+    "middle": "サイバー",
+    "bottom": "真実"
+  },
+  {
+    "id": 51,
+    "top": "JOKER",
+    "middle": "神話",
+    "bottom": "予言"
+  },
+  {
+    "id": 52,
+    "top": "JOKER",
+    "middle": "アポカリプス",
+    "bottom": "陰謀"
+  }
+]
