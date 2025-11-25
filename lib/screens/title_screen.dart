@@ -56,7 +56,7 @@ class _TitleScreenState extends State<TitleScreen> {
                 image: AssetImage('assets/images/title_bg.png'), 
                 fit: BoxFit.cover, // 画面全体を覆うように拡大縮小
               ),
-              color: Colors.blueAccent, // 画像がない時の代わりの背景色
+              // color: Colors.blueAccent, // 画像がない時の代わりの背景色
             ),
           ),
           
