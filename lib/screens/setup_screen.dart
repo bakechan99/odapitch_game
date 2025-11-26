@@ -192,7 +192,7 @@ class _SetupScreenState extends State<SetupScreen> {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                   elevation: 5,
                 ),
-                child: const Text("ゲームを開始する", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                child: const Text("ゲームを開始", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
               ),
             ),
             const SizedBox(height: 20),
