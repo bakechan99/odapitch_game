@@ -1,9 +1,11 @@
-import 'card_data.dart'; // さっき作ったファイルを使うよ、という宣言
+import 'card_data.dart';
+import 'placed_card.dart'; // 追加
 
 class Player {
   String name;
   List<CardData> hand = [];
-  List<CardData> selectedCards = []; // 選んで並べたカード
+  // ここを CardData から PlacedCard に変更
+  List<PlacedCard> selectedCards = []; 
   
   Player({required this.name});
 }

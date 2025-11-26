@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../models/player.dart';
+import '../models/placed_card.dart'; 
 
 class ResultScreen extends StatefulWidget {
   final List<Player> players;
@@ -120,6 +121,7 @@ class _ResultScreenState extends State<ResultScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // 名前とタイマー
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -136,20 +138,45 @@ class _ResultScreenState extends State<ResultScreen> {
                   ),
                   const SizedBox(height: 10),
                   const Text("研究課題名：", style: TextStyle(color: Colors.grey)),
+                  
+                  // --- 修正箇所：新しいデータ形式（PlacedCard）に対応 ---
                   Wrap(
                     spacing: 4,
-                    children: p.selectedCards.map((c) {
-                      return Chip(
-                        label: Column(
+                    runSpacing: 4,
+                    children: p.selectedCards.map((placedCard) {
+                      // 選ばれているセクション（0:上, 1:中, 2:下）
+                      final sel = placedCard.selectedSection;
+                      final card = placedCard.card;
+
+                      return Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border.all(color: Colors.grey.shade300),
+                          borderRadius: BorderRadius.circular(4),
+                          boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 2)],
+                        ),
+                        child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Text(c.top, style: const TextStyle(fontWeight: FontWeight.bold)),
-                            Text(c.middle, style: const TextStyle(fontSize: 10)),
-                            Text(c.bottom, style: const TextStyle(fontWeight: FontWeight.bold)),
+                            // 選ばれている行だけ太字・大きく表示する
+                            Text(card.top, style: TextStyle(
+                              fontSize: sel == 0 ? 16 : 10, 
+                              fontWeight: sel == 0 ? FontWeight.bold : FontWeight.normal,
+                              color: sel == 0 ? Colors.black : Colors.grey
+                            )),
+                            Text(card.middle, style: TextStyle(
+                              fontSize: sel == 1 ? 16 : 10, 
+                              fontWeight: sel == 1 ? FontWeight.bold : FontWeight.normal,
+                              color: sel == 1 ? Colors.black : Colors.grey
+                            )),
+                            Text(card.bottom, style: TextStyle(
+                              fontSize: sel == 2 ? 16 : 10, 
+                              fontWeight: sel == 2 ? FontWeight.bold : FontWeight.normal,
+                              color: sel == 2 ? Colors.black : Colors.grey
+                            )),
                           ],
                         ),
-                        backgroundColor: Colors.white,
-                        elevation: 2,
                       );
                     }).toList(),
                   ),
