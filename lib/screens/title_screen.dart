@@ -2,7 +2,8 @@ import 'package:audioplayers/audioplayers.dart'; // 音楽用
 import 'package:flutter/material.dart';
 import 'setup_screen.dart'; // 「新規ゲーム」を押した後の行き先
 import '../constants/texts.dart'; // 追加: 定数テキストのインポート
-import '../widget/fancy_button.dart'; // 追加: カスタムボタンのインポート
+import '../widget/title_button.dart'; // 追加: カスタムボタンのインポート
+  
 
 class TitleScreen extends StatefulWidget {
   const TitleScreen({super.key});
@@ -101,10 +102,8 @@ class _TitleScreenState extends State<TitleScreen> {
                 SizedBox(
                   width: 250,
                   height: 60,
-                  child: FancyButton(
-                    text: AppTexts.newGameButton,
-                    color: Colors.orange,
-                    icon: Icons.play_arrow,
+                  child: TitleButton(
+                    label: AppTexts.newGameButton,
                     onPressed: () {
                       Navigator.push(
                         context,

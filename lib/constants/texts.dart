@@ -1,7 +1,7 @@
 class AppTexts {
   // App title
   static const String gameTitle = "カケンヒゲーム";
-  static const String newGameButton = "新規ゲームを始める";
+  static const String newGameButton = "ゲームを始める";
 
   // Setup screen
   static const String setupTitle = "ゲーム設定";
