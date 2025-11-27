@@ -80,12 +80,12 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
           // 背景（画像がない場合は色のみ）
           Container(
             decoration: const BoxDecoration(
-              // image: DecorationImage(image: AssetImage('assets/images/title_bg.png'), fit: BoxFit.cover),
-              gradient: LinearGradient(
-                colors: [Colors.blueGrey, Colors.black87],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+              image: DecorationImage(image: AssetImage('assets/images/title_bg_2.png'), fit: BoxFit.cover),
+              // gradient: LinearGradient(
+              //   colors: [Colors.blueGrey, Colors.black87],
+              //   begin: Alignment.topLeft,
+              //   end: Alignment.bottomRight,
+              // ),
             ),
           ),
           Center(

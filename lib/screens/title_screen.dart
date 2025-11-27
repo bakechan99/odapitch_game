@@ -55,7 +55,7 @@ class _TitleScreenState extends State<TitleScreen> {
               image: DecorationImage(
                 // ※ ここに画像ファイル名を入れる
                 // 画像がないときはエラー防止のためコメントアウトし、色だけで表示しています
-                image: AssetImage('assets/images/title_bg.png'), 
+                image: AssetImage('assets/images/title_bg_2.png'), 
                 fit: BoxFit.cover, // 画面全体を覆うように拡大縮小
               ),
               // color: Colors.blueAccent, // 画像がない時の代わりの背景色
@@ -77,7 +77,7 @@ class _TitleScreenState extends State<TitleScreen> {
                 // 画像がある場合は以下のコメントアウトを外して使ってください
                 
                 Image.asset(
-                  'assets/images/logo.png',
+                  'assets/images/logo_2.png',
                   width: 300, // ロゴの幅
                 ), 
                 
