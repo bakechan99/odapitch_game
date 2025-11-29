@@ -7,6 +7,7 @@ import '../models/card_data.dart';
 import '../models/player.dart';
 import '../models/game_settings.dart'; // 新規作成した設定モデル
 import 'game_loop_screen.dart';
+import '../constants/texts.dart'; // 追加
 
 class SetupScreen extends StatefulWidget {
   const SetupScreen({super.key});
@@ -53,7 +54,8 @@ class _SetupScreenState extends State<SetupScreen> {
   void _updateControllers() {
     setState(() {
       while (_controllers.length < playerCount) {
-        _controllers.add(TextEditingController(text: "プレイヤー${_controllers.length + 1}"));
+        // "プレイヤー" -> AppTexts.defaultPlayerName
+        _controllers.add(TextEditingController(text: "${AppTexts.defaultPlayerName}${_controllers.length + 1}"));
       }
       while (_controllers.length > playerCount) {
         _controllers.removeLast();
@@ -132,7 +134,8 @@ class _SetupScreenState extends State<SetupScreen> {
             ),
             const SizedBox(height: 20),
 
-            _buildSectionTitle("③ プレイヤー名（ドラッグで入替）"),
+            // "③ プレイヤー名（ドラッグで入替）" -> AppTexts.setupPlayerNameSection
+            _buildSectionTitle(AppTexts.setupPlayerNameSection),
             SizedBox(
               height: 200, // リストの高さ制限
               child: ReorderableListView(
@@ -154,7 +157,10 @@ class _SetupScreenState extends State<SetupScreen> {
               ),
             ),
             const SizedBox(height: 20),
-            SizedBox(width: double.infinity, height: 60, child: ElevatedButton(onPressed: _startGame, child: const Text("ゲーム開始", style: TextStyle(fontSize: 20)))),
+            const SizedBox(height: 30),
+
+            // "ゲーム開始" -> AppTexts.startGameButton
+            SizedBox(width: double.infinity, height: 60, child: ElevatedButton(onPressed: _startGame, child: const Text(AppTexts.startGameButton, style: TextStyle(fontSize: 20)))),
           ],
         ),
       ),

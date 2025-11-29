@@ -4,6 +4,7 @@ import '../models/player.dart';
 import '../models/placed_card.dart';
 import '../models/game_settings.dart'; // 設定モデル
 import 'result_screen.dart';
+import '../constants/texts.dart'; // 追加
 
 class GameLoopScreen extends StatefulWidget {
   final List<Player> players;
@@ -21,8 +22,8 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
   void _nextPlayer() {
     // ポップアップで確認
     _showConfirmDialog(
-      title: "確認",
-      content: "このタイトルで決定してよろしいですか？",
+      title: AppTexts.confirmTitle, // "確認" -> AppTexts.confirmTitle
+      content: AppTexts.confirmResearchTitle, // "このタイトルで決定してよろしいですか？" -> AppTexts.confirmResearchTitle
       onConfirm: () {
         if (currentPlayerIndex < widget.players.length - 1) {
           setState(() {
@@ -56,7 +57,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text("キャンセル"),
+              child: const Text(AppTexts.cancel), // "キャンセル" -> AppTexts.cancel
             ),
             ElevatedButton(
               onPressed: () {
@@ -92,18 +93,21 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text("次は ${player.name} さんの番です", 
+                // "次は ${player.name} さんの番です" -> AppTexts を使用して構築
+                Text("${AppTexts.nextPlayer} ${player.name} ${AppTexts.san}${AppTexts.turnMessageSuffix}", 
                   style: const TextStyle(fontSize: 24, color: Colors.white, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 30),
                 const Icon(Icons.phone_android, size: 100, color: Colors.white),
                 const SizedBox(height: 30),
-                const Text("スマホを渡してください", style: TextStyle(color: Colors.white70)),
+                // "スマホを渡してください" -> AppTexts.passSmartphoneMessage
+                Text(AppTexts.passSmartphoneMessage, style: const TextStyle(color: Colors.white70)),
                 const SizedBox(height: 50),
                 ElevatedButton(
                   onPressed: () {
                     _showConfirmDialog(
-                      title: "確認", 
-                      content: "${player.name}さん、準備はいいですか？", 
+                      title: AppTexts.confirmTitle, // "確認" -> AppTexts.confirmTitle
+                      // "${player.name}さん、準備はいいですか？" -> AppTexts を使用して構築
+                      content: "${player.name}${AppTexts.areYouReadySuffix}", 
                       onConfirm: () => setState(() => isPassing = false)
                     );
                   },
@@ -112,7 +116,8 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                     backgroundColor: Colors.orange,
                     foregroundColor: Colors.white,
                   ),
-                  child: const Text("準備OK", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                  // "準備OK" -> AppTexts.readyButton
+                  child: const Text(AppTexts.readyButton, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                 )
               ],
             ),
@@ -125,7 +130,8 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
   // --- 画面2: メインゲーム画面 ---
   Widget _buildGameScreen(Player player) {
     return Scaffold(
-      appBar: AppBar(title: Text("${player.name} のターン")),
+      // "${player.name} のターン" -> AppTexts を使用して構築
+      appBar: AppBar(title: Text("${player.name}${AppTexts.turnTitleSuffix}")),
       body: Column(
         children: [
           // --- エリアA: 作成されたタイトル（ドラッグ並び替えエリア） ---
@@ -139,7 +145,8 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
               children: [
                  const Padding(
                    padding: EdgeInsets.only(left: 10, bottom: 5),
-                   child: Text("【研究課題名】 ドラッグで並び替え・タップで文字選択", style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold)),
+                   // "【研究課題名】 ドラッグで並び替え・タップで文字選択" -> AppTexts.researchAreaHeader
+                   child: Text(AppTexts.researchAreaHeader, style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold)),
                  ),
                  Expanded(
                    child: DragTarget<CardData>(
@@ -152,7 +159,8 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                      builder: (context, candidateData, rejectedData) {
                        if (player.selectedCards.isEmpty) {
                          return Center(
-                           child: Text("手札からここにドラッグしてください", 
+                           // "手札からここにドラッグしてください" -> AppTexts.handEmpty
+                           child: Text(AppTexts.handEmpty, 
                              style: TextStyle(color: Colors.grey[400], fontSize: 16)),
                          );
                        }
@@ -234,7 +242,8 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(backgroundColor: Colors.blue, foregroundColor: Colors.white, padding: const EdgeInsets.all(15)),
                   onPressed: player.selectedCards.isEmpty ? null : _nextPlayer,
-                  child: const Text("これで決定！", style: TextStyle(fontSize: 18)),
+                  // "これで決定！" -> AppTexts.decideButton
+                  child: const Text(AppTexts.decideButton, style: TextStyle(fontSize: 18)),
                 ),
               ),
             ),

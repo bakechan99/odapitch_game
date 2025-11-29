@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../models/player.dart';
 import '../models/placed_card.dart';
 import '../models/game_settings.dart'; // 設定モデル
+import '../utils/app_texts.dart'; // AppTextsをインポート
 
 enum ScreenPhase { presentationStandby, presentation, votingStandby, voting, result }
 
@@ -151,7 +152,7 @@ class _ResultScreenState extends State<ResultScreen> {
       case ScreenPhase.presentationStandby:
         return _buildStandbyScreen(
           player: widget.players[currentPresenterIndex],
-          message: "次は発表の番です",
+          message: AppTexts.nextPresenter, // "次は発表の番です" -> AppTexts.nextPresenter
           onReady: _startPresentation, // ダイアログありの関数を呼ぶ
         );
       case ScreenPhase.presentation:
@@ -159,7 +160,7 @@ class _ResultScreenState extends State<ResultScreen> {
       case ScreenPhase.votingStandby:
         return _buildStandbyScreen(
           player: widget.players[currentVoterIndex],
-          message: "次は投票の番です",
+          message: AppTexts.nextVoter, // "次は投票の番です" -> AppTexts.nextVoter
           onReady: _startVoting, // ダイアログありの関数を呼ぶ
         );
       case ScreenPhase.voting:
