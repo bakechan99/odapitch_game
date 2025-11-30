@@ -138,25 +138,26 @@ class _SetupScreenState extends State<SetupScreen> {
 
             // "③ プレイヤー名（ドラッグで入替）" -> AppTexts.setupPlayerNameSection
             _buildSectionTitle(AppTexts.setupPlayerNameSection),
-            SizedBox(
-              height: 200, // リストの高さ制限
-              child: ReorderableListView(
-                onReorder: (oldIndex, newIndex) {
-                  setState(() {
-                    if (oldIndex < newIndex) newIndex -= 1;
-                    final item = _controllers.removeAt(oldIndex);
-                    _controllers.insert(newIndex, item);
-                  });
-                },
-                children: [
-                  for (int i = 0; i < _controllers.length; i++)
-                    ListTile(
-                      key: ValueKey(_controllers[i]),
-                      leading: const Icon(Icons.drag_handle),
-                      title: TextField(controller: _controllers[i]),
-                    ),
-                ],
-              ),
+            
+            // 高さ制限(SizedBox)を削除し、リストが中身に応じて伸びるように変更
+            ReorderableListView(
+              shrinkWrap: true, // 中身に合わせて高さを決定
+              physics: const NeverScrollableScrollPhysics(), // 親のスクロール(SingleChildScrollView)に任せる
+              onReorder: (oldIndex, newIndex) {
+                setState(() {
+                  if (oldIndex < newIndex) newIndex -= 1;
+                  final item = _controllers.removeAt(oldIndex);
+                  _controllers.insert(newIndex, item);
+                });
+              },
+              children: [
+                for (int i = 0; i < _controllers.length; i++)
+                  ListTile(
+                    key: ValueKey(_controllers[i]),
+                    leading: const Icon(Icons.drag_handle),
+                    title: TextField(controller: _controllers[i]),
+                  ),
+              ],
             ),
             const SizedBox(height: 20),
             const SizedBox(height: 30),
