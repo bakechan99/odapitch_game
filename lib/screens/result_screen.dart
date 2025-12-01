@@ -3,13 +3,13 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import '../models/game_settings.dart';
 import '../models/player.dart';
-import '../constants/texts.dart'; // インポートが必須です
+import '../constants/texts.dart';
 
 enum ScreenPhase { presentationStandby, presentation, votingStandby, voting, result }
 
 class ResultScreen extends StatefulWidget {
   final List<Player> players;
-  final GameSettings settings; // 設定を受け取る
+  final GameSettings settings;
   const ResultScreen({super.key, required this.players, required this.settings});
 
   @override
@@ -20,7 +20,14 @@ class _ResultScreenState extends State<ResultScreen> {
   ScreenPhase currentPhase = ScreenPhase.presentationStandby;
   int currentPresenterIndex = 0;
   int currentVoterIndex = 0;
-  List<int> voteCounts = [];
+  
+  // 変更: 単純な票数ではなく、誰が(key:被投票者) 誰から(key:投票者) いくら(value)貰ったかを記録
+  // Map<被投票者Index, Map<投票者Index, 金額>>
+  Map<int, Map<int, int>> voteMatrix = {};
+  
+  // 現在の投票者が配分中の予算データ (key:被投票者Index, value:金額)
+  Map<int, int> currentAllocation = {};
+
   Timer? _timer;
   int _timeLeft = 30;
   final AudioPlayer _audioPlayer = AudioPlayer();
@@ -28,7 +35,15 @@ class _ResultScreenState extends State<ResultScreen> {
   @override
   void initState() {
     super.initState();
-    voteCounts = List.filled(widget.players.length, 0);
+    // 投票マトリクスの初期化
+    for (int i = 0; i < widget.players.length; i++) {
+      voteMatrix[i] = {};
+    }
+    
+    // 最初のプレゼンターの時間をセット
+    setState(() {
+      _timeLeft = widget.settings.presentationTimeSec;
+    });
   }
 
   @override
@@ -101,16 +116,27 @@ class _ResultScreenState extends State<ResultScreen> {
   }
 
   void _startVoting() {
+    // 現在の投票者の配分用マップを初期化（全員0円スタート）
+    currentAllocation = {};
+    for (int i = 0; i < widget.players.length; i++) {
+      if (i != currentVoterIndex) {
+        currentAllocation[i] = 0;
+      }
+    }
     setState(() => currentPhase = ScreenPhase.voting);
   }
 
-  void _submitVote(int targetIndex) {
-    String targetName = widget.players[targetIndex].name;
+  void _submitVote() {
+    // 現在の配分を確定させる
     _showConfirmDialog(
-      title: AppTexts.voteConfirmTitle, // "投票確認"
-      content: AppTexts.confirmVote(targetName),
+      title: AppTexts.voteConfirmTitle,
+      content: "この配分で投票しますか？",
       onConfirm: () {
-        voteCounts[targetIndex]++;
+        // マトリクスに保存
+        currentAllocation.forEach((targetIndex, amount) {
+          voteMatrix[targetIndex]![currentVoterIndex] = amount;
+        });
+
         if (currentVoterIndex < widget.players.length - 1) {
           setState(() {
             currentVoterIndex++;
@@ -124,21 +150,11 @@ class _ResultScreenState extends State<ResultScreen> {
   }
 
   void _calcResult() {
-    int maxVotes = 0;
-    for (var count in voteCounts) { if (count > maxVotes) maxVotes = count; }
-    List<Player> winners = [];
-    for (int i = 0; i < widget.players.length; i++) { if (voteCounts[i] == maxVotes) winners.add(widget.players[i]); }
-
     setState(() {
       currentPhase = ScreenPhase.result;
-      // 結果発表時にサウンド再生
       _audioPlayer.play(AssetSource('audio/result.mp3'));
     });
-
-    // 5秒後に自動でタイトル画面に戻る
-    Future.delayed(const Duration(seconds: 5), () {
-      Navigator.of(context).popUntil((route) => route.isFirst);
-    });
+    // 自動遷移は削除し、ボタンで戻るようにする（結果をじっくり見るため）
   }
 
   // --- UI ---
@@ -243,32 +259,120 @@ class _ResultScreenState extends State<ResultScreen> {
     );
   }
 
+  // --- プレイヤーカラーの定義 ---
+  Color _getPlayerColor(int index) {
+    const colors = [
+      Colors.blue, Colors.red, Colors.green, Colors.orange, 
+      Colors.purple, Colors.teal, Colors.pink, Colors.brown
+    ];
+    return colors[index % colors.length];
+  }
+
+  // --- UI: 投票画面 (予算配分) ---
   Widget _buildVotingScreen() {
     final voter = widget.players[currentVoterIndex];
+    
+    // 現在の使用済み予算合計
+    int usedBudget = currentAllocation.values.fold(0, (sum, amount) => sum + amount);
+    int remainingBudget = 100 - usedBudget;
+    bool isComplete = usedBudget == 100;
+
     return Scaffold(
       appBar: AppBar(title: Text(AppTexts.votingTitle(voter.name))),
       body: Column(
         children: [
-          const Padding(padding: EdgeInsets.all(16.0), child: Text(AppTexts.voteSelectionTitle, textAlign: TextAlign.center, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold))),
+          // ヘッダー：残り予算表示
+          Container(
+            padding: const EdgeInsets.all(16),
+            color: Colors.blueGrey[50],
+            width: double.infinity,
+            child: Column(
+              children: [
+                const Text("最も予算を与えたい研究に配分してください", style: TextStyle(fontWeight: FontWeight.bold)),
+                const SizedBox(height: 10),
+                Text(
+                  "残り予算: $remainingBudget 万円 / 100 万円",
+                  style: TextStyle(
+                    fontSize: 24, 
+                    fontWeight: FontWeight.bold,
+                    color: remainingBudget < 0 ? Colors.red : Colors.blue[800]
+                  ),
+                ),
+              ],
+            ),
+          ),
+          
+          // リスト：配分スライダー
           Expanded(
             child: ListView.builder(
               itemCount: widget.players.length,
               itemBuilder: (context, index) {
                 final p = widget.players[index];
-                if (p == voter) return const SizedBox.shrink(); // 自分には投票できない
+                // 自分自身は表示しない
+                if (p == voter) return const SizedBox.shrink();
+                
+                int currentAmount = currentAllocation[index] ?? 0;
+                // スライダーの最大値 = 現在の値 + 残り予算 (これ以上増やすと100を超えるため)
+                double maxVal = (currentAmount + remainingBudget).toDouble();
+
                 return Card(
                   margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: ListTile(
-                    // 修正箇所 (Line 263付近): メソッド呼び出し
-                    title: Text(AppTexts.researchTitle(p.researchTitle), style: const TextStyle(fontWeight: FontWeight.bold)),
-                    subtitle: Text(p.name),
-                    trailing: ElevatedButton(
-                      onPressed: () => _submitVote(index),
-                      child: const Text("投票"),
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(AppTexts.researchTitle(p.researchTitle), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                        Text("研究者: ${p.name}", style: const TextStyle(color: Colors.grey)),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Text("$currentAmount 万円", style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.blue)),
+                            Expanded(
+                              child: Slider(
+                                value: currentAmount.toDouble(),
+                                min: 0,
+                                max: 100, // UI上の最大は100だが、onChangedで制御
+                                divisions: 100,
+                                label: "$currentAmount",
+                                onChanged: (val) {
+                                  int newVal = val.toInt();
+                                  // 上限チェック: 増やせるのは (今の値 + 残り予算) まで
+                                  if (newVal > currentAmount + remainingBudget) {
+                                    newVal = currentAmount + remainingBudget;
+                                  }
+                                  setState(() {
+                                    currentAllocation[index] = newVal;
+                                  });
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
                 );
               },
+            ),
+          ),
+          
+          // フッター：投票ボタン
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: isComplete ? Colors.red : Colors.grey,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 15)
+                  ),
+                  onPressed: isComplete ? _submitVote : null,
+                  child: const Text("投票を確定する", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                ),
+              ),
             ),
           ),
         ],
@@ -276,32 +380,143 @@ class _ResultScreenState extends State<ResultScreen> {
     );
   }
 
+  // --- UI: 結果発表画面 (積み上げ棒グラフ) ---
   Widget _buildResultScreen() {
-    int maxVotes = 0;
-    for (var count in voteCounts) { if (count > maxVotes) maxVotes = count; }
-    List<Player> winners = [];
-    for (int i = 0; i < widget.players.length; i++) { if (voteCounts[i] == maxVotes) winners.add(widget.players[i]); }
+    // 集計処理
+    List<Map<String, dynamic>> results = [];
+    
+    for (int i = 0; i < widget.players.length; i++) {
+      int total = 0;
+      Map<int, int> breakdown = voteMatrix[i] ?? {};
+      breakdown.forEach((_, amount) => total += amount);
+      
+      results.add({
+        'player': widget.players[i],
+        'total': total,
+        'breakdown': breakdown,
+      });
+    }
+
+    // 獲得金額順にソート (降順)
+    results.sort((a, b) => (b['total'] as int).compareTo(a['total'] as int));
 
     return Scaffold(
-      appBar: AppBar(title: const Text("🎉 結果発表 🎉")),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text("採択された研究課題は...", style: TextStyle(fontSize: 20)),
-            const SizedBox(height: 30),
-            // AppTexts.winnerName(w.name) を使用
-            ...winners.map((w) => Text(AppTexts.winnerName(w.name), style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.orange))),
-            const SizedBox(height: 20),
-            // AppTexts.voteCount(maxVotes) を使用
-            Text(AppTexts.voteCount(maxVotes), style: const TextStyle(fontSize: 24)),
-            const SizedBox(height: 50),
-            ElevatedButton(
-              onPressed: () => Navigator.of(context).popUntil((route) => route.isFirst),
-              child: const Text("タイトルへ戻る"),
-            )
-          ],
-        ),
+      appBar: AppBar(title: const Text(AppTexts.resultTitle)), // "🎉 結果発表 🎉"
+      body: Column(
+        children: [
+          const Padding(
+            padding: EdgeInsets.all(20.0),
+            child: Text(AppTexts.resultHeader, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: results.length,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              itemBuilder: (context, index) {
+                final data = results[index];
+                final Player p = data['player'];
+                final int total = data['total'];
+                final Map<int, int> breakdown = data['breakdown'];
+
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 20),
+                  elevation: 4,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // 順位と名前と金額
+                        Row(
+                          children: [
+                            // 1位〜3位には王冠などをつける
+                            if (index == 0) const Text("🥇 ", style: TextStyle(fontSize: 24)),
+                            if (index == 1) const Text("🥈 ", style: TextStyle(fontSize: 24)),
+                            if (index == 2) const Text("🥉 ", style: TextStyle(fontSize: 24)),
+                            Text("${index + 1}位", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(p.name, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                                  Text(p.researchTitle, style: const TextStyle(fontSize: 12, color: Colors.grey), maxLines: 1, overflow: TextOverflow.ellipsis),
+                                ],
+                              ),
+                            ),
+                            Text("$total 万円", style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.blueAccent)),
+                          ],
+                        ),
+                        const SizedBox(height: 15),
+                        
+                        // 積み上げ棒グラフ
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: SizedBox(
+                            height: 30,
+                            child: Row(
+                              children: breakdown.entries.map((entry) {
+                                int voterIndex = entry.key;
+                                int amount = entry.value;
+                                if (amount == 0) return const SizedBox.shrink();
+                                
+                                return Expanded(
+                                  flex: amount,
+                                  child: Container(
+                                    color: _getPlayerColor(voterIndex),
+                                    alignment: Alignment.center,
+                                    // 金額が大きい場合は数字を表示してもよい
+                                    child: amount >= 10 
+                                      ? Text("$amount", style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold))
+                                      : null,
+                                  ),
+                                );
+                              }).toList(),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          
+          // 凡例（誰が何色か）
+          Container(
+            padding: const EdgeInsets.all(10),
+            color: Colors.grey[200],
+            child: Wrap(
+              spacing: 10,
+              runSpacing: 5,
+              children: List.generate(widget.players.length, (index) {
+                return Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(width: 12, height: 12, color: _getPlayerColor(index)),
+                    const SizedBox(width: 4),
+                    Text(widget.players[index].name, style: const TextStyle(fontSize: 12)),
+                  ],
+                );
+              }),
+            ),
+          ),
+
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(padding: const EdgeInsets.all(15)),
+                  onPressed: () => Navigator.of(context).popUntil((route) => route.isFirst),
+                  child: const Text(AppTexts.backToTitle, style: TextStyle(fontSize: 18)),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
