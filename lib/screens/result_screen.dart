@@ -30,6 +30,9 @@ class _ResultScreenState extends State<ResultScreen> {
 
   Timer? _timer;
   int _timeLeft = 30;
+  int _qaTimeLeft = 30; // 質疑応答残り時間
+  bool _isQaPhase = false; // 現在質疑応答中かどうか
+
   final AudioPlayer _audioPlayer = AudioPlayer();
 
   @override
@@ -43,6 +46,7 @@ class _ResultScreenState extends State<ResultScreen> {
     // 最初のプレゼンターの時間をセット
     setState(() {
       _timeLeft = widget.settings.presentationTimeSec;
+      _qaTimeLeft = widget.settings.qaTimeSec;
     });
   }
 
@@ -79,17 +83,33 @@ class _ResultScreenState extends State<ResultScreen> {
   // --- タイマー処理 ---
   void _startTimer() {
     setState(() {
-      _timeLeft = widget.settings.presentationTimeSec; // 設定画面の時間を使う
+      _timeLeft = widget.settings.presentationTimeSec;
+      _qaTimeLeft = widget.settings.qaTimeSec;
+      _isQaPhase = false;
     });
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (!mounted) return;
+      
       setState(() {
-        if (_timeLeft > 0) {
-          _timeLeft--;
+        if (!_isQaPhase) {
+          // 発表時間中
+          if (_timeLeft > 0) {
+            _timeLeft--;
+          } else {
+            // 発表終了 -> 質疑応答へ自動移行
+            _isQaPhase = true;
+            _playSound(); // 時間切れ音（または切り替わり音）
+          }
         } else {
-          _timer?.cancel();
-          _playSound();
+          // 質疑応答中
+          if (_qaTimeLeft > 0) {
+            _qaTimeLeft--;
+          } else {
+            // 完全終了
+            _timer?.cancel();
+            _playSound();
+          }
         }
       });
     });
@@ -215,7 +235,6 @@ class _ResultScreenState extends State<ResultScreen> {
 
   Widget _buildPresentationScreen() {
     final player = widget.players[currentPresenterIndex];
-    final isTimeUp = _timeLeft == 0;
 
     return Scaffold(
       appBar: AppBar(title: Text(AppTexts.presentationTitle(player.name))),
@@ -223,21 +242,74 @@ class _ResultScreenState extends State<ResultScreen> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            Text(AppTexts.timeLeft(_timeLeft), style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold, color: isTimeUp ? Colors.red : Colors.black)),
-            const SizedBox(height: 20),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(color: Colors.blue[50], borderRadius: BorderRadius.circular(10), border: Border.all(color: Colors.blue)),
-              // 修正箇所 (Line 217付近): メソッド呼び出し
-              child: Text(AppTexts.researchTitle(player.researchTitle), style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+            // 1. タイマー表示 (左右並び)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Column(
+                  children: [
+                    const Text("発表残り時間", style: TextStyle(fontSize: 16)),
+                    Text(
+                      AppTexts.secondsUnit(_timeLeft),
+                      style: TextStyle(
+                        fontSize: 32, 
+                        fontWeight: FontWeight.bold,
+                        color: !_isQaPhase ? Colors.red : Colors.grey,
+                      ),
+                    ),
+                  ],
+                ),
+                Column(
+                  children: [
+                    const Text("質問残り時間", style: TextStyle(fontSize: 16)),
+                    Text(
+                      AppTexts.secondsUnit(_qaTimeLeft),
+                      style: TextStyle(
+                        fontSize: 32, 
+                        fontWeight: FontWeight.bold,
+                        color: _isQaPhase ? Colors.red : Colors.grey,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
-            const Spacer(),
-            if (isTimeUp)
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
+            const SizedBox(height: 40),
+            
+            // 2. ラベル
+            const Text("【研究課題】", style: TextStyle(fontSize: 20, color: Colors.blueGrey, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 20),
+            
+            // 3. 研究課題タイトル (中央大きく)
+            Expanded(
+              child: Center(
+                child: Text(
+                  player.researchTitle,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 36, // 大きく
+                    fontWeight: FontWeight.bold,
+                    height: 1.3,
+                  ),
+                ),
+              ),
+            ),
+            
+            // 4. 終了ボタン
+            SizedBox(
+              width: double.infinity,
+              height: 60,
+              child: ElevatedButton(
+                onPressed: () {
+                  if (!_isQaPhase) {
+                    // 発表時間中に押した -> 発表を切り上げて質疑応答へ
+                    setState(() {
+                      _timeLeft = 0;
+                      _isQaPhase = true;
+                    });
+                  } else {
+                    // 質疑応答中に押した（または発表時間0で押した） -> 次のプレイヤーへ
+                    _timer?.cancel();
                     if (currentPresenterIndex < widget.players.length - 1) {
                       setState(() {
                         currentPresenterIndex++;
@@ -248,11 +320,19 @@ class _ResultScreenState extends State<ResultScreen> {
                         currentPhase = ScreenPhase.votingStandby;
                       });
                     }
-                  },
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.orange, foregroundColor: Colors.white),
-                  child: const Text(AppTexts.nextPlayerButton), // "次のプレイヤーへ"
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: !_isQaPhase ? Colors.orange : Colors.red, 
+                  foregroundColor: Colors.white
+                ),
+                child: Text(
+                  !_isQaPhase ? "発表終了（質疑応答へ）" : AppTexts.nextPlayerButton,
+                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
               ),
+            ),
+            const SizedBox(height: 20),
           ],
         ),
       ),
@@ -328,6 +408,17 @@ class _ResultScreenState extends State<ResultScreen> {
                         Row(
                           children: [
                             Text("$currentAmount 万円", style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.blue)),
+                            // マイナスボタン
+                            IconButton(
+                              icon: const Icon(Icons.remove_circle_outline),
+                              onPressed: () {
+                                if (currentAmount > 0) {
+                                  setState(() {
+                                    currentAllocation[index] = currentAmount - 1;
+                                  });
+                                }
+                              },
+                            ),
                             Expanded(
                               child: Slider(
                                 value: currentAmount.toDouble(),
@@ -346,6 +437,17 @@ class _ResultScreenState extends State<ResultScreen> {
                                   });
                                 },
                               ),
+                            ),
+                            // プラスボタン
+                            IconButton(
+                              icon: const Icon(Icons.add_circle_outline),
+                              onPressed: () {
+                                if (remainingBudget > 0) {
+                                  setState(() {
+                                    currentAllocation[index] = currentAmount + 1;
+                                  });
+                                }
+                              },
                             ),
                           ],
                         ),
@@ -400,6 +502,9 @@ class _ResultScreenState extends State<ResultScreen> {
     // 獲得金額順にソート (降順)
     results.sort((a, b) => (b['total'] as int).compareTo(a['total'] as int));
 
+    // グラフの最大スケール（全員の持ち金合計）
+    final int maxPossibleTotal = widget.players.length * 100;
+
     return Scaffold(
       appBar: AppBar(title: const Text(AppTexts.resultTitle)), // "🎉 結果発表 🎉"
       body: Column(
@@ -452,26 +557,40 @@ class _ResultScreenState extends State<ResultScreen> {
                         // 積み上げ棒グラフ
                         ClipRRect(
                           borderRadius: BorderRadius.circular(10),
-                          child: SizedBox(
+                          child: Container(
                             height: 30,
+                            color: Colors.grey[200], // 背景色（未獲得分）
                             child: Row(
-                              children: breakdown.entries.map((entry) {
-                                int voterIndex = entry.key;
-                                int amount = entry.value;
-                                if (amount == 0) return const SizedBox.shrink();
-                                
-                                return Expanded(
-                                  flex: amount,
-                                  child: Container(
-                                    color: _getPlayerColor(voterIndex),
-                                    alignment: Alignment.center,
-                                    // 金額が大きい場合は数字を表示してもよい
-                                    child: amount >= 10 
-                                      ? Text("$amount", style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold))
-                                      : null,
-                                  ),
-                                );
-                              }).toList(),
+                              children: [
+                                // 獲得分（積み上げ）
+                                Expanded(
+                                  flex: total,
+                                  child: total > 0 ? Row(
+                                    children: breakdown.entries.map((entry) {
+                                      int voterIndex = entry.key;
+                                      int amount = entry.value;
+                                      if (amount == 0) return const SizedBox.shrink();
+                                      
+                                      return Expanded(
+                                        flex: amount,
+                                        child: Container(
+                                          color: _getPlayerColor(voterIndex),
+                                          alignment: Alignment.center,
+                                          // 金額が大きい場合は数字を表示してもよい
+                                          child: amount >= 10 
+                                            ? Text("$amount", style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold))
+                                            : null,
+                                        ),
+                                      );
+                                    }).toList(),
+                                  ) : const SizedBox.shrink(),
+                                ),
+                                // 未獲得分（空白）
+                                Expanded(
+                                  flex: maxPossibleTotal - total,
+                                  child: const SizedBox.shrink(),
+                                ),
+                              ],
                             ),
                           ),
                         ),

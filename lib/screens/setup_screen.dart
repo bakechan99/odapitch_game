@@ -19,6 +19,7 @@ class SetupScreen extends StatefulWidget {
 class _SetupScreenState extends State<SetupScreen> {
   int playerCount = 3;
   int presentationTime = 30; // デフォルト30秒
+  int qaTime = 30; // 質疑応答時間 デフォルト30秒
   final List<TextEditingController> _controllers = [];
 
   @override
@@ -72,6 +73,14 @@ class _SetupScreenState extends State<SetupScreen> {
     });
   }
 
+  void _changeQaTime(int amount) {
+    setState(() {
+      qaTime += amount;
+      if (qaTime < 0) qaTime = 0; // 最小0秒
+      if (qaTime > 300) qaTime = 300; // 最大5分
+    });
+  }
+
   // --- ゲーム開始 ---
   Future<void> _startGame() async {
     // 名前を保存
@@ -94,7 +103,10 @@ class _SetupScreenState extends State<SetupScreen> {
     if (!mounted) return;
     
     // 設定をまとめて次の画面へ渡す
-    GameSettings settings = GameSettings(presentationTimeSec: presentationTime);
+    GameSettings settings = GameSettings(
+      presentationTimeSec: presentationTime,
+      qaTimeSec: qaTime,
+    );
 
     Navigator.push(
       context,
@@ -132,6 +144,20 @@ class _SetupScreenState extends State<SetupScreen> {
                 Text(AppTexts.secondsUnit(presentationTime), style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
                 const SizedBox(width: 10),
                 IconButton.outlined(onPressed: () => _changeTime(10), icon: const Text("+10秒")),
+              ],
+            ),
+            const SizedBox(height: 20),
+
+            // 質疑応答時間設定
+            _buildSectionTitle("②-2 質疑応答時間"),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                IconButton.outlined(onPressed: () => _changeQaTime(-10), icon: const Text("-10秒")),
+                const SizedBox(width: 10),
+                Text(AppTexts.secondsUnit(qaTime), style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                const SizedBox(width: 10),
+                IconButton.outlined(onPressed: () => _changeQaTime(10), icon: const Text("+10秒")),
               ],
             ),
             const SizedBox(height: 20),
