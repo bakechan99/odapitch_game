@@ -69,7 +69,7 @@ class _SetupScreenState extends State<SetupScreen> {
     setState(() {
       presentationTime += amount;
       if (presentationTime < 10) presentationTime = 10; // 最小10秒
-      if (presentationTime > 300) presentationTime = 300; // 最大5分
+      if (presentationTime > 600) presentationTime = 600; // 最大10分
     });
   }
 
@@ -77,7 +77,7 @@ class _SetupScreenState extends State<SetupScreen> {
     setState(() {
       qaTime += amount;
       if (qaTime < 0) qaTime = 0; // 最小0秒
-      if (qaTime > 300) qaTime = 300; // 最大5分
+      if (qaTime > 600) qaTime = 600; // 最大10分
     });
   }
 
@@ -169,6 +169,7 @@ class _SetupScreenState extends State<SetupScreen> {
             ReorderableListView(
               shrinkWrap: true, // 中身に合わせて高さを決定
               physics: const NeverScrollableScrollPhysics(), // 親のスクロール(SingleChildScrollView)に任せる
+              buildDefaultDragHandles: false, // デフォルトのドラッグハンドルを無効化
               onReorder: (oldIndex, newIndex) {
                 setState(() {
                   if (oldIndex < newIndex) newIndex -= 1;
@@ -180,8 +181,12 @@ class _SetupScreenState extends State<SetupScreen> {
                 for (int i = 0; i < _controllers.length; i++)
                   ListTile(
                     key: ValueKey(_controllers[i]),
-                    leading: const Icon(Icons.drag_handle),
+                    // leading: const Icon(Icons.drag_handle), // 左側のハンドルを削除
                     title: TextField(controller: _controllers[i]),
+                    trailing: ReorderableDragStartListener(
+                      index: i,
+                      child: const Icon(Icons.drag_handle),
+                    ),
                   ),
               ],
             ),
