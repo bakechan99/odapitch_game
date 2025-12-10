@@ -76,7 +76,7 @@ class _SetupScreenState extends State<SetupScreen> {
   void _changeQaTime(int amount) {
     setState(() {
       qaTime += amount;
-      if (qaTime < 0) qaTime = 0; // 最小0秒
+      if (qaTime < 10) qaTime = 10; // 最小10秒に変更
       if (qaTime > 600) qaTime = 600; // 最大10分
     });
   }
@@ -134,31 +134,31 @@ class _SetupScreenState extends State<SetupScreen> {
             ),
             const SizedBox(height: 20),
             
-            _buildSectionTitle(AppTexts.presentationTimeSection),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                IconButton.outlined(onPressed: () => _changeTime(-10), icon: const Text("-10秒")),
-                const SizedBox(width: 10),
-                // "${presentationTime}秒" -> AppTexts.secondsUnit(presentationTime)
-                Text(AppTexts.secondsUnit(presentationTime), style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-                const SizedBox(width: 10),
-                IconButton.outlined(onPressed: () => _changeTime(10), icon: const Text("+10秒")),
-              ],
+            // プレゼン時間設定 (スライダー化)
+            _buildTimeSlider(
+              title: AppTexts.presentationTimeSection,
+              value: presentationTime,
+              onChanged: (val) {
+                setState(() {
+                  presentationTime = val.toInt();
+                });
+              },
+              onDecrement: () => _changeTime(-10),
+              onIncrement: () => _changeTime(10),
             ),
             const SizedBox(height: 20),
 
-            // 質疑応答時間設定
-            _buildSectionTitle("②-2 質疑応答時間"),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                IconButton.outlined(onPressed: () => _changeQaTime(-10), icon: const Text("-10秒")),
-                const SizedBox(width: 10),
-                Text(AppTexts.secondsUnit(qaTime), style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-                const SizedBox(width: 10),
-                IconButton.outlined(onPressed: () => _changeQaTime(10), icon: const Text("+10秒")),
-              ],
+            // 質疑応答時間設定 (スライダー化)
+            _buildTimeSlider(
+              title: "②-2 質疑応答時間",
+              value: qaTime,
+              onChanged: (val) {
+                setState(() {
+                  qaTime = val.toInt();
+                });
+              },
+              onDecrement: () => _changeQaTime(-10),
+              onIncrement: () => _changeQaTime(10),
             ),
             const SizedBox(height: 20),
 
@@ -203,5 +203,54 @@ class _SetupScreenState extends State<SetupScreen> {
 
   Widget _buildSectionTitle(String title) {
     return Align(alignment: Alignment.centerLeft, child: Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blueGrey)));
+  }
+
+  // 共通のスライダーUI構築メソッド
+  Widget _buildTimeSlider({
+    required String title,
+    required int value,
+    required ValueChanged<double> onChanged,
+    required VoidCallback onDecrement,
+    required VoidCallback onIncrement,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionTitle(title),
+        const SizedBox(height: 10),
+        // 現在値の表示
+        Center(
+          child: Text(
+            AppTexts.secondsUnit(value),
+            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          ),
+        ),
+        Row(
+          children: [
+            // マイナスボタン
+            IconButton(
+              icon: const Icon(Icons.remove_circle_outline, size: 32, color: Colors.grey),
+              onPressed: onDecrement,
+            ),
+            // スライダー
+            Expanded(
+              child: Slider(
+                value: value.toDouble(),
+                min: 10,
+                max: 600,
+                divisions: 59, // (600-10)/10 = 59分割 (10秒刻み)
+                label: AppTexts.secondsUnit(value),
+                onChanged: onChanged,
+              ),
+            ),
+            // プラスボタン
+            IconButton(
+              icon: const Icon(Icons.add_circle_outline, size: 32, color: Colors.grey),
+              onPressed: onIncrement,
+            ),
+          ],
+        ),
+      ],
+    );
   }
 }
