@@ -5,6 +5,7 @@ import '../models/placed_card.dart';
 import '../models/game_settings.dart'; // 設定モデル
 import 'result_screen.dart';
 import '../constants/texts.dart'; // 追加
+import '../widgets/custom_confirm_dialog.dart'; // 追加
 
 class GameLoopScreen extends StatefulWidget {
   final List<Player> players;
@@ -51,26 +52,12 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
   Future<void> _showConfirmDialog({required String title, required String content, required VoidCallback onConfirm}) async {
     return showDialog(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-          content: Text(content),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text(AppTexts.cancel), // "キャンセル" -> AppTexts.cancel
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context); // ダイアログを閉じる
-                onConfirm(); // 処理実行
-              },
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.blue, foregroundColor: Colors.white),
-              child: const Text("OK"),
-            ),
-          ],
-        );
-      },
+      builder: (context) => CustomConfirmDialog(
+        title: title,
+        content: content,
+        onConfirm: onConfirm,
+        cancelText: AppTexts.cancel,
+      ),
     );
   }
 

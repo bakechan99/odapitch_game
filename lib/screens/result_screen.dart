@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../models/game_settings.dart';
 import '../models/player.dart';
 import '../constants/texts.dart';
+import '../widgets/custom_confirm_dialog.dart'; // 追加
 
 enum ScreenPhase { presentationStandby, presentation, votingStandby, voting, result }
 
@@ -61,22 +62,13 @@ class _ResultScreenState extends State<ResultScreen> {
   Future<void> _showConfirmDialog({required String title, String? content, required VoidCallback onConfirm}) async {
     return showDialog(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-          content: content != null ? Text(content) : null,
-          actions: [
-            TextButton(onPressed: () => Navigator.pop(context), child: const Text(AppTexts.cancel)), // "キャンセル" -> AppTexts.cancel
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-                onConfirm();
-              },
-              child: const Text("OK"),
-            ),
-          ],
-        );
-      },
+      builder: (context) => CustomConfirmDialog(
+        title: title,
+        content: content ?? "",
+        onConfirm: onConfirm,
+        cancelText: AppTexts.cancel, // "キャンセル" -> AppTexts.cancel
+        confirmText: "OK", // 確認ボタンのテキスト
+      ),
     );
   }
 

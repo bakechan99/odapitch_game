@@ -2,7 +2,7 @@ import 'package:audioplayers/audioplayers.dart'; // 音楽用
 import 'package:flutter/material.dart';
 import 'setup_screen.dart'; // 「新規ゲーム」を押した後の行き先
 import '../constants/texts.dart'; // 追加: 定数テキストのインポート
-import '../widget/title_button.dart'; // 追加: カスタムボタンのインポート
+import '../widgets/title_button.dart'; // 追加: カスタムボタンのインポート
   
 
 class TitleScreen extends StatefulWidget {
