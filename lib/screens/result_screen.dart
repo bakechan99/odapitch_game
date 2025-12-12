@@ -32,7 +32,10 @@ class _ResultScreenState extends State<ResultScreen> {
   Timer? _timer;
   int _timeLeft = 30;
   int _qaTimeLeft = 30; // 質疑応答残り時間
-  bool _isQaPhase = false; // 現在質疑応答中かどうか
+  
+  // 状態管理フラグ
+  bool _isPresentationMode = true; // true: 発表, false: 質疑応答
+  bool _isTimerRunning = false;    // タイマーが動いているか
 
   final AudioPlayer _audioPlayer = AudioPlayer();
 
@@ -72,39 +75,54 @@ class _ResultScreenState extends State<ResultScreen> {
     );
   }
 
+  void _onHomePressed() {
+    _showConfirmDialog(
+      title: "確認",
+      content: "タイトル画面に戻りますか？\n現在のデータは失われます。",
+      onConfirm: () => Navigator.of(context).popUntil((route) => route.isFirst),
+    );
+  }
+
   // --- タイマー処理 ---
-  void _startTimer() {
-    setState(() {
-      _timeLeft = widget.settings.presentationTimeSec;
-      _qaTimeLeft = widget.settings.qaTimeSec;
-      _isQaPhase = false;
-    });
-    _timer?.cancel();
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (!mounted) return;
-      
+  // タイマーの再生/停止を切り替える
+  void _toggleTimer() {
+    if (_isTimerRunning) {
+      // 停止処理
+      _timer?.cancel();
       setState(() {
-        if (!_isQaPhase) {
-          // 発表時間中
-          if (_timeLeft > 0) {
-            _timeLeft--;
-          } else {
-            // 発表終了 -> 質疑応答へ自動移行
-            _isQaPhase = true;
-            _playSound(); // 時間切れ音（または切り替わり音）
-          }
-        } else {
-          // 質疑応答中
-          if (_qaTimeLeft > 0) {
-            _qaTimeLeft--;
-          } else {
-            // 完全終了
-            _timer?.cancel();
-            _playSound();
-          }
-        }
+        _isTimerRunning = false;
       });
-    });
+    } else {
+      // 再生処理
+      setState(() {
+        _isTimerRunning = true;
+      });
+      _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+        if (!mounted) return;
+        
+        setState(() {
+          if (_isPresentationMode) {
+            // 発表モード
+            if (_timeLeft > 0) {
+              _timeLeft--;
+            } else {
+              _timer?.cancel();
+              _isTimerRunning = false;
+              _playSound(); // 時間切れ
+            }
+          } else {
+            // 質疑応答モード
+            if (_qaTimeLeft > 0) {
+              _qaTimeLeft--;
+            } else {
+              _timer?.cancel();
+              _isTimerRunning = false;
+              _playSound(); // 時間切れ
+            }
+          }
+        });
+      });
+    }
   }
 
   Future<void> _playSound() async {
@@ -121,11 +139,48 @@ class _ResultScreenState extends State<ResultScreen> {
       title: AppTexts.presentationStartTitle, // "プレゼンを開始します"
       content: AppTexts.presentationTimeMsg(widget.settings.presentationTimeSec),
       onConfirm: () {
-        setState(() => currentPhase = ScreenPhase.presentation);
-        _startTimer();
+        setState(() {
+          currentPhase = ScreenPhase.presentation;
+          // 時間リセット
+          _timeLeft = widget.settings.presentationTimeSec;
+          _qaTimeLeft = widget.settings.qaTimeSec;
+          // モード初期化（発表モード、タイマー停止）
+          _isPresentationMode = true;
+          _isTimerRunning = false;
+        });
       }
     );
   }
+
+  // 次のステップへ進むボタンの処理
+  void _proceedToNextStep() {
+    // タイマーを強制停止
+    _timer?.cancel();
+    setState(() {
+      _isTimerRunning = false;
+    });
+
+    if (_isPresentationMode) {
+      // 発表 -> 質疑応答へ
+      setState(() {
+        _isPresentationMode = false;
+      });
+    } else {
+      // 質疑応答 -> 次のプレイヤーへ
+      if (currentPresenterIndex < widget.players.length - 1) {
+        setState(() {
+          currentPresenterIndex++;
+          currentPhase = ScreenPhase.presentationStandby;
+        });
+      } else {
+        setState(() {
+          currentPhase = ScreenPhase.votingStandby;
+        });
+      }
+    }
+  }
+
+  // --- 投票ロジック (ここに追加) ---
 
   void _startVoting() {
     // 現在の投票者の配分用マップを初期化（全員0円スタート）
@@ -141,7 +196,7 @@ class _ResultScreenState extends State<ResultScreen> {
   void _submitVote() {
     // 現在の配分を確定させる
     _showConfirmDialog(
-      title: AppTexts.voteConfirmTitle,
+      title: AppTexts.voteConfirmTitle, // "投票の確認"
       content: "この配分で投票しますか？",
       onConfirm: () {
         // マトリクスに保存
@@ -164,9 +219,13 @@ class _ResultScreenState extends State<ResultScreen> {
   void _calcResult() {
     setState(() {
       currentPhase = ScreenPhase.result;
-      _audioPlayer.play(AssetSource('audio/result.mp3'));
+      // 結果発表の効果音再生
+      try {
+        _audioPlayer.play(AssetSource('audio/result.mp3'));
+      } catch (e) {
+        debugPrint("音声ファイルエラー: $e");
+      }
     });
-    // 自動遷移は削除し、ボタンで戻るようにする（結果をじっくり見るため）
   }
 
   // --- UI ---
@@ -228,43 +287,83 @@ class _ResultScreenState extends State<ResultScreen> {
   Widget _buildPresentationScreen() {
     final player = widget.players[currentPresenterIndex];
 
+    // スタイル定義
+    final activeTextStyle = const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.black87);
+    final inactiveTextStyle = const TextStyle(fontSize: 24, fontWeight: FontWeight.normal, color: Colors.grey);
+    final activeLabelStyle = const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87);
+    final inactiveLabelStyle = const TextStyle(fontSize: 14, fontWeight: FontWeight.normal, color: Colors.grey);
+
     return Scaffold(
-      appBar: AppBar(title: Text(AppTexts.presentationTitle(player.name))),
+      appBar: AppBar(
+        title: Text(AppTexts.presentationTitle(player.name)),
+        automaticallyImplyLeading: false,
+        leading: IconButton(
+          icon: const Icon(Icons.home),
+          onPressed: _onHomePressed,
+        ),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // 1. タイマー表示 (左右並び)
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Column(
-                  children: [
-                    const Text("発表残り時間", style: TextStyle(fontSize: 16)),
-                    Text(
-                      AppTexts.secondsUnit(_timeLeft),
-                      style: TextStyle(
-                        fontSize: 32, 
-                        fontWeight: FontWeight.bold,
-                        color: !_isQaPhase ? Colors.red : Colors.grey,
+            // 1. タイマー表示エリア
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              decoration: BoxDecoration(
+                color: Colors.grey[100],
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  // 左: 発表時間
+                  Column(
+                    children: [
+                      Text("発表時間", style: _isPresentationMode ? activeLabelStyle : inactiveLabelStyle),
+                      Text(
+                        AppTexts.secondsUnit(_timeLeft),
+                        style: _isPresentationMode ? activeTextStyle : inactiveTextStyle,
                       ),
-                    ),
-                  ],
-                ),
-                Column(
-                  children: [
-                    const Text("質問残り時間", style: TextStyle(fontSize: 16)),
-                    Text(
-                      AppTexts.secondsUnit(_qaTimeLeft),
-                      style: TextStyle(
-                        fontSize: 32, 
-                        fontWeight: FontWeight.bold,
-                        color: _isQaPhase ? Colors.red : Colors.grey,
+                      const SizedBox(height: 5),
+                      // 再生/一時停止ボタン（発表モード時のみ有効）
+                      if (_isPresentationMode)
+                        IconButton(
+                          icon: Icon(_isTimerRunning ? Icons.pause_circle_filled : Icons.play_circle_fill),
+                          iconSize: 56,
+                          color: Colors.orange,
+                          onPressed: _toggleTimer,
+                        )
+                      else
+                        const SizedBox(height: 56 + 16), // レイアウト崩れ防止のダミー
+                    ],
+                  ),
+                  
+                  // 区切り線
+                  Container(width: 1, height: 100, color: Colors.grey[300]),
+
+                  // 右: 質疑応答時間
+                  Column(
+                    children: [
+                      Text("質疑応答", style: !_isPresentationMode ? activeLabelStyle : inactiveLabelStyle),
+                      Text(
+                        AppTexts.secondsUnit(_qaTimeLeft),
+                        style: !_isPresentationMode ? activeTextStyle : inactiveTextStyle,
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                      const SizedBox(height: 5),
+                      // 再生/一時停止ボタン（質疑応答モード時のみ有効）
+                      if (!_isPresentationMode)
+                        IconButton(
+                          icon: Icon(_isTimerRunning ? Icons.pause_circle_filled : Icons.play_circle_fill),
+                          iconSize: 56,
+                          color: Colors.blue,
+                          onPressed: _toggleTimer,
+                        )
+                      else
+                        const SizedBox(height: 56 + 16),
+                    ],
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: 40),
             
@@ -287,39 +386,20 @@ class _ResultScreenState extends State<ResultScreen> {
               ),
             ),
             
-            // 4. 終了ボタン
+            // 4. 進行ボタン
             SizedBox(
               width: double.infinity,
               height: 60,
               child: ElevatedButton(
-                onPressed: () {
-                  if (!_isQaPhase) {
-                    // 発表時間中に押した -> 発表を切り上げて質疑応答へ
-                    setState(() {
-                      _timeLeft = 0;
-                      _isQaPhase = true;
-                    });
-                  } else {
-                    // 質疑応答中に押した（または発表時間0で押した） -> 次のプレイヤーへ
-                    _timer?.cancel();
-                    if (currentPresenterIndex < widget.players.length - 1) {
-                      setState(() {
-                        currentPresenterIndex++;
-                        currentPhase = ScreenPhase.presentationStandby;
-                      });
-                    } else {
-                      setState(() {
-                        currentPhase = ScreenPhase.votingStandby;
-                      });
-                    }
-                  }
-                },
+                onPressed: _proceedToNextStep,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: !_isQaPhase ? Colors.orange : Colors.red, 
-                  foregroundColor: Colors.white
+                  backgroundColor: _isPresentationMode ? Colors.orange : Colors.blue, 
+                  foregroundColor: Colors.white,
+                  elevation: 4,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                 ),
                 child: Text(
-                  !_isQaPhase ? "発表終了（質疑応答へ）" : AppTexts.nextPlayerButton,
+                  _isPresentationMode ? "質疑応答へ進む" : "終了して次の人へ",
                   style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
               ),
@@ -350,7 +430,14 @@ class _ResultScreenState extends State<ResultScreen> {
     bool isComplete = usedBudget == 100;
 
     return Scaffold(
-      appBar: AppBar(title: Text(AppTexts.votingTitle(voter.name))),
+      appBar: AppBar(
+        title: Text(AppTexts.votingTitle(voter.name)),
+        automaticallyImplyLeading: false,
+        leading: IconButton(
+          icon: const Icon(Icons.home),
+          onPressed: _onHomePressed,
+        ),
+      ),
       body: Column(
         children: [
           // ヘッダー：残り予算表示
@@ -498,7 +585,14 @@ class _ResultScreenState extends State<ResultScreen> {
     final int maxPossibleTotal = widget.players.length * 100;
 
     return Scaffold(
-      appBar: AppBar(title: const Text(AppTexts.resultTitle)), // "🎉 結果発表 🎉"
+      appBar: AppBar(
+        title: const Text(AppTexts.resultTitle),
+        automaticallyImplyLeading: false,
+        leading: IconButton(
+          icon: const Icon(Icons.home),
+          onPressed: _onHomePressed,
+        ),
+      ),
       body: Column(
         children: [
           const Padding(

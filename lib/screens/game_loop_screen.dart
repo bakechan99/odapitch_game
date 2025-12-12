@@ -119,7 +119,20 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
   Widget _buildGameScreen(Player player) {
     return Scaffold(
       // AppTexts.turnTitle(player.name) を使用
-      appBar: AppBar(title: Text(AppTexts.turnTitle(player.name))),
+      appBar: AppBar(
+        title: Text(AppTexts.turnTitle(player.name)),
+        automaticallyImplyLeading: false, // 自動の戻るボタンを削除
+        leading: IconButton(
+          icon: const Icon(Icons.home),
+          onPressed: () {
+            _showConfirmDialog(
+              title: "確認",
+              content: "タイトル画面に戻りますか？\n現在のデータは失われます。",
+              onConfirm: () => Navigator.of(context).popUntil((route) => route.isFirst),
+            );
+          },
+        ),
+      ),
       body: Column(
         children: [
           // --- エリアA: 作成されたタイトル（ドラッグ並び替えエリア） ---

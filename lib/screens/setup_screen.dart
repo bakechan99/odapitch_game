@@ -8,6 +8,7 @@ import '../models/player.dart';
 import '../models/game_settings.dart'; // 新規作成した設定モデル
 import 'game_loop_screen.dart';
 import '../constants/texts.dart'; // 追加
+import '../widgets/custom_confirm_dialog.dart'; // 追加
 
 class SetupScreen extends StatefulWidget {
   const SetupScreen({super.key});
@@ -114,10 +115,32 @@ class _SetupScreenState extends State<SetupScreen> {
     );
   }
 
+  // タイトルへ戻る確認ダイアログ
+  void _showBackToTitleDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => CustomConfirmDialog(
+        title: "確認",
+        content: "タイトル画面に戻りますか？\n現在のデータは失われます。",
+        onConfirm: () {
+          Navigator.of(context).popUntil((route) => route.isFirst);
+        },
+        cancelText: AppTexts.cancel,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text(AppTexts.setupTitle)),
+      appBar: AppBar(
+        title: const Text(AppTexts.setupTitle),
+        automaticallyImplyLeading: false, // 自動の戻るボタンを削除
+        leading: IconButton(
+          icon: const Icon(Icons.home),
+          onPressed: _showBackToTitleDialog,
+        ),
+      ),
       body: SingleChildScrollView( // 画面からはみ出ないようにスクロール可能に
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -134,9 +157,13 @@ class _SetupScreenState extends State<SetupScreen> {
             ),
             const SizedBox(height: 20),
             
-            // プレゼン時間設定 (スライダー化)
+            // 時間設定セクション（統合）
+            _buildSectionTitle("② 時間設定"),
+            const SizedBox(height: 10),
+            
+            // プレゼン時間設定
             _buildTimeSlider(
-              title: AppTexts.presentationTimeSection,
+              label: "プレゼン時間",
               value: presentationTime,
               onChanged: (val) {
                 setState(() {
@@ -146,11 +173,11 @@ class _SetupScreenState extends State<SetupScreen> {
               onDecrement: () => _changeTime(-10),
               onIncrement: () => _changeTime(10),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 10),
 
-            // 質疑応答時間設定 (スライダー化)
+            // 質疑応答時間設定
             _buildTimeSlider(
-              title: "②-2 質疑応答時間",
+              label: "質疑応答時間",
               value: qaTime,
               onChanged: (val) {
                 setState(() {
@@ -179,13 +206,21 @@ class _SetupScreenState extends State<SetupScreen> {
               },
               children: [
                 for (int i = 0; i < _controllers.length; i++)
-                  ListTile(
+                  Card(
                     key: ValueKey(_controllers[i]),
-                    // leading: const Icon(Icons.drag_handle), // 左側のハンドルを削除
-                    title: TextField(controller: _controllers[i]),
-                    trailing: ReorderableDragStartListener(
-                      index: i,
-                      child: const Icon(Icons.drag_handle),
+                    margin: const EdgeInsets.symmetric(vertical: 4),
+                    elevation: 2,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    color: Colors.white,
+                    child: ListTile(
+                      title: TextField(
+                        controller: _controllers[i],
+                        decoration: const InputDecoration(border: InputBorder.none),
+                      ),
+                      trailing: ReorderableDragStartListener(
+                        index: i,
+                        child: const Icon(Icons.drag_handle, color: Colors.grey),
+                      ),
                     ),
                   ),
               ],
@@ -207,7 +242,7 @@ class _SetupScreenState extends State<SetupScreen> {
 
   // 共通のスライダーUI構築メソッド
   Widget _buildTimeSlider({
-    required String title,
+    required String label,
     required int value,
     required ValueChanged<double> onChanged,
     required VoidCallback onDecrement,
@@ -216,8 +251,12 @@ class _SetupScreenState extends State<SetupScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionTitle(title),
-        const SizedBox(height: 10),
+        // ラベル表示
+        Padding(
+          padding: const EdgeInsets.only(left: 10),
+          child: Text(label, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87)),
+        ),
+        const SizedBox(height: 5),
         // 現在値の表示
         Center(
           child: Text(
