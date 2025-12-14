@@ -32,8 +32,11 @@ class AppTexts {
   static const String researchAreaHeader = "【研究タイトル】 ドラッグで並び替え  タップで文字選択";
   static const String decideButton = "決定";
   
+  // Presentation Screen
+
+
   // Result Screen
-  static const String resultTitle = "🎉 結果発表 🎉";
+  static const String resultTitle = "結果発表";
   static const String backToTitle = "タイトルへ戻る";
   static const String nextPresenter = "発表の番です";
   static const String nextVoter = "投票の番です";
