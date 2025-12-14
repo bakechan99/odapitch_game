@@ -24,7 +24,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
     // ポップアップで確認
     Player player = widget.players[currentPlayerIndex];
     _showConfirmDialog(
-      title: AppTexts.confirmTitle, // "確認" -> AppTexts.confirmTitle
+      title: AppTexts.confirmTitle,
       content: "以下のタイトルで決定しますか？\n\n「${player.researchTitle}」", // 研究タイトルを表示
       onConfirm: () {
         if (currentPlayerIndex < widget.players.length - 1) {
@@ -66,7 +66,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          // 背景（画像がない場合は色のみ）
+          // 背景
           Container(
             decoration: const BoxDecoration(
               image: DecorationImage(image: AssetImage('assets/images/title_bg_2.png'), fit: BoxFit.cover),
@@ -76,20 +76,17 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // AppTexts.nextPlayerMessage(player.name) を使用
                 Text(AppTexts.nextPlayerMessage(player.name), 
                   style: const TextStyle(fontSize: 24, color: Colors.white, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 30),
                 const Icon(Icons.phone_android, size: 100, color: Colors.white),
                 const SizedBox(height: 30),
-                // "スマホを渡してください" -> AppTexts.passSmartphoneMessage
                 Text(AppTexts.passSmartphoneMessage, style: const TextStyle(color: Colors.white70)),
                 const SizedBox(height: 50),
                 ElevatedButton(
                   onPressed: () {
                     _showConfirmDialog(
                       title: AppTexts.confirmTitle,
-                      // AppTexts.areYouReady(player.name) を使用
                       content: AppTexts.areYouReady(player.name), 
                       onConfirm: () => setState(() => isPassing = false)
                     );
@@ -99,7 +96,6 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                     backgroundColor: Colors.orange,
                     foregroundColor: Colors.white,
                   ),
-                  // "準備OK" -> AppTexts.readyButton
                   child: const Text(AppTexts.readyButton, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                 )
               ],
@@ -131,129 +127,166 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
         children: [
           // --- 上部エリア: 作成エリア (フィールド) ---
           Expanded(
-            child: Container(
-              width: double.infinity,
-              color: Colors.grey[100], // 背景色
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // ヘッダーテキスト
-                    const Padding(
-                      padding: EdgeInsets.only(bottom: 10),
-                      child: Text(
-                        AppTexts.researchAreaHeader,
-                        style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    // カード配置エリア (Wrap)
-                    _buildFieldArea(player),
-                    
-                    // 領域が空の時のメッセージ
-                    if (player.selectedCards.isEmpty)
-                      Container(
-                        height: 100,
-                        alignment: Alignment.center,
+            flex: 1, // 1:1 の比率で分割
+            child: DragTarget<CardData>(
+              // 背景全体へのドロップ判定（末尾追加）
+              onWillAccept: (data) => data != null,
+              onAccept: (card) {
+                // 背景にドロップされた場合はリストの末尾に追加
+                _onDropToField(player, card, player.selectedCards.length);
+              },
+              builder: (context, candidates, rejected) {
+                return Container(
+                  width: double.infinity,
+                  color: Colors.grey[100], // 背景色
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // ヘッダーテキスト
+                      const Padding(
+                        padding: EdgeInsets.all(10),
                         child: Text(
-                          AppTexts.handEmpty,
-                          style: TextStyle(color: Colors.grey[400], fontSize: 16),
+                          AppTexts.researchAreaHeader,
+                          style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
                         ),
                       ),
-                  ],
-                ),
-              ),
+                      // 横スクロールエリア
+                      Expanded(
+                        child: Scrollbar(
+                          thumbVisibility: true, // スクロールバーを常に表示
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.center, // 縦方向中央揃え
+                              children: [
+                                // カード配置エリア (Rowの中身)
+                                ..._buildFieldItems(player),
+                                
+                                // 領域が空の時のメッセージ（カードがない場合のみ表示）
+                                if (player.selectedCards.isEmpty)
+                                  Container(
+                                    width: 200,
+                                    height: 140,
+                                    alignment: Alignment.center,
+                                    child: Text(
+                                      AppTexts.handEmpty,
+                                      style: TextStyle(color: Colors.grey[400], fontSize: 16),
+                                    ),
+                                  ),
+                                  
+                                // 末尾に余白を持たせてドロップしやすくする
+                                const SizedBox(width: 100),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
             ),
           ),
 
           // --- 下部エリア: 手札エリア ---
-          DragTarget<CardData>(
-            onWillAccept: (data) => data != null,
-            onAccept: (card) {
-              _returnToHand(player, card);
-            },
-            builder: (context, candidates, rejected) {
-              return Container(
-                height: 160, // 固定高さ
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 4,
-                      offset: const Offset(0, -2),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    // 手札エリアのヘッダー的な装飾やボタン
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text("手札", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.blue,
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          Expanded(
+            flex: 1, // 1:1 の比率で分割
+            child: DragTarget<CardData>(
+              onWillAccept: (data) => data != null,
+              onAccept: (card) {
+                _returnToHand(player, card);
+              },
+              builder: (context, candidates, rejected) {
+                return Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.15), // 影を少し濃く
+                        blurRadius: 8,
+                        offset: const Offset(0, -4),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    children: [
+                      // 手札エリアのヘッダー
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text("手札", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey, fontSize: 16)),
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.blue,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                              ),
+                              onPressed: player.selectedCards.isEmpty ? null : _nextPlayer,
+                              child: const Text(AppTexts.decideButton, style: TextStyle(fontSize: 16)),
                             ),
-                            onPressed: player.selectedCards.isEmpty ? null : _nextPlayer,
-                            child: const Text(AppTexts.decideButton, style: TextStyle(fontSize: 16)),
+                          ],
+                        ),
+                      ),
+                      const Divider(height: 1, thickness: 1), // 区切り線
+                      
+                      // 横スクロールリスト
+                      Expanded(
+                        child: Scrollbar(
+                          thumbVisibility: true,
+                          child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            padding: const EdgeInsets.all(16),
+                            itemCount: player.hand.length,
+                            itemBuilder: (context, index) {
+                              final card = player.hand[index];
+                              return Padding(
+                                padding: const EdgeInsets.only(right: 12),
+                                child: Center( // 縦方向中央揃え
+                                  child: Draggable<CardData>(
+                                    data: card,
+                                    feedback: Material(
+                                      color: Colors.transparent,
+                                      child: Opacity(opacity: 0.8, child: _buildHandCardContent(card)),
+                                    ),
+                                    childWhenDragging: Opacity(
+                                      opacity: 0.3,
+                                      child: _buildHandCardContent(card),
+                                    ),
+                                    child: _buildHandCardContent(card),
+                                  ),
+                                ),
+                              );
+                            },
                           ),
-                        ],
+                        ),
                       ),
-                    ),
-                    // 横スクロールリスト
-                    Expanded(
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                        itemCount: player.hand.length,
-                        itemBuilder: (context, index) {
-                          final card = player.hand[index];
-                          return Padding(
-                            padding: const EdgeInsets.only(right: 8, bottom: 10),
-                            child: Draggable<CardData>(
-                              data: card,
-                              feedback: Material(
-                                color: Colors.transparent,
-                                child: Opacity(opacity: 0.8, child: _buildHandCardContent(card)),
-                              ),
-                              childWhenDragging: Opacity(
-                                opacity: 0.3,
-                                child: _buildHandCardContent(card),
-                              ),
-                              child: _buildHandCardContent(card),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
+                    ],
+                  ),
+                );
+              },
+            ),
           ),
         ],
       ),
     );
   }
 
-  // --- フィールドエリアの構築 (Wrap + DragTarget) ---
-  Widget _buildFieldArea(Player player) {
-    List<Widget> wrapChildren = [];
+  // --- フィールドアイテムの構築 (Row Children) ---
+  List<Widget> _buildFieldItems(Player player) {
+    List<Widget> items = [];
     
     // カードの間に挿入ポイント(Gap)を作る
     for (int i = 0; i < player.selectedCards.length; i++) {
       // 1. 挿入ポイント (Gap)
-      wrapChildren.add(_buildGapTarget(player, i));
+      items.add(_buildGapTarget(player, i));
       
       // 2. 配置済みカード
       final placedCard = player.selectedCards[i];
-      wrapChildren.add(
+      items.add(
         Draggable<CardData>(
           data: placedCard.card,
           feedback: Material(
@@ -279,14 +312,9 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
       );
     }
     // 最後の挿入ポイント
-    wrapChildren.add(_buildGapTarget(player, player.selectedCards.length));
+    items.add(_buildGapTarget(player, player.selectedCards.length));
 
-    return Wrap(
-      spacing: 0, // Gapで調整するため0
-      runSpacing: 8,
-      crossAxisAlignment: WrapCrossAlignment.center,
-      children: wrapChildren,
-    );
+    return items;
   }
 
   // --- 隙間 (挿入ポイント) のターゲット ---
@@ -297,23 +325,30 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
         _onDropToField(player, card, insertIndex);
       },
       builder: (context, candidates, rejected) {
-        // ドラッグ中のアイテムが上に来たらスペースを広げる
+        // ドラッグ中のアイテムが上に来たらカーソルを表示
         if (candidates.isNotEmpty) {
           return Container(
-            width: 110, // カードと同じくらいの幅
+            // 判定エリアが小さくなるとちらつき（Enter/Leaveのループ）が発生するため、
+            // 透明なコンテナで幅を確保しつつ、中央にカーソル線を描画します。
+            width: 40, 
             height: 140,
-            margin: const EdgeInsets.symmetric(horizontal: 4),
-            decoration: BoxDecoration(
-              color: Colors.grey[300],
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.blue, width: 2, style: BorderStyle.solid),
+            color: Colors.transparent,
+            child: Center(
+              child: Container(
+                width: 4, // 細い線
+                height: 100, // カードより少し小さめ
+                margin: const EdgeInsets.symmetric(horizontal: 4), // 左右のマージン
+                decoration: BoxDecoration(
+                  color: Colors.blue, // カーソル色
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
             ),
-            child: const Center(child: Icon(Icons.add, color: Colors.blue)),
           );
         }
         // 通常時は目に見えないが判定はある領域
         return Container(
-          width: 20, // ヒット判定幅
+          width: 30, // ヒット判定幅
           height: 140,
           color: Colors.transparent,
         );
