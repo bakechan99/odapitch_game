@@ -69,7 +69,7 @@ class CustomConfirmDialog extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
-                        side: BorderSide(color: const Color.fromARGB(255, 105, 105, 105)!),
+                        side: BorderSide(color: const Color.fromARGB(255, 105, 105, 105)),
                       ),
                     ),
                     child: Text(
