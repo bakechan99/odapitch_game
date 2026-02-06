@@ -21,3 +21,8 @@ class KakenhiGameApp extends StatelessWidget {
     );
   }
 }
+
+// 互換性のためのエイリアスクラス: テストなどで `MyApp` を参照している箇所に対応
+class MyApp extends KakenhiGameApp {
+  const MyApp({super.key});
+}

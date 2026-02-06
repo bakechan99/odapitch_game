@@ -63,7 +63,7 @@ flutter:
   assets:
     - assets/cards.json
     - assets/images/
-    - assets/audio/
+
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 
