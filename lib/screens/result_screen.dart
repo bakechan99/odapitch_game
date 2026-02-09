@@ -5,6 +5,9 @@ import '../models/game_settings.dart';
 import '../models/player.dart';
 import '../constants/texts.dart';
 import '../widgets/custom_confirm_dialog.dart'; // 追加
+import 'presentation_screen.dart';
+import 'voting_screen.dart';
+import 'result_view.dart';
 
 enum ScreenPhase { presentationStandby, presentation, votingStandby, voting, result }
 
@@ -239,7 +242,17 @@ class _ResultScreenState extends State<ResultScreen> {
           onReady: _startPresentation,
         );
       case ScreenPhase.presentation:
-        return _buildPresentationScreen();
+        return PresentationScreen(
+          player: widget.players[currentPresenterIndex],
+          isPresentationMode: _isPresentationMode,
+          isTimerRunning: _isTimerRunning,
+          timeLeft: _timeLeft,
+          qaTimeLeft: _qaTimeLeft,
+          settings: widget.settings,
+          onHomePressed: _onHomePressed,
+          toggleTimer: _toggleTimer,
+          proceedToNextStep: _proceedToNextStep,
+        );
       case ScreenPhase.votingStandby:
         return _buildStandbyScreen(
           player: widget.players[currentVoterIndex],
@@ -247,9 +260,37 @@ class _ResultScreenState extends State<ResultScreen> {
           onReady: _startVoting,
         );
       case ScreenPhase.voting:
-        return _buildVotingScreen();
+        return VotingScreen(
+          players: widget.players,
+          currentVoterIndex: currentVoterIndex,
+          currentAllocation: currentAllocation,
+          onHomePressed: _onHomePressed,
+          onAllocationChanged: (index, newVal) {
+            setState(() {
+              currentAllocation[index] = newVal;
+            });
+          },
+          onIncrement: (index) {
+            setState(() {
+              int cur = currentAllocation[index] ?? 0;
+              if ((currentAllocation.values.fold(0, (s, v) => s + v)) < 100) currentAllocation[index] = cur + 1;
+            });
+          },
+          onDecrement: (index) {
+            setState(() {
+              int cur = currentAllocation[index] ?? 0;
+              if (cur > 0) currentAllocation[index] = cur - 1;
+            });
+          },
+          submitVote: _submitVote,
+        );
       case ScreenPhase.result:
-        return _buildResultScreen();
+        return ResultView(
+          players: widget.players,
+          voteMatrix: voteMatrix,
+          getPlayerColor: _getPlayerColor,
+          onHomePressed: _onHomePressed,
+        );
     }
   }
 
