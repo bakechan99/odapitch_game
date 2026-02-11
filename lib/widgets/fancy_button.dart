@@ -1,5 +1,7 @@
 // lib/widgets/fancy_button.dart
 import 'package:flutter/material.dart';
+import '../constants/app_colors.dart';
+import '../constants/app_text_styles.dart';
 
 class FancyButton extends StatelessWidget {
   final String text;
@@ -11,7 +13,7 @@ class FancyButton extends StatelessWidget {
     super.key,
     required this.text,
     required this.onPressed,
-    this.color = Colors.blue, // デフォルト色
+    this.color = AppColors.fancyButtonDefault, // デフォルト色
     this.icon,
   });
 
@@ -19,7 +21,7 @@ class FancyButton extends StatelessWidget {
   Widget build(BuildContext context) {
     // ボタンが無効(null)のときはグレーにする
     final isEnabled = onPressed != null;
-    final displayColor = isEnabled ? color : Colors.grey;
+    final displayColor = isEnabled ? color : AppColors.fancyButtonDisabled;
 
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 10),
@@ -33,7 +35,7 @@ class FancyButton extends StatelessWidget {
                 begin: Alignment.bottomLeft,
                 end: Alignment.topRight,
               )
-            : LinearGradient(colors: [Colors.grey, Colors.grey.shade400]),
+            : LinearGradient(colors: [AppColors.fancyButtonDisabled, AppColors.fancyButtonDisabledLight]),
         borderRadius: BorderRadius.circular(30), // 丸い角
         boxShadow: isEnabled
             ? [
@@ -46,7 +48,7 @@ class FancyButton extends StatelessWidget {
             : [],
       ),
       child: Material(
-        color: Colors.transparent,
+        color: AppColors.transparent,
         child: InkWell(
           onTap: onPressed,
           borderRadius: BorderRadius.circular(30),
@@ -55,17 +57,12 @@ class FancyButton extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 if (icon != null) ...[
-                  Icon(icon, color: Colors.white, size: 28),
+                  Icon(icon, color: AppColors.textOnDark, size: 28),
                   const SizedBox(width: 10),
                 ],
                 Text(
                   text,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 1.2, // 文字間隔を広げてかっこよく
-                  ),
+                  style: AppTextStyles.fancyButtonLabel,
                 ),
               ],
             ),

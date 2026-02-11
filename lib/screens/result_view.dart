@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../models/player.dart';
 import '../constants/texts.dart';
+import '../constants/app_colors.dart';
+import '../constants/app_text_styles.dart';
 
 class ResultView extends StatelessWidget {
   final List<Player> players;
@@ -36,7 +38,7 @@ class ResultView extends StatelessWidget {
       ),
       body: Column(
         children: [
-          const Padding(padding: EdgeInsets.all(20.0), child: Text(AppTexts.resultHeader, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold))),
+          const Padding(padding: EdgeInsets.all(20.0), child: Text(AppTexts.resultHeader, style: AppTextStyles.headingPrimaryLarge)),
           Expanded(
             child: ListView.builder(
               itemCount: results.length,
@@ -57,21 +59,21 @@ class ResultView extends StatelessWidget {
                       children: [
                         Row(
                           children: [
-                            if (index == 0) const Text("🥇 ", style: TextStyle(fontSize: 24)),
-                            if (index == 1) const Text("🥈 ", style: TextStyle(fontSize: 24)),
-                            if (index == 2) const Text("🥉 ", style: TextStyle(fontSize: 24)),
-                            Text("${index + 1}位", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                            if (index == 0) const Text("🥇 ", style: AppTextStyles.rankEmoji),
+                            if (index == 1) const Text("🥈 ", style: AppTextStyles.rankEmoji),
+                            if (index == 2) const Text("🥉 ", style: AppTextStyles.rankEmoji),
+                            Text("${index + 1}位", style: AppTextStyles.headingPrimaryMedium),
                             const SizedBox(width: 10),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(player.name, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                                  Text(player.researchTitle, style: const TextStyle(fontSize: 12, color: Colors.grey), maxLines: 1, overflow: TextOverflow.ellipsis),
+                                  Text(player.name, style: AppTextStyles.playerName),
+                                  Text(player.researchTitle, style: AppTextStyles.captionMuted, maxLines: 1, overflow: TextOverflow.ellipsis),
                                 ],
                               ),
                             ),
-                            Text("$total 万円", style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.blueAccent)),
+                            Text("$total 万円", style: AppTextStyles.amountTotal),
                           ],
                         ),
                         const SizedBox(height: 15),
@@ -79,7 +81,7 @@ class ResultView extends StatelessWidget {
                           borderRadius: BorderRadius.circular(10),
                           child: Container(
                             height: 30,
-                            color: Colors.grey[200],
+                            color: AppColors.surfaceSubtle,
                             child: Row(
                               children: [
                                 Expanded(
@@ -95,7 +97,7 @@ class ResultView extends StatelessWidget {
                                               child: Container(
                                                 color: getPlayerColor(voterIndex),
                                                 alignment: Alignment.center,
-                                                child: amount >= 10 ? Text("$amount", style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)) : null,
+                                                child: amount >= 10 ? Text("$amount", style: AppTextStyles.amountTinyOnDark) : null,
                                               ),
                                             );
                                           }).toList(),
@@ -116,7 +118,7 @@ class ResultView extends StatelessWidget {
           ),
           Container(
             padding: const EdgeInsets.all(10),
-            color: Colors.grey[200],
+            color: AppColors.surfaceSubtle,
             child: Wrap(
               spacing: 10,
               runSpacing: 5,
@@ -126,7 +128,7 @@ class ResultView extends StatelessWidget {
                   children: [
                     Container(width: 12, height: 12, color: getPlayerColor(index)),
                     const SizedBox(width: 4),
-                    Text(players[index].name, style: const TextStyle(fontSize: 12)),
+                    Text(players[index].name, style: AppTextStyles.caption),
                   ],
                 );
               }),
@@ -140,7 +142,7 @@ class ResultView extends StatelessWidget {
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(padding: const EdgeInsets.all(15)),
                   onPressed: onHomePressed,
-                  child: const Text(AppTexts.backToTitle, style: TextStyle(fontSize: 18)),
+                  child: const Text(AppTexts.backToTitle, style: AppTextStyles.buttonMedium),
                 ),
               ),
             ),

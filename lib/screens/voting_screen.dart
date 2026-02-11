@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../models/player.dart';
 import '../constants/texts.dart';
+import '../constants/app_colors.dart';
+import '../constants/app_text_styles.dart';
 
 class VotingScreen extends StatelessWidget {
   final List<Player> players;
@@ -41,15 +43,17 @@ class VotingScreen extends StatelessWidget {
         children: [
           Container(
             padding: const EdgeInsets.all(16),
-            color: Colors.blueGrey[50],
+            color: AppColors.surfacePanel,
             width: double.infinity,
             child: Column(
               children: [
-                const Text("最も予算を与えたい研究に配分してください", style: TextStyle(fontWeight: FontWeight.bold)),
+                const Text("最も予算を与えたい研究に配分してください", style: AppTextStyles.labelBold),
                 const SizedBox(height: 10),
                 Text(
                   "残り予算: $remainingBudget 万円 / 100 万円",
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: remainingBudget < 0 ? Colors.red : Colors.blue[800]),
+                  style: AppTextStyles.valueLarge.copyWith(
+                    color: remainingBudget < 0 ? AppColors.actionDanger : AppColors.textAccentStrong,
+                  ),
                 ),
               ],
             ),
@@ -62,7 +66,7 @@ class VotingScreen extends StatelessWidget {
                 if (index == currentVoterIndex) return const SizedBox.shrink();
 
                 int currentAmount = currentAllocation[index] ?? 0;
-                double maxVal = (currentAmount + remainingBudget).toDouble();
+                //double maxVal = (currentAmount + remainingBudget).toDouble();
 
                 return Card(
                   margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -71,12 +75,12 @@ class VotingScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(AppTexts.researchTitle(p.researchTitle), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                        Text("研究者: ${p.name}", style: const TextStyle(color: Colors.grey)),
+                        Text(AppTexts.researchTitle(p.researchTitle), style: AppTextStyles.labelField),
+                        Text("研究者: ${p.name}", style: AppTextStyles.bodyMuted),
                         const SizedBox(height: 8),
                         Row(
                           children: [
-                            Text("$currentAmount 万円", style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.blue)),
+                            Text("$currentAmount 万円", style: AppTextStyles.amountAccent),
                             IconButton(icon: const Icon(Icons.remove_circle_outline), onPressed: () => onDecrement(index)),
                             Expanded(
                               child: Slider(
@@ -110,9 +114,9 @@ class VotingScreen extends StatelessWidget {
               child: SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: isComplete ? Colors.red : Colors.grey, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(vertical: 15)),
+                  style: ElevatedButton.styleFrom(backgroundColor: isComplete ? AppColors.actionDanger : AppColors.actionDisabled, foregroundColor: AppColors.textOnDark, padding: const EdgeInsets.symmetric(vertical: 15)),
                   onPressed: isComplete ? submitVote : null,
-                  child: const Text("投票を確定する", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  child: const Text("投票を確定する", style: AppTextStyles.buttonMediumBold),
                 ),
               ),
             ),

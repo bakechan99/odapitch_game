@@ -2,14 +2,17 @@ import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:shared_preferences/shared_preferences.dart'; // 保存用
+import '../data/local_db.dart';
 import '../models/card_data.dart';
 import '../models/player.dart';
 import '../models/game_settings.dart'; // 新規作成した設定モデル
 import 'game_loop_screen.dart';
 import '../constants/texts.dart'; // 追加
 import '../widgets/custom_confirm_dialog.dart'; // 追加
+import '../constants/app_colors.dart';
+import '../constants/app_text_styles.dart';
 
+/// Setup UI for player names and time settings before starting a game.
 class SetupScreen extends StatefulWidget {
   const SetupScreen({super.key});
 
@@ -17,6 +20,7 @@ class SetupScreen extends StatefulWidget {
   State<SetupScreen> createState() => _SetupScreenState();
 }
 
+/// Holds setup state and persists player names to local SQLite.
 class _SetupScreenState extends State<SetupScreen> {
   int playerCount = 3;
   int presentationTime = 30; // デフォルト30秒
@@ -29,40 +33,52 @@ class _SetupScreenState extends State<SetupScreen> {
     _loadPlayerNames(); // 保存された名前を読み込む
   }
 
+  @override
+  void dispose() {
+    for (final controller in _controllers) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
+
   // --- 保存機能 ---
   Future<void> _loadPlayerNames() async {
-    final prefs = await SharedPreferences.getInstance();
-    final savedNames = prefs.getStringList('playerNames');
-    
+    final savedNames = await LocalDb.instance.loadPlayerNames();
+
+    if (!mounted) return;
+
     setState(() {
-      if (savedNames != null && savedNames.isNotEmpty) {
+      if (savedNames.isNotEmpty) {
         playerCount = max(3, min(8, savedNames.length));
         _controllers.clear();
         for (String name in savedNames) {
           _controllers.add(TextEditingController(text: name));
         }
+        _syncControllerCount();
       } else {
-        _updateControllers(); // 保存がない場合はデフォルト
+        _syncControllerCount(); // 保存がない場合はデフォルト
       }
     });
   }
 
   Future<void> _savePlayerNames() async {
-    final prefs = await SharedPreferences.getInstance();
     List<String> names = _controllers.map((c) => c.text).toList();
-    await prefs.setStringList('playerNames', names);
+    await LocalDb.instance.savePlayerNames(names);
   }
 
   void _updateControllers() {
-    setState(() {
-      while (_controllers.length < playerCount) {
-        // AppTexts.defaultPlayerNameWithIndex を使用
-        _controllers.add(TextEditingController(text: AppTexts.defaultPlayerNameWithIndex(_controllers.length + 1)));
-      }
-      while (_controllers.length > playerCount) {
-        _controllers.removeLast();
-      }
-    });
+    setState(_syncControllerCount);
+  }
+
+  void _syncControllerCount() {
+    while (_controllers.length < playerCount) {
+      // AppTexts.defaultPlayerNameWithIndex を使用
+      _controllers.add(TextEditingController(text: AppTexts.defaultPlayerNameWithIndex(_controllers.length + 1)));
+    }
+    while (_controllers.length > playerCount) {
+      final controller = _controllers.removeLast();
+      controller.dispose();
+    }
   }
 
   // --- 時間設定の増減 ---
@@ -84,8 +100,18 @@ class _SetupScreenState extends State<SetupScreen> {
 
   // --- ゲーム開始 ---
   Future<void> _startGame() async {
-    // 名前を保存
+    // 1. 入力バリデーション: 空文字の場合はデフォルト名を設定
+    for (int i = 0; i < playerCount; i++) {
+      if (_controllers[i].text.trim().isEmpty) {
+        _controllers[i].text = AppTexts.defaultPlayerNameWithIndex(i + 1);
+      }
+    }
+
+    // 2. 名前を保存 (バリデーション済みの名前が保存されます)
     await _savePlayerNames();
+
+    // 3. 非同期処理(保存)の待機後にウィジェットが存在しているか確認
+    if (!mounted) return;
 
     final String response = await rootBundle.loadString('assets/cards.json');
     final List<dynamic> data = json.decode(response);
@@ -94,6 +120,7 @@ class _SetupScreenState extends State<SetupScreen> {
 
     List<Player> players = [];
     for (int i = 0; i < playerCount; i++) {
+      // コントローラーの値は既に整形済みなのでそのまま使用
       Player p = Player(name: _controllers[i].text);
       for (int j = 0; j < 6; j++) {
         if (deck.isNotEmpty) p.hand.add(deck.removeLast());
@@ -151,7 +178,7 @@ class _SetupScreenState extends State<SetupScreen> {
               children: [
                 IconButton.filled(onPressed: playerCount > 3 ? () { setState(() { playerCount--; _updateControllers(); }); } : null, icon: const Icon(Icons.remove)),
                 // "$playerCount人" -> AppTexts.playerCountUnit(playerCount)
-                Padding(padding: const EdgeInsets.symmetric(horizontal: 20), child: Text(AppTexts.playerCountUnit(playerCount), style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold))),
+                Padding(padding: const EdgeInsets.symmetric(horizontal: 20), child: Text(AppTexts.playerCountUnit(playerCount), style: AppTextStyles.valueLarge)),
                 IconButton.filled(onPressed: playerCount < 8 ? () { setState(() { playerCount++; _updateControllers(); }); } : null, icon: const Icon(Icons.add)),
               ],
             ),
@@ -211,7 +238,7 @@ class _SetupScreenState extends State<SetupScreen> {
                     margin: const EdgeInsets.symmetric(vertical: 4),
                     elevation: 2,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    color: Colors.white,
+                    color: AppColors.surface,
                     child: ListTile(
                       title: TextField(
                         controller: _controllers[i],
@@ -219,7 +246,7 @@ class _SetupScreenState extends State<SetupScreen> {
                       ),
                       trailing: ReorderableDragStartListener(
                         index: i,
-                        child: const Icon(Icons.drag_handle, color: Colors.grey),
+                        child: const Icon(Icons.drag_handle, color: AppColors.textMuted),
                       ),
                     ),
                   ),
@@ -229,7 +256,7 @@ class _SetupScreenState extends State<SetupScreen> {
             const SizedBox(height: 30),
 
             // "ゲーム開始" -> AppTexts.startGameButton
-            SizedBox(width: double.infinity, height: 60, child: ElevatedButton(onPressed: _startGame, child: const Text(AppTexts.startGameButton, style: TextStyle(fontSize: 20)))),
+            SizedBox(width: double.infinity, height: 60, child: ElevatedButton(onPressed: _startGame, child: const Text(AppTexts.startGameButton, style: AppTextStyles.buttonPrimary))),
           ],
         ),
       ),
@@ -237,7 +264,7 @@ class _SetupScreenState extends State<SetupScreen> {
   }
 
   Widget _buildSectionTitle(String title) {
-    return Align(alignment: Alignment.centerLeft, child: Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blueGrey)));
+    return Align(alignment: Alignment.centerLeft, child: Text(title, style: AppTextStyles.headingSection));
   }
 
   // 共通のスライダーUI構築メソッド
@@ -254,21 +281,21 @@ class _SetupScreenState extends State<SetupScreen> {
         // ラベル表示
         Padding(
           padding: const EdgeInsets.only(left: 10),
-          child: Text(label, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87)),
+          child: Text(label, style: AppTextStyles.labelField),
         ),
         const SizedBox(height: 5),
         // 現在値の表示
         Center(
           child: Text(
             AppTexts.secondsUnit(value),
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            style: AppTextStyles.valueLarge,
           ),
         ),
         Row(
           children: [
             // マイナスボタン
             IconButton(
-              icon: const Icon(Icons.remove_circle_outline, size: 32, color: Colors.grey),
+              icon: const Icon(Icons.remove_circle_outline, size: 32, color: AppColors.textMuted),
               onPressed: onDecrement,
             ),
             // スライダー
@@ -284,7 +311,7 @@ class _SetupScreenState extends State<SetupScreen> {
             ),
             // プラスボタン
             IconButton(
-              icon: const Icon(Icons.add_circle_outline, size: 32, color: Colors.grey),
+              icon: const Icon(Icons.add_circle_outline, size: 32, color: AppColors.textMuted),
               onPressed: onIncrement,
             ),
           ],

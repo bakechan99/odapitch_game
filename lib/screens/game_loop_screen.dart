@@ -6,6 +6,8 @@ import '../models/game_settings.dart'; // 設定モデル
 import 'result_screen.dart';
 import '../constants/texts.dart'; // 追加
 import '../widgets/custom_confirm_dialog.dart'; // 追加
+import '../constants/app_colors.dart';
+import '../constants/app_text_styles.dart';
 
 class GameLoopScreen extends StatefulWidget {
   final List<Player> players;
@@ -77,11 +79,11 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(AppTexts.nextPlayerMessage(player.name), 
-                  style: const TextStyle(fontSize: 24, color: Colors.white, fontWeight: FontWeight.bold)),
+                  style: AppTextStyles.headingOnDarkMedium),
                 const SizedBox(height: 30),
-                const Icon(Icons.phone_android, size: 100, color: Colors.white),
+                const Icon(Icons.phone_android, size: 100, color: AppColors.textOnDark),
                 const SizedBox(height: 30),
-                Text(AppTexts.passSmartphoneMessage, style: const TextStyle(color: Colors.white70)),
+                Text(AppTexts.passSmartphoneMessage, style: AppTextStyles.bodyOnDarkSmall),
                 const SizedBox(height: 50),
                 ElevatedButton(
                   onPressed: () {
@@ -93,10 +95,10 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                   },
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                    backgroundColor: Colors.orange,
-                    foregroundColor: Colors.white,
+                    backgroundColor: AppColors.actionAccent,
+                    foregroundColor: AppColors.textOnDark,
                   ),
-                  child: const Text(AppTexts.startTurnButton, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                  child: const Text(AppTexts.startTurnButton, style: AppTextStyles.buttonPrimaryBold),
                 )
               ],
             ),
@@ -138,7 +140,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
               builder: (context, candidates, rejected) {
                 return Container(
                   width: double.infinity,
-                  color: Colors.grey[100], // 背景色
+                  color: AppColors.surfaceMuted, // 背景色
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -147,7 +149,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                         padding: EdgeInsets.all(10),
                         child: Text(
                           AppTexts.researchAreaHeader,
-                          style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
+                          style: AppTextStyles.labelAccentBold,
                         ),
                       ),
                       // 横スクロールエリア
@@ -171,7 +173,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                                     alignment: Alignment.center,
                                     child: Text(
                                       AppTexts.handEmpty,
-                                      style: TextStyle(color: Colors.grey[400], fontSize: 16),
+                                      style: AppTextStyles.bodyPlaceholder,
                                     ),
                                   ),
                                   
@@ -201,10 +203,10 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                 return Container(
                   width: double.infinity,
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppColors.surface,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.15), // 影を少し濃く
+                        color: AppColors.shadowBase.withOpacity(0.15), // 影を少し濃く
                         blurRadius: 8,
                         offset: const Offset(0, -4),
                       ),
@@ -218,15 +220,15 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text(AppTexts.hands, style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey, fontSize: 16)),
+                            const Text(AppTexts.hands, style: AppTextStyles.labelMutedBold),
                             ElevatedButton(
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.blue,
-                                foregroundColor: Colors.white,
+                                backgroundColor: AppColors.actionPrimary,
+                                foregroundColor: AppColors.textOnDark,
                                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                               ),
                               onPressed: player.selectedCards.isEmpty ? null : _nextPlayer,
-                              child: const Text(AppTexts.decideButton, style: TextStyle(fontSize: 16)),
+                              child: const Text(AppTexts.decideButton, style: AppTextStyles.buttonSmall),
                             ),
                           ],
                         ),
@@ -249,7 +251,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                                   child: Draggable<CardData>(
                                     data: card,
                                     feedback: Material(
-                                      color: Colors.transparent,
+                                      color: AppColors.transparent,
                                       child: Opacity(opacity: 0.8, child: _buildHandCardContent(card)),
                                     ),
                                     childWhenDragging: Opacity(
@@ -290,7 +292,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
         Draggable<CardData>(
           data: placedCard.card,
           feedback: Material(
-            color: Colors.transparent,
+            color: AppColors.transparent,
             child: Opacity(
               opacity: 0.8,
               child: _buildPlacedCardContent(placedCard, null), // feedback用
@@ -332,14 +334,14 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
             // 透明なコンテナで幅を確保しつつ、中央にカーソル線を描画します。
             width: 40, 
             height: 140,
-            color: Colors.transparent,
+            color: AppColors.transparent,
             child: Center(
               child: Container(
                 width: 4, // 細い線
                 height: 100, // カードより少し小さめ
                 margin: const EdgeInsets.symmetric(horizontal: 4), // 左右のマージン
                 decoration: BoxDecoration(
-                  color: Colors.blue, // カーソル色
+                  color: AppColors.actionPrimary, // カーソル色
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -350,7 +352,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
         return Container(
           width: 30, // ヒット判定幅
           height: 140,
-          color: Colors.transparent,
+          color: AppColors.transparent,
         );
       },
     );
@@ -420,10 +422,10 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
       width: 110,
       height: 140, // 固定高さ
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.blueAccent, width: 2),
-        boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
+        border: Border.all(color: AppColors.borderAccent, width: 2),
+        boxShadow: const [BoxShadow(color: AppColors.shadowLight, blurRadius: 4, offset: Offset(0, 2))],
       ),
       child: Column(
         children: [
@@ -442,17 +444,13 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
       onTap: onTap,
       child: Container(
         width: double.infinity,
-        color: isSelected ? Colors.yellow[100] : Colors.transparent,
+        color: isSelected ? AppColors.selectionHighlight : AppColors.transparent,
         alignment: Alignment.center,
         padding: const EdgeInsets.symmetric(horizontal: 2),
         child: Text(
           text,
           textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: isSelected ? 16 : 12,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-            color: isSelected ? Colors.black : Colors.grey,
-          ),
+          style: isSelected ? AppTextStyles.cardTextSelected : AppTextStyles.cardTextUnselected,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
         ),
@@ -462,24 +460,24 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
 
   // --- UI: 手札カードの見た目 ---
   Widget _buildHandCardContent(CardData card) {
-    const textStyle = TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black87);
+    const textStyle = AppTextStyles.cardHandText;
     return Container(
       width: 100,
       height: 130,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey.shade300),
-        boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.3), blurRadius: 3, offset: const Offset(0, 2))],
+        border: Border.all(color: AppColors.borderLight),
+        boxShadow: [BoxShadow(color: AppColors.shadowMuted.withOpacity(0.3), blurRadius: 3, offset: const Offset(0, 2))],
       ),
       padding: const EdgeInsets.all(4),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           Text(card.top, style: textStyle, textAlign: TextAlign.center, maxLines: 1, overflow: TextOverflow.ellipsis),
-          Divider(height: 1, color: Colors.grey.shade200),
+          Divider(height: 1, color: AppColors.divider),
           Text(card.middle, style: textStyle, textAlign: TextAlign.center, maxLines: 1, overflow: TextOverflow.ellipsis),
-          Divider(height: 1, color: Colors.grey.shade200),
+          Divider(height: 1, color: AppColors.divider),
           Text(card.bottom, style: textStyle, textAlign: TextAlign.center, maxLines: 1, overflow: TextOverflow.ellipsis),
         ],
       ),

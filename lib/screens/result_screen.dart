@@ -8,6 +8,8 @@ import '../widgets/custom_confirm_dialog.dart'; // 追加
 import 'presentation_screen.dart';
 import 'voting_screen.dart';
 import 'result_view.dart';
+import '../constants/app_colors.dart';
+import '../constants/app_text_styles.dart';
 
 enum ScreenPhase { presentationStandby, presentation, votingStandby, voting, result }
 
@@ -300,7 +302,7 @@ class _ResultScreenState extends State<ResultScreen> {
         children: [
           Container(
              decoration: const BoxDecoration(
-              gradient: LinearGradient(colors: [Colors.blueGrey, Colors.black87], begin: Alignment.topLeft, end: Alignment.bottomRight),
+              gradient: LinearGradient(colors: [AppColors.gradientStart, AppColors.gradientEnd], begin: Alignment.topLeft, end: Alignment.bottomRight),
             ),
           ),
           Center(
@@ -308,14 +310,14 @@ class _ResultScreenState extends State<ResultScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 // const を削除 (メソッド呼び出しのため)
-                Text(AppTexts.nextPlayerStandby(player.name), style: const TextStyle(fontSize: 28, color: Colors.white, fontWeight: FontWeight.bold)),
+                Text(AppTexts.nextPlayerStandby(player.name), style: AppTextStyles.headingOnDarkLarge),
                 const SizedBox(height: 10),
-                Text(message, style: const TextStyle(fontSize: 18, color: Colors.white70)),
+                Text(message, style: AppTextStyles.bodyOnDarkMedium),
                 const SizedBox(height: 40),
                 ElevatedButton(
                   onPressed: onReady,
                   style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15)),
-                  child: const Text(AppTexts.startVoteButton, style: TextStyle(fontSize: 20)),
+                  child: const Text(AppTexts.startVoteButton, style: AppTextStyles.buttonPrimary),
                 ),
               ],
             ),
@@ -329,10 +331,10 @@ class _ResultScreenState extends State<ResultScreen> {
     final player = widget.players[currentPresenterIndex];
 
     // スタイル定義
-    final activeTextStyle = const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.black87);
-    final inactiveTextStyle = const TextStyle(fontSize: 24, fontWeight: FontWeight.normal, color: Colors.grey);
-    final activeLabelStyle = const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87);
-    final inactiveLabelStyle = const TextStyle(fontSize: 14, fontWeight: FontWeight.normal, color: Colors.grey);
+    final activeTextStyle = AppTextStyles.valueDisplayMedium;
+    final inactiveTextStyle = AppTextStyles.valueDisplayMuted;
+    final activeLabelStyle = AppTextStyles.labelField;
+    final inactiveLabelStyle = AppTextStyles.labelMutedSmall;
 
     return Scaffold(
       appBar: AppBar(
@@ -351,7 +353,7 @@ class _ResultScreenState extends State<ResultScreen> {
             Container(
               padding: const EdgeInsets.symmetric(vertical: 10),
               decoration: BoxDecoration(
-                color: Colors.grey[100],
+                color: AppColors.surfaceMuted,
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Row(
@@ -371,7 +373,7 @@ class _ResultScreenState extends State<ResultScreen> {
                         IconButton(
                           icon: Icon(_isTimerRunning ? Icons.pause_circle_filled : Icons.play_circle_fill),
                           iconSize: 56,
-                          color: Colors.orange,
+                          color: AppColors.actionAccent,
                           onPressed: _toggleTimer,
                         )
                       else
@@ -380,7 +382,7 @@ class _ResultScreenState extends State<ResultScreen> {
                   ),
                   
                   // 区切り線
-                  Container(width: 1, height: 100, color: Colors.grey[300]),
+                  Container(width: 1, height: 100, color: AppColors.dividerStrong),
 
                   // 右: 質疑応答時間
                   Column(
@@ -396,7 +398,7 @@ class _ResultScreenState extends State<ResultScreen> {
                         IconButton(
                           icon: Icon(_isTimerRunning ? Icons.pause_circle_filled : Icons.play_circle_fill),
                           iconSize: 56,
-                          color: Colors.blue,
+                          color: AppColors.actionPrimary,
                           onPressed: _toggleTimer,
                         )
                       else
@@ -409,7 +411,7 @@ class _ResultScreenState extends State<ResultScreen> {
             const SizedBox(height: 40),
             
             // 2. ラベル
-            const Text(AppTexts.madeTitleHeader, style: TextStyle(fontSize: 20, color: Colors.blueGrey, fontWeight: FontWeight.bold)),
+            const Text(AppTexts.madeTitleHeader, style: AppTextStyles.headingSectionLarge),
             const SizedBox(height: 20),
             
             // 3. 研究課題タイトル (中央大きく)
@@ -418,11 +420,7 @@ class _ResultScreenState extends State<ResultScreen> {
                 child: Text(
                   player.researchTitle,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 36, // 大きく
-                    fontWeight: FontWeight.bold,
-                    height: 1.3,
-                  ),
+                  style: AppTextStyles.valueDisplayLarge,
                 ),
               ),
             ),
@@ -434,14 +432,14 @@ class _ResultScreenState extends State<ResultScreen> {
               child: ElevatedButton(
                 onPressed: _proceedToNextStep,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: _isPresentationMode ? Colors.orange : Colors.blue, 
-                  foregroundColor: Colors.white,
+                  backgroundColor: _isPresentationMode ? AppColors.actionAccent : AppColors.actionPrimary, 
+                  foregroundColor: AppColors.textOnDark,
                   elevation: 4,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                 ),
                 child: Text(
                   _isPresentationMode ? AppTexts.goFeedback : AppTexts.goNextPlayer,
-                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  style: AppTextStyles.buttonPrimaryBold,
                 ),
               ),
             ),
@@ -454,11 +452,7 @@ class _ResultScreenState extends State<ResultScreen> {
 
   // --- プレイヤーカラーの定義 ---
   Color _getPlayerColor(int index) {
-    const colors = [
-      Colors.blue, Colors.red, Colors.green, Colors.orange, 
-      Colors.purple, Colors.teal, Colors.pink, Colors.brown
-    ];
-    return colors[index % colors.length];
+    return AppColors.playerPalette[index % AppColors.playerPalette.length];
   }
 
   // --- UI: 投票画面 (予算配分) ---
@@ -484,18 +478,16 @@ class _ResultScreenState extends State<ResultScreen> {
           // ヘッダー：残り予算表示
           Container(
             padding: const EdgeInsets.all(16),
-            color: Colors.blueGrey[50],
+            color: AppColors.surfacePanel,
             width: double.infinity,
             child: Column(
               children: [
-                const Text(AppTexts.voteSelectionTitle, style: TextStyle(fontWeight: FontWeight.bold)),
+                const Text(AppTexts.voteSelectionTitle, style: AppTextStyles.labelBold),
                 const SizedBox(height: 10),
                 Text(
                   AppTexts.remainBudget(remainingBudget),
-                  style: TextStyle(
-                    fontSize: 24, 
-                    fontWeight: FontWeight.bold,
-                    color: remainingBudget < 0 ? Colors.red : Colors.blue[800]
+                  style: AppTextStyles.valueLarge.copyWith(
+                    color: remainingBudget < 0 ? AppColors.actionDanger : AppColors.textAccentStrong,
                   ),
                 ),
               ],
@@ -522,12 +514,12 @@ class _ResultScreenState extends State<ResultScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(AppTexts.researchTitle(p.researchTitle), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                        Text("研究者: ${p.name}", style: const TextStyle(color: Colors.grey)),
+                        Text(AppTexts.researchTitle(p.researchTitle), style: AppTextStyles.labelField),
+                        Text("研究者: ${p.name}", style: AppTextStyles.bodyMuted),
                         const SizedBox(height: 8),
                         Row(
                           children: [
-                            Text("$currentAmount 万円", style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.blue)),
+                            Text("$currentAmount 万円", style: AppTextStyles.amountAccent),
                             // マイナスボタン
                             IconButton(
                               icon: const Icon(Icons.remove_circle_outline),
@@ -587,12 +579,12 @@ class _ResultScreenState extends State<ResultScreen> {
                 width: double.infinity,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: isComplete ? Colors.red : Colors.grey,
-                    foregroundColor: Colors.white,
+                    backgroundColor: isComplete ? AppColors.actionDanger : AppColors.actionDisabled,
+                    foregroundColor: AppColors.textOnDark,
                     padding: const EdgeInsets.symmetric(vertical: 15)
                   ),
                   onPressed: isComplete ? _submitVote : null,
-                  child: const Text(AppTexts.decideBudget, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  child: const Text(AppTexts.decideBudget, style: AppTextStyles.buttonMediumBold),
                 ),
               ),
             ),
@@ -638,7 +630,7 @@ class _ResultScreenState extends State<ResultScreen> {
         children: [
           const Padding(
             padding: EdgeInsets.all(20.0),
-            child: Text(AppTexts.resultHeader, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            child: Text(AppTexts.resultHeader, style: AppTextStyles.headingPrimaryLarge),
           ),
           Expanded(
             child: ListView.builder(
@@ -662,21 +654,21 @@ class _ResultScreenState extends State<ResultScreen> {
                         Row(
                           children: [
                             // 1位〜3位には王冠などをつける
-                            if (index == 0) const Text("🥇 ", style: TextStyle(fontSize: 24)),
-                            if (index == 1) const Text("🥈 ", style: TextStyle(fontSize: 24)),
-                            if (index == 2) const Text("🥉 ", style: TextStyle(fontSize: 24)),
-                            Text("${index + 1}位", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                            if (index == 0) const Text("🥇 ", style: AppTextStyles.rankEmoji),
+                            if (index == 1) const Text("🥈 ", style: AppTextStyles.rankEmoji),
+                            if (index == 2) const Text("🥉 ", style: AppTextStyles.rankEmoji),
+                            Text("${index + 1}位", style: AppTextStyles.headingPrimaryMedium),
                             const SizedBox(width: 10),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(p.name, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                                  Text(p.researchTitle, style: const TextStyle(fontSize: 12, color: Colors.grey), maxLines: 1, overflow: TextOverflow.ellipsis),
+                                  Text(p.name, style: AppTextStyles.playerName),
+                                  Text(p.researchTitle, style: AppTextStyles.captionMuted, maxLines: 1, overflow: TextOverflow.ellipsis),
                                 ],
                               ),
                             ),
-                            Text("$total 万円", style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.blueAccent)),
+                            Text("$total 万円", style: AppTextStyles.amountTotal),
                           ],
                         ),
                         const SizedBox(height: 15),
@@ -686,7 +678,7 @@ class _ResultScreenState extends State<ResultScreen> {
                           borderRadius: BorderRadius.circular(10),
                           child: Container(
                             height: 30,
-                            color: Colors.grey[200], // 背景色（未獲得分）
+                            color: AppColors.surfaceSubtle, // 背景色（未獲得分）
                             child: Row(
                               children: [
                                 // 獲得分（積み上げ）
@@ -705,7 +697,7 @@ class _ResultScreenState extends State<ResultScreen> {
                                           alignment: Alignment.center,
                                           // 金額が大きい場合は数字を表示してもよい
                                           child: amount >= 10 
-                                            ? Text("$amount", style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold))
+                                            ? Text("$amount", style: AppTextStyles.amountTinyOnDark)
                                             : null,
                                         ),
                                       );
@@ -732,7 +724,7 @@ class _ResultScreenState extends State<ResultScreen> {
           // 凡例（誰が何色か）
           Container(
             padding: const EdgeInsets.all(10),
-            color: Colors.grey[200],
+            color: AppColors.surfaceSubtle,
             child: Wrap(
               spacing: 10,
               runSpacing: 5,
@@ -742,7 +734,7 @@ class _ResultScreenState extends State<ResultScreen> {
                   children: [
                     Container(width: 12, height: 12, color: _getPlayerColor(index)),
                     const SizedBox(width: 4),
-                    Text(widget.players[index].name, style: const TextStyle(fontSize: 12)),
+                    Text(widget.players[index].name, style: AppTextStyles.caption),
                   ],
                 );
               }),
@@ -757,7 +749,7 @@ class _ResultScreenState extends State<ResultScreen> {
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(padding: const EdgeInsets.all(15)),
                   onPressed: () => Navigator.of(context).popUntil((route) => route.isFirst),
-                  child: const Text(AppTexts.backToTitle, style: TextStyle(fontSize: 18)),
+                  child: const Text(AppTexts.backToTitle, style: AppTextStyles.buttonMedium),
                 ),
               ),
             ),
