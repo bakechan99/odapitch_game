@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../constants/texts.dart';
+import '../constants/app_colors.dart';
+import '../constants/app_text_styles.dart';
 
 class TitleButton extends StatefulWidget {
   final VoidCallback onPressed;
@@ -20,11 +22,6 @@ class _TitleButtonState extends State<TitleButton> {
 
   @override
   Widget build(BuildContext context) {
-    // デザインの色定義
-    const Color borderColor = Color(0xFF757575); // 外側の濃い枠線
-    const Color textColor = Color(0xFF424242); // テキストとアイコンの色
-    const Color shadowColor = Colors.black26; // 影の色
-
     return GestureDetector(
       // タップ時の状態を管理
       onTapDown: (_) => setState(() => _isPressed = true),
@@ -44,12 +41,12 @@ class _TitleButtonState extends State<TitleButton> {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: _isPressed
-                ? [const Color(0xFF9E9E9E), const Color(0xFFBDBDBD)] // 押下時（少し暗く）
-                : [const Color(0xFFE0E0E0), const Color(0xFFBDBDBD)], // 通常時（上から光）
+                ? [AppColors.titleButtonPressedTop, AppColors.titleButtonPressedBottom] // 押下時（少し暗く）
+                : [AppColors.titleButtonNormalTop, AppColors.titleButtonNormalBottom], // 通常時（上から光）
           ),
           // 外側の枠線
           border: Border.all(
-            color: borderColor,
+            color: AppColors.titleButtonBorder,
             width: 2.5,
           ),
           // 影と内側のハイライト（二重枠のような表現）
@@ -58,13 +55,13 @@ class _TitleButtonState extends State<TitleButton> {
               : [
                   // ボタンの下の柔らかい影
                   const BoxShadow(
-                    color: shadowColor,
+                    color: AppColors.titleButtonShadow,
                     offset: Offset(0, 4),
                     blurRadius: 4,
                   ),
                   // 内側上部のハイライト（立体感の強調）
                   BoxShadow(
-                    color: Colors.white.withOpacity(0.4),
+                    color: AppColors.titleButtonInnerHighlight.withOpacity(0.4),
                     offset: const Offset(0, 1),
                     blurRadius: 0,
                     spreadRadius: -1, // 内側に影を入れるテクニック
@@ -82,13 +79,13 @@ class _TitleButtonState extends State<TitleButton> {
               children: [
                 Padding(
                   padding: const EdgeInsets.only(bottom: 4.0, right: 4.0),
-                  child: Icon(Icons.menu_book, color: textColor, size: 22),
+                  child: Icon(Icons.menu_book, color: AppColors.titleButtonText, size: 22),
                 ),
                 Transform.translate(
                   offset: const Offset(4, -4),
                   child: Transform.rotate(
                     angle: -0.5, // ロケットを少し傾ける
-                    child: Icon(Icons.rocket, color: textColor, size: 24),
+                    child: Icon(Icons.rocket, color: AppColors.titleButtonText, size: 24),
                   ),
                 ),
               ],
@@ -97,12 +94,7 @@ class _TitleButtonState extends State<TitleButton> {
             // テキスト部分
             Text(
               widget.label,
-              style: const TextStyle(
-                color: textColor,
-                fontSize: 22,
-                fontWeight: FontWeight.w700, // 太字
-                // fontFamily: 'Hiragino Kaku Gothic ProN', // 必要に応じてフォント指定
-              ),
+              style: AppTextStyles.titleButton,
             ),
           ],
         ),

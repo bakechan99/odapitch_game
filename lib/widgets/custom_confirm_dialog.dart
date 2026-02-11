@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../constants/texts.dart';
+import '../constants/app_colors.dart';
+import '../constants/app_text_styles.dart';
 
 class CustomConfirmDialog extends StatelessWidget {
   final String title;
@@ -23,7 +25,7 @@ class CustomConfirmDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      backgroundColor: const Color.fromARGB(255, 231, 231, 231),
+      backgroundColor: AppColors.dialogSurface,
       elevation: 100,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 30.0, vertical: 32.0),
@@ -31,17 +33,13 @@ class CustomConfirmDialog extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             // 上部アイコン
-            Icon(icon, size: 48, color: Colors.grey[600]),
+            Icon(icon, size: 48, color: AppColors.dialogIcon),
             const SizedBox(height: 20),
             
             // タイトル
             Text(
               title,
-              style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
-              ),
+              style: AppTextStyles.dialogTitle,
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
@@ -49,11 +47,7 @@ class CustomConfirmDialog extends StatelessWidget {
             // 本文
             Text(
               content,
-              style: const TextStyle(
-                fontSize: 16,
-                color: Colors.black54,
-                height: 1.5,
-              ),
+              style: AppTextStyles.dialogBody,
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 32),
@@ -66,16 +60,16 @@ class CustomConfirmDialog extends StatelessWidget {
                   child: TextButton(
                     onPressed: () => Navigator.of(context).pop(),
                     style: TextButton.styleFrom(
-                      foregroundColor: Colors.grey[600],
+                      foregroundColor: AppColors.dialogCancelText,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
-                        side: BorderSide(color: const Color.fromARGB(255, 105, 105, 105)),
+                        side: const BorderSide(color: AppColors.dialogBorder),
                       ),
                     ),
                     child: Text(
                       cancelText,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
+                      style: AppTextStyles.buttonLabelBold,
                     ),
                   ),
                 ),
@@ -89,8 +83,8 @@ class CustomConfirmDialog extends StatelessWidget {
                       onConfirm();
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.grey[800], // 濃いグレー
-                      foregroundColor: Colors.white,
+                      backgroundColor: AppColors.dialogConfirmBgStrong, // 濃いグレー
+                      foregroundColor: AppColors.textOnDark,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       elevation: 0,
                       shape: RoundedRectangleBorder(
@@ -99,7 +93,7 @@ class CustomConfirmDialog extends StatelessWidget {
                     ),
                     child: Text(
                       confirmText,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
+                      style: AppTextStyles.buttonLabelBold,
                     ),
                   ),
                 ),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'setup_screen.dart'; // 「新規ゲーム」を押した後の行き先
 import '../constants/texts.dart'; // 追加: 定数テキストのインポート
 import '../widgets/title_button.dart'; // 追加: カスタムボタンのインポート
+import '../constants/app_colors.dart';
   
 
 class TitleScreen extends StatefulWidget {
@@ -64,7 +65,7 @@ class _TitleScreenState extends State<TitleScreen> {
           ),
           
           // 半透明の黒を重ねて文字を見やすくする（お好みで）
-          Container(color: Colors.black.withOpacity(0.3)),
+          Container(color: AppColors.overlayScrim.withOpacity(0.3)),
 
           // --- 2. ロゴとボタン ---
           Center(
