@@ -5,6 +5,7 @@ Kakenhi Game 設計ドキュメント
 
 2. ディレクトリ構成
 主要なソースコードは lib 配下に配置されています。
+~~~
 lib/
 ├── main.dart                  # エントリーポイント。テーマ設定とTitleScreenの呼び出し。
 ├── constants/
@@ -23,10 +24,11 @@ lib/
     ├── custom_confirm_dialog.dart # 汎用確認ダイアログ。
     ├── fancy_button.dart          # 装飾付きボタン。
     └── title_button.dart          # タイトル画面用ボタン。
-
-3. 画面遷移図
+~~~
+4. 画面遷移図
 アプリの全体的なフローは以下の通りです。
 
+~~~
 graph TD
     Title[TitleScreen<br>タイトル画面] -->|新規ゲーム| Setup[SetupScreen<br>設定画面]
     Setup -->|ゲーム開始| GameLoop[GameLoopScreen<br>メインゲーム画面]
@@ -43,8 +45,10 @@ graph TD
     end
     
     Result -->|タイトルへ戻る| Title
-
+~~~
 4. データモデル詳細
+
+~~~
 Player (player.dart)
 ゲームに参加するユーザーを表します。
 
@@ -67,14 +71,26 @@ selectedSection (int): 0=上段, 1=中段, 2=下段。ユーザーのタップ�
 GameSettings (game_settings.dart)
 presentationTimeSec (int): プレゼンテーションの持ち時間。
 qaTimeSec (int): 質疑応答の持ち時間。
+
+~~~
 5. 現状の課題とTODO
 コード解析に基づく、今後の改善点や注意点です。
-
+~~~
 アセットの依存関係:
-title_screen.dart や result_screen.dart で audio (mp3) や images (png) を参照していますが、ファイルが存在しない場合に例外キャッチでログ出力する実装になっています。本番ビルド前にリソースの配置確認が必要です。
+title_screen.dart や result_screen.dart で audio (mp3) や images (png) を参照していますが、
+ファイルが存在しない場合に例外キャッチでログ出力する実装になっています。
+本番ビルド前にリソースの配置確認が必要です。
+
 プレイヤー数の上限と色:
-result_screen.dart 内の _getPlayerColor メソッドで定義されている色は8色です。設定画面で8人まで制限されていますが、拡張する場合はカラーパレットの追加が必要です。
+result_screen.dart 内の _getPlayerColor メソッドで定義されている色は8色です。
+設定画面で8人まで制限されていますが、拡張する場合はカラーパレットの追加が必要です。
+
 ドラッグ＆ドロップの操作性:
-game_loop_screen.dart にて、カードの隙間（Gap）に対する判定エリア（_buildGapTarget）を透明なContainerで確保していますが、判定エリアの微調整（ちらつき防止）に関するコメントが残っています。実機での操作感を確認し、必要に応じて調整が必要です。
+game_loop_screen.dart にて、カードの隙間（Gap）に対する判定エリア（_buildGapTarget）を透明なContainerで確保していますが、
+判定エリアの微調整（ちらつき防止）に関するコメントが残っています。
+実機での操作感を確認し、必要に応じて調整が必要です。
+
 ハードコーディングされた文字列:
-多くのテキストは AppTexts クラスに集約されていますが、一部の画面（ResultScreenのボタンラベルなど）に直接文字列が記述されている箇所があります。多言語対応や保守性のために AppTexts への移行が推奨されます。
+多くのテキストは AppTexts クラスに集約されていますが、一部の画面（ResultScreenのボタンラベルなど）に直接文字列が記述されている箇所があります。
+多言語対応や保守性のために AppTexts への移行が推奨されます。
+~~~
