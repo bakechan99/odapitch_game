@@ -155,9 +155,17 @@ class _SetupScreenState extends State<SetupScreen> {
 
   // --- ゲーム開始 ---
   Future<void> _startGame() async {
-    // 名前を保存
+    // 1. 入力バリデーション: 空文字の場合はデフォルト名を設定
+    for (int i = 0; i < playerCount; i++) {
+      if (_controllers[i].text.trim().isEmpty) {
+        _controllers[i].text = AppTexts.defaultPlayerNameWithIndex(i + 1);
+      }
+    }
+
+    // 2. 名前を保存 (バリデーション済みの名前が保存されます)
     await _savePlayerNames();
 
+<<<<<<< HEAD
     String selectedPath = 'assets/cards.json';
     for (final preset in _presets) {
       if (preset.id == _selectedPresetId) {
@@ -169,12 +177,19 @@ class _SetupScreenState extends State<SetupScreen> {
     await LocalDb.instance.saveSelectedPresetId(_selectedPresetId);
 
     final String response = await rootBundle.loadString(selectedPath);
+=======
+    // 3. 非同期処理(保存)の待機後にウィジェットが存在しているか確認
+    if (!mounted) return;
+
+    final String response = await rootBundle.loadString('assets/cards.json');
+>>>>>>> 1b6039a0bcdc50e7b2858ac2b610094c99ced5c6
     final List<dynamic> data = json.decode(response);
     List<CardData> deck = data.map((json) => CardData.fromJson(json)).toList();
     deck.shuffle(Random());
 
     List<Player> players = [];
     for (int i = 0; i < playerCount; i++) {
+      // コントローラーの値は既に整形済みなのでそのまま使用
       Player p = Player(name: _controllers[i].text);
       for (int j = 0; j < 6; j++) {
         if (deck.isNotEmpty) p.hand.add(deck.removeLast());
