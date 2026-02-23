@@ -1,0 +1,17 @@
+[
+  {
+    "id": "default",
+    "name": "標準（既存）",
+    "path": "assets/presets/cards.json"
+  },
+  {
+    "id": "ai_tech",
+    "name": "AI・テクノロジー",
+    "path": "assets/presets/cards_ai_tech.json"
+  },
+  {
+    "id": "society",
+    "name": "社会・人文学",
+    "path": "assets/presets/cards_society.json"
+  }
+]

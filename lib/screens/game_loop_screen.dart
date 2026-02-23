@@ -4,6 +4,7 @@ import '../models/player.dart';
 import '../models/placed_card.dart';
 import '../models/game_settings.dart'; // 設定モデル
 import 'result_screen.dart';
+import 'settings_screen.dart';
 import '../constants/texts.dart'; // 追加
 import '../widgets/custom_confirm_dialog.dart'; // 追加
 import '../constants/app_colors.dart';
@@ -21,6 +22,13 @@ class GameLoopScreen extends StatefulWidget {
 class _GameLoopScreenState extends State<GameLoopScreen> {
   int currentPlayerIndex = 0;
   bool isPassing = true;
+
+  void _openSettings() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const SettingsScreen()),
+    );
+  }
 
   void _nextPlayer() {
     // ポップアップで確認
@@ -103,6 +111,18 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
               ],
             ),
           ),
+          Positioned(
+            top: 0,
+            right: 0,
+            child: SafeArea(
+              child: IconButton(
+                icon: const Icon(Icons.settings),
+                color: AppColors.textOnDark,
+                tooltip: AppTexts.goSettings,
+                onPressed: _openSettings,
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -124,6 +144,13 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
             );
           },
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            tooltip: AppTexts.goSettings,
+            onPressed: _openSettings,
+          ),
+        ],
       ),
       body: Column(
         children: [

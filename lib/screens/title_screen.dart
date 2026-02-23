@@ -1,6 +1,8 @@
 import 'package:audioplayers/audioplayers.dart'; // 音楽用
 import 'package:flutter/material.dart';
 import 'setup_screen.dart'; // 「新規ゲーム」を押した後の行き先
+import 'help_screen.dart';
+import 'settings_screen.dart';
 import '../constants/texts.dart'; // 追加: 定数テキストのインポート
 import '../widgets/title_button.dart'; // 追加: カスタムボタンのインポート
 import '../constants/app_colors.dart';
@@ -67,6 +69,24 @@ class _TitleScreenState extends State<TitleScreen> {
           // 半透明の黒を重ねて文字を見やすくする（お好みで）
           Container(color: AppColors.overlayScrim.withOpacity(0.3)),
 
+          Positioned(
+            top: 0,
+            right: 0,
+            child: SafeArea(
+              child: IconButton(
+                icon: const Icon(Icons.settings),
+                color: AppColors.textOnDark,
+                tooltip: AppTexts.goSettings,
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const SettingsScreen()),
+                  );
+                },
+              ),
+            ),
+          ),
+
           // --- 2. ロゴとボタン ---
           Center(
             child: Column(
@@ -109,6 +129,20 @@ class _TitleScreenState extends State<TitleScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => const SetupScreen()),
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: 250,
+                  height: 60,
+                  child: TitleButton(
+                    label: AppTexts.goHelp,
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const HelpScreen()),
                       );
                     },
                   ),
