@@ -20,8 +20,30 @@ class AppTexts {
   static const String presentationTimeSection = "② 時間設定";
   static const String presentationTimeLabel = "プレゼン時間";
   static const String presentationFeedbackLabel = "質疑応答時間";
-  static const String setupPlayerNameSection = "③ プレイヤー名（ドラッグで入替）";
+  static const String cardPresetSection = "③ カードプリセット";
+  static const String cardPresetLabel = "使用するカードセット";
+  static const String setupPlayerNameSection = "④ プレイヤー名（ドラッグで入替）";
   static const String defaultPlayerName = "プレイヤー";
+  static const String goHome = "ホームへ";
+  static const String goHelp = "ヘルプへ";
+  static const String goSettings = "設定へ";
+
+  // Help Screen
+  static const String helpTitle = "ヘルプ";
+  static const String helpSetupOverview = "この画面では、ゲーム開始前の設定を行います。";
+  static const String helpPlayerCount = "① プレイヤー数：3〜8人で設定できます。";
+  static const String helpTimeSettings = "② 時間設定：プレゼン時間と質疑応答時間を10秒刻みで設定できます。";
+  static const String helpCardPreset = "③ カードプリセット：使用するカードセットを選択できます。";
+  static const String helpPlayerNames = "④ プレイヤー名：名前を編集し、ドラッグで順番を入れ替えられます。";
+  static const String helpStartGame = "設定後、「ゲーム開始」を押すとゲームが始まります。";
+
+  // Settings Screen
+  static const String settingsTitle = "設定";
+  static const String settingsAudioSection = "音声設定";
+  static const String settingsBgmEnabled = "BGMを有効にする";
+  static const String settingsSeEnabled = "効果音を有効にする";
+  static const String settingsBgmVolume = "BGM音量";
+  static const String settingsSeVolume = "効果音音量";
 
   // Game Loop Screen
   static const String dragInstruction = "研究タイトルを決めてください";

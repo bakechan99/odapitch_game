@@ -5,6 +5,7 @@ import '../models/game_settings.dart';
 import '../models/player.dart';
 import '../constants/texts.dart';
 import '../widgets/custom_confirm_dialog.dart'; // 追加
+import 'settings_screen.dart';
 import 'presentation_screen.dart';
 import 'voting_screen.dart';
 import 'result_view.dart';
@@ -322,12 +323,37 @@ class _ResultScreenState extends State<ResultScreen> {
               ],
             ),
           ),
+          Positioned(
+            top: 0,
+            right: 0,
+            child: SafeArea(
+              child: IconButton(
+                icon: const Icon(Icons.settings),
+                color: AppColors.textOnDark,
+                tooltip: AppTexts.goSettings,
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const SettingsScreen()),
+                  );
+                },
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildPresentationScreen() {
+ 
+  // --- プレイヤーカラーの定義 ---
+  Color _getPlayerColor(int index) {
+    return AppColors.playerPalette[index % AppColors.playerPalette.length];
+  }
+
+/*
+
+ Widget _buildPresentationScreen() {
     final player = widget.players[currentPresenterIndex];
 
     // スタイル定義
@@ -448,11 +474,6 @@ class _ResultScreenState extends State<ResultScreen> {
         ),
       ),
     );
-  }
-
-  // --- プレイヤーカラーの定義 ---
-  Color _getPlayerColor(int index) {
-    return AppColors.playerPalette[index % AppColors.playerPalette.length];
   }
 
   // --- UI: 投票画面 (予算配分) ---
@@ -758,4 +779,7 @@ class _ResultScreenState extends State<ResultScreen> {
       ),
     );
   }
+*/
+
+
 }

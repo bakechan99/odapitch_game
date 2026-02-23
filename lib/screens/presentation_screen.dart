@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/player.dart';
 import '../models/game_settings.dart';
+import 'settings_screen.dart';
 import '../constants/texts.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_text_styles.dart';
@@ -44,6 +45,18 @@ class PresentationScreen extends StatelessWidget {
           icon: const Icon(Icons.home),
           onPressed: onHomePressed,
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            tooltip: AppTexts.goSettings,
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const SettingsScreen()),
+              );
+            },
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

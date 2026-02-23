@@ -100,18 +100,8 @@ class _SetupScreenState extends State<SetupScreen> {
 
   // --- ゲーム開始 ---
   Future<void> _startGame() async {
-    // 1. 入力バリデーション: 空文字の場合はデフォルト名を設定
-    for (int i = 0; i < playerCount; i++) {
-      if (_controllers[i].text.trim().isEmpty) {
-        _controllers[i].text = AppTexts.defaultPlayerNameWithIndex(i + 1);
-      }
-    }
-
-    // 2. 名前を保存 (バリデーション済みの名前が保存されます)
+    // 名前を保存
     await _savePlayerNames();
-
-    // 3. 非同期処理(保存)の待機後にウィジェットが存在しているか確認
-    if (!mounted) return;
 
     final String response = await rootBundle.loadString('assets/cards.json');
     final List<dynamic> data = json.decode(response);
@@ -120,7 +110,6 @@ class _SetupScreenState extends State<SetupScreen> {
 
     List<Player> players = [];
     for (int i = 0; i < playerCount; i++) {
-      // コントローラーの値は既に整形済みなのでそのまま使用
       Player p = Player(name: _controllers[i].text);
       for (int j = 0; j < 6; j++) {
         if (deck.isNotEmpty) p.hand.add(deck.removeLast());
