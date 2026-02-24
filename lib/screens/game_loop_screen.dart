@@ -76,12 +76,14 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
     return Scaffold(
       body: Stack(
         children: [
+          
           // 背景
           Container(
             decoration: const BoxDecoration(
               image: DecorationImage(image: AssetImage('assets/images/title_bg_2.png'), fit: BoxFit.cover),
             ),
           ),
+          Container(color: AppColors.overlayScrim.withOpacity(0.3)),
           Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -123,6 +125,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
               ),
             ),
           ),
+          
         ],
       ),
     );

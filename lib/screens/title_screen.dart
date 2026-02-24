@@ -67,7 +67,7 @@ class _TitleScreenState extends State<TitleScreen> {
           ),
           
           // 半透明の黒を重ねて文字を見やすくする（お好みで）
-          Container(color: AppColors.overlayScrim.withOpacity(0.3)),
+          //Container(color: AppColors.overlayScrim.withOpacity(0.3)),
 
           Positioned(
             top: 0,
