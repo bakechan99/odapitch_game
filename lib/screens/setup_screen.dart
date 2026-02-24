@@ -4,9 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../data/local_db.dart';
 import '../models/card_data.dart';
+import '../models/card_preset.dart';
 import '../models/player.dart';
 import '../models/game_settings.dart'; // 新規作成した設定モデル
 import 'game_loop_screen.dart';
+import 'help_screen.dart';
+import 'settings_screen.dart';
 import '../constants/texts.dart'; // 追加
 import '../widgets/custom_confirm_dialog.dart'; // 追加
 import '../constants/app_colors.dart';
@@ -26,11 +29,14 @@ class _SetupScreenState extends State<SetupScreen> {
   int presentationTime = 30; // デフォルト30秒
   int qaTime = 30; // 質疑応答時間 デフォルト30秒
   final List<TextEditingController> _controllers = [];
+  List<CardPreset> _presets = const [];
+  String _selectedPresetId = LocalDb.defaultPresetId;
 
   @override
   void initState() {
     super.initState();
     _loadPlayerNames(); // 保存された名前を読み込む
+    _loadCardPresets();
   }
 
   @override
@@ -66,6 +72,41 @@ class _SetupScreenState extends State<SetupScreen> {
     await LocalDb.instance.savePlayerNames(names);
   }
 
+  Future<void> _loadCardPresets() async {
+    final jsonText = await rootBundle.loadString('assets/card_presets.json');
+    final List<dynamic> decoded = json.decode(jsonText) as List<dynamic>;
+    final presets = decoded
+        .map((entry) => CardPreset.fromJson(entry as Map<String, dynamic>))
+        .toList();
+
+    final selected = await LocalDb.instance.loadSelectedPresetId();
+    final hasSelected = presets.any((preset) => preset.id == selected);
+
+    if (!mounted) return;
+
+    setState(() {
+      _presets = presets;
+      _selectedPresetId = hasSelected ? selected : LocalDb.defaultPresetId;
+    });
+
+    if (!hasSelected) {
+      await LocalDb.instance.saveSelectedPresetId(_selectedPresetId);
+    }
+  }
+
+  Future<String> _resolveSelectedPresetPath() async {
+    if (_presets.isEmpty) {
+      return 'assets/presets/cards.json';
+    }
+
+    final selected = _presets.where((preset) => preset.id == _selectedPresetId);
+    if (selected.isNotEmpty) {
+      return selected.first.path;
+    }
+
+    return _presets.first.path;
+  }
+
   void _updateControllers() {
     setState(_syncControllerCount);
   }
@@ -86,7 +127,7 @@ class _SetupScreenState extends State<SetupScreen> {
     setState(() {
       presentationTime += amount;
       if (presentationTime < 10) presentationTime = 10; // 最小10秒
-      if (presentationTime > 600) presentationTime = 600; // 最大10分
+      if (presentationTime > 60) presentationTime = 60; // 最大1分
     });
   }
 
@@ -103,7 +144,8 @@ class _SetupScreenState extends State<SetupScreen> {
     // 名前を保存
     await _savePlayerNames();
 
-    final String response = await rootBundle.loadString('assets/cards.json');
+    final presetPath = await _resolveSelectedPresetPath();
+    final String response = await rootBundle.loadString(presetPath);
     final List<dynamic> data = json.decode(response);
     List<CardData> deck = data.map((json) => CardData.fromJson(json)).toList();
     deck.shuffle(Random());
@@ -156,6 +198,28 @@ class _SetupScreenState extends State<SetupScreen> {
           icon: const Icon(Icons.home),
           onPressed: _showBackToTitleDialog,
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.help_outline),
+            tooltip: AppTexts.goHelp,
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const HelpScreen()),
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.volume_up_outlined),
+            tooltip: AppTexts.goSettings,
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const SettingsScreen()),
+              );
+            },
+          ),
+        ],
       ),
       body: SingleChildScrollView( // 画面からはみ出ないようにスクロール可能に
         padding: const EdgeInsets.all(16.0),
@@ -202,6 +266,32 @@ class _SetupScreenState extends State<SetupScreen> {
               },
               onDecrement: () => _changeQaTime(-10),
               onIncrement: () => _changeQaTime(10),
+            ),
+            const SizedBox(height: 20),
+
+            _buildSectionTitle(AppTexts.cardPresetSection),
+            const SizedBox(height: 8),
+            DropdownButtonFormField<String>(
+              value: _presets.any((p) => p.id == _selectedPresetId) ? _selectedPresetId : null,
+              decoration: const InputDecoration(
+                labelText: AppTexts.cardPresetLabel,
+                border: OutlineInputBorder(),
+              ),
+              items: _presets
+                  .map(
+                    (preset) => DropdownMenuItem<String>(
+                      value: preset.id,
+                      child: Text(preset.name),
+                    ),
+                  )
+                  .toList(),
+              onChanged: (value) async {
+                if (value == null) return;
+                setState(() {
+                  _selectedPresetId = value;
+                });
+                await LocalDb.instance.saveSelectedPresetId(value);
+              },
             ),
             const SizedBox(height: 20),
 
