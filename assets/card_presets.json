@@ -5,13 +5,23 @@
     "path": "assets/presets/cards.json"
   },
   {
-    "id": "ai_tech",
-    "name": "AI・テクノロジー",
-    "path": "assets/presets/cards_ai_tech.json"
+    "id": "travel",
+    "name": "旅行",
+    "path": "assets/presets/travel_20260216.json"
   },
   {
-    "id": "society",
-    "name": "社会・人文学",
-    "path": "assets/presets/cards_society.json"
+    "id": "cooking",
+    "name": "料理",
+    "path": "assets/presets/cooking_20260216.json"
+  },
+  {
+    "id": "bunkei",
+    "name": "文系向け",
+    "path": "assets/presets/bunkei_20260216.json"
+  },
+  {
+    "id": "meme",
+    "name": "ミーム",
+    "path": "assets/presets/meme_20260216.json"
   }
 ]
