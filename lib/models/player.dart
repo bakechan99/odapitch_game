@@ -6,8 +6,12 @@ class Player {
   List<CardData> hand = [];
   // ここを CardData から PlacedCard に変更
   List<PlacedCard> selectedCards = []; 
+
+  //AI関連保存領域
+  String? aiFeedback;
+  double aiScore = 0.0;
   
-  Player({required this.name});
+  Player({required this.name,this.aiFeedback, this.aiScore = 0.0});
   
   // 研究タイトルを生成するゲッター
   String get researchTitle {

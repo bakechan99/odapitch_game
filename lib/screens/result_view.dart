@@ -8,6 +8,8 @@ import '../constants/app_text_styles.dart';
 class ResultView extends StatelessWidget {
   final List<Player> players;
   final Map<int, Map<int, int>> voteMatrix;
+  // AIの結果を受け取る
+  final Map<int, Map<String, dynamic>> aiResults;
   final Color Function(int) getPlayerColor;
   final VoidCallback onHomePressed;
 
@@ -15,6 +17,7 @@ class ResultView extends StatelessWidget {
     super.key,
     required this.players,
     required this.voteMatrix,
+    required this.aiResults, // AI用追加
     required this.getPlayerColor,
     required this.onHomePressed,
   });
@@ -26,8 +29,10 @@ class ResultView extends StatelessWidget {
       int total = 0;
       Map<int, int> breakdown = voteMatrix[i] ?? {};
       breakdown.forEach((_, amount) => total += amount);
-      results.add({'player': players[i], 'total': total, 'breakdown': breakdown});
+      // 💡 aiData というキー名で保存します
+      results.add({'player': players[i], 'total': total, 'breakdown': breakdown, 'aiData': aiResults[i]}); 
     }
+    // 獲得金額順にソート
     results.sort((a, b) => (b['total'] as int).compareTo(a['total'] as int));
     final int maxPossibleTotal = players.length * 100;
 
@@ -61,6 +66,9 @@ class ResultView extends StatelessWidget {
                 final player = data['player'] as Player;
                 final int total = data['total'] as int;
                 final Map<int, int> breakdown = data['breakdown'] as Map<int, int>;
+                
+                // 💡 単数形の aiData として取り出す！
+                final Map<String, dynamic>? playerAiData = data['aiData'] as Map<String, dynamic>?;
 
                 return Card(
                   margin: const EdgeInsets.only(bottom: 20),
@@ -122,6 +130,38 @@ class ResultView extends StatelessWidget {
                             ),
                           ),
                         ),
+                        const SizedBox(height: 16),
+                        
+                        // 🌟 ここからAIの採点結果表示UI！
+                        if (playerAiData != null)
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: AppColors.surfaceSubtle,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: Colors.amber.withOpacity(0.3)),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    const Icon(Icons.smart_toy, size: 20, color: Colors.amber),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      'AI評価: ${playerAiData['score'] ?? 0}点', 
+                                      style: const TextStyle(color: Colors.amber, fontWeight: FontWeight.bold, fontSize: 16)
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  '講評: ${playerAiData['feedback'] ?? '評価なし'}', 
+                                  style: const TextStyle(fontSize: 14, height: 1.4)
+                                ),
+                              ],
+                            ),
+                          ),
                       ],
                     ),
                   ),
