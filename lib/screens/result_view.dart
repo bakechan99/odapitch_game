@@ -26,14 +26,43 @@ class ResultView extends StatelessWidget {
   Widget build(BuildContext context) {
     List<Map<String, dynamic>> results = [];
     for (int i = 0; i < players.length; i++) {
-      int total = 0;
+      // ① プレイヤーからの投票合計（基本予算）
+      int baseTotal = 0;
       Map<int, int> breakdown = voteMatrix[i] ?? {};
-      breakdown.forEach((_, amount) => total += amount);
-      // 💡 aiData というキー名で保存します
-      results.add({'player': players[i], 'total': total, 'breakdown': breakdown, 'aiData': aiResults[i]}); 
+      breakdown.forEach((_, amount) => baseTotal += amount);
+
+      // ② AIの評価倍率を安全に取得（エラー時は1.0倍にする）
+      double aiMultiplier = 1.0;
+      if (aiResults[i] != null && aiResults[i]!['score'] != null) {
+        // ※ '1' (int) が来ても '1.5' (double) が来ても絶対にエラーにならない最強の書き方
+        aiMultiplier = (aiResults[i]!['score'] as num).toDouble();
+      }
+
+      // ③ 掛け算して最終金額を計算（.toInt() で小数点以下を切り捨てて整数にする）
+      int finalTotal = (baseTotal * aiMultiplier).toInt();
+
+      // ④ 画面で計算式を見せるために、素の金額（baseTotal）と倍率（aiMultiplier）も保存しておく
+      results.add({
+        'player': players[i], 
+        'baseTotal': baseTotal,         // 素の投票額
+        'aiMultiplier': aiMultiplier,   // AIの倍率
+        'total': finalTotal,            // 掛け算後の最終額（これでソートする！）
+        'breakdown': breakdown, 
+        'aiData': aiResults[i]
+      }); 
     }
-    // 獲得金額順にソート
+    // 掛け算後の「total」を使って、獲得金額順にソート（変更なし）
     results.sort((a, b) => (b['total'] as int).compareTo(a['total'] as int));
+    // List<Map<String, dynamic>> results = [];
+    // for (int i = 0; i < players.length; i++) {
+    //   int total = 0;
+    //   Map<int, int> breakdown = voteMatrix[i] ?? {};
+    //   breakdown.forEach((_, amount) => total += amount);
+    //   // 💡 aiData というキー名で保存します
+    //   results.add({'player': players[i], 'total': total, 'breakdown': breakdown, 'aiData': aiResults[i]}); 
+    // }
+    // // 獲得金額順にソート
+    // results.sort((a, b) => (b['total'] as int).compareTo(a['total'] as int));
     final int maxPossibleTotal = players.length * 100;
 
     return Scaffold(
