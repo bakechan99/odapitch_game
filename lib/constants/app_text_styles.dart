@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'app_colors.dart';
 
 class AppTextStyles {
@@ -130,7 +131,7 @@ class AppTextStyles {
   );
 
   // Title button
-  static const TextStyle titleButton = TextStyle(
+  static final TextStyle titleButton =  GoogleFonts.delaGothicOne(
     color: AppColors.titleButtonText,
     fontSize: 100,
     fontWeight: FontWeight.w700,
@@ -234,5 +235,5 @@ class AppTextStyles {
   static const TextStyle sliderLabel = labelField;
   static const TextStyle sliderValue = valueLarge;
   static const TextStyle primaryButton = buttonPrimary;
-  static const TextStyle titleButtonLabel = titleButton;
+  static final TextStyle titleButtonLabel = titleButton;
 }
