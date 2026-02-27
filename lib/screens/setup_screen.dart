@@ -14,6 +14,7 @@ import 'help_screen.dart';
 import 'settings_screen.dart';
 import '../constants/texts.dart';
 import '../widgets/custom_confirm_dialog.dart';
+import '../widgets/time_setting_control.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_text_styles.dart';
 
@@ -237,7 +238,44 @@ class _SetupScreenState extends State<SetupScreen> {
       body: SingleChildScrollView( // 画面からはみ出ないようにスクロール可能に
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          children: [
+          children: [ 
+            // 時間設定セクション（統合）
+            _buildSectionTitle(AppTexts.presentationTimeSection),
+            const SizedBox(height: 10),
+            
+
+            Container(
+              padding: const EdgeInsets.all(12),
+              margin: const EdgeInsets.symmetric(vertical: 6),
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.borderLight),
+              ),
+              child:Column(
+                children: [
+                  _buildTimeSlider(
+                    label: AppTexts.presentationTimeLabel,
+                    value: presentationTime,
+                    onDecrement: () => _changeTime(-10),
+                    onIncrement: () => _changeTime(10),
+                  ),
+                  const SizedBox(height: 8),
+                  const Divider(),
+                  const SizedBox(height: 8),
+                  _buildTimeSlider(
+                    label: AppTexts.presentationFeedbackLabel,
+                    value: qaTime,
+                    onDecrement: () => _changeQaTime(-10),
+                    onIncrement: () => _changeQaTime(10),
+                  ),
+                ],
+              )
+            ),
+            
+            const SizedBox(height: 20),
+
+            // プレイヤー数セクション
             _buildSectionTitle(AppTexts.playerCountSection),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -249,39 +287,8 @@ class _SetupScreenState extends State<SetupScreen> {
               ],
             ),
             const SizedBox(height: 20),
-            
-            // 時間設定セクション（統合）
-            _buildSectionTitle(AppTexts.presentationTimeSection),
-            const SizedBox(height: 10),
-            
-            // プレゼン時間設定
-            _buildTimeSlider(
-              label: AppTexts.presentationTimeLabel,
-              value: presentationTime,
-              onChanged: (val) {
-                setState(() {
-                  presentationTime = val.toInt();
-                });
-              },
-              onDecrement: () => _changeTime(-10),
-              onIncrement: () => _changeTime(10),
-            ),
-            const SizedBox(height: 10),
 
-            // 質疑応答時間設定
-            _buildTimeSlider(
-              label: AppTexts.presentationFeedbackLabel,
-              value: qaTime,
-              onChanged: (val) {
-                setState(() {
-                  qaTime = val.toInt();
-                });
-              },
-              onDecrement: () => _changeQaTime(-10),
-              onIncrement: () => _changeQaTime(10),
-            ),
-            const SizedBox(height: 20),
-
+            // カードプリセットセクション
             _buildSectionTitle(AppTexts.cardPresetSection),
             const SizedBox(height: 8),
             DropdownButtonFormField<String>(
@@ -363,52 +370,14 @@ class _SetupScreenState extends State<SetupScreen> {
   Widget _buildTimeSlider({
     required String label,
     required int value,
-    required ValueChanged<double> onChanged,
     required VoidCallback onDecrement,
     required VoidCallback onIncrement,
   }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // ラベル表示
-        Padding(
-          padding: const EdgeInsets.only(left: 10),
-          child: Text(label, style: AppTextStyles.labelField),
-        ),
-        const SizedBox(height: 5),
-        // 現在値の表示
-        Center(
-          child: Text(
-            AppTexts.secondsUnit(value),
-            style: AppTextStyles.valueLarge,
-          ),
-        ),
-        Row(
-          children: [
-            // マイナスボタン
-            IconButton(
-              icon: const Icon(Icons.remove_circle_outline, size: 32, color: AppColors.textMuted),
-              onPressed: onDecrement,
-            ),
-            // スライダー
-            Expanded(
-              child: Slider(
-                value: value.toDouble(),
-                min: 10,
-                max: 600,
-                divisions: 59, // (600-10)/10 = 59分割 (10秒刻み)
-                label: AppTexts.secondsUnit(value),
-                onChanged: onChanged,
-              ),
-            ),
-            // プラスボタン
-            IconButton(
-              icon: const Icon(Icons.add_circle_outline, size: 32, color: AppColors.textMuted),
-              onPressed: onIncrement,
-            ),
-          ],
-        ),
-      ],
+    return TimeSettingControl(
+      label: label,
+      value: value,
+      onDecrement: onDecrement,
+      onIncrement: onIncrement,
     );
   }
 }

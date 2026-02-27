@@ -11,7 +11,7 @@ class AppTexts {
 
   // Title Screen
   static const String gameTitle = "カケンヒゲーム";
-  static const String startGameButton = "ゲームを始める";
+  static const String startGameButton = "スタート";
   static const String newGameButton = "新規ゲーム";
 
   // Setup Screen
