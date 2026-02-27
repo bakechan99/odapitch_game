@@ -11,53 +11,54 @@ class DecorativeBand extends StatelessWidget {
     super.key,
     this.showBadge = false,
     this.badgeIcon = Icons.style,
-    this.bandHeight = 18,
+    this.bandHeight = 40,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        Container(
-          height: bandHeight,
-          color: AppColors.actionPrimary.withValues(alpha: 0.35),
-          alignment: Alignment.center,
-          child: Container(
-            height: 3,
-            color: AppColors.actionPrimary,
+    const badgeSize = 80.0;
+    final badgeTop = -(badgeSize - bandHeight);
+
+    return SizedBox(
+      width: double.infinity,
+      height: bandHeight,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          const Positioned.fill(
+            child: ColoredBox(color: AppColors.actionPrimary),
           ),
-        ),
-        if (showBadge)
-          Positioned(
-            top: -22,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppColors.surface,
-                  border: Border.all(color: AppColors.borderLight),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: AppColors.shadowLight,
-                      blurRadius: 4,
-                      offset: Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Icon(
-                  badgeIcon,
-                  size: 22,
-                  color: AppColors.textMuted,
+          if (showBadge)
+            Positioned(
+              top: badgeTop,
+              left: 0,
+              right: 0,
+              child: Center(
+                child: Container(
+                  width: badgeSize,
+                  height: badgeSize,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AppColors.surface,
+                    border: Border.all(color: AppColors.borderLight),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: AppColors.shadowLight,
+                        blurRadius: 4,
+                        offset: Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Icon(
+                    badgeIcon,
+                    size: 22,
+                    color: AppColors.textMuted,
+                  ),
                 ),
               ),
             ),
-          ),
-      ],
+        ],
+      ),
     );
   }
 }

@@ -5,7 +5,8 @@ class AppColors {
 
   // Theme palette
   static const MaterialColor primarySwatch = Colors.blue;
-  static const Color themePrimary = Colors.blue;
+  static const Color themePrimary = Color.fromARGB(255, 96, 224, 234);
+  static const Color themePrimaryDark = Color.fromARGB(255, 35, 195, 215);
   static const Color themeAccent = Colors.blueAccent;
 
   // Text
@@ -29,7 +30,7 @@ class AppColors {
   static const Color transparent = Colors.transparent;
 
   // Actions
-  static const Color actionPrimary = Colors.blue;
+  static const Color actionPrimary = themePrimaryDark;
   static const Color actionAccent = Colors.orange;
   static const Color actionDanger = Colors.red;
   static const Color actionDisabled = Colors.grey;
@@ -48,7 +49,7 @@ class AppColors {
   static Color get fancyButtonDisabledLight => Colors.grey.shade400;
 
   // Borders / dividers / shadows
-  static const Color borderAccent = Colors.blueAccent;
+  static const Color borderAccent = themePrimaryDark;
   static Color get borderLight => Colors.grey.shade300;
   static Color get divider => Colors.grey.shade200;
   static Color get dividerStrong => Colors.grey.shade300;
@@ -84,6 +85,10 @@ class AppColors {
   static const Color titleButtonNormalTop = Color(0xFFE0E0E0);
   static const Color titleButtonNormalBottom = Color(0xFFBDBDBD);
   static const Color titleButtonInnerHighlight = Colors.white;
+
+  static const Color titleStartButtonBorder = Color(0xFFFF4C47);
+  static const Color titleStartButtonText = Color(0xFFFFFFFF);
+  static const Color titleStartButtonNormalTop =Color(0xFFFF4C47);
 
   static const Color cardBackground = surface;
   static const Color iconMuted = textMuted;

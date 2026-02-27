@@ -51,54 +51,121 @@ class _TitleScreenState extends State<TitleScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       // Stackを使うと、要素を「重ねて」表示できます（背景の上にボタン、など）
-      body: Stack(
-        children: [
-          // --- 1. 背景画像 ---
-          // 画面いっぱいに画像を広げる設定
-          Container(
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                // ※ ここに画像ファイル名を入れる
-                image: AssetImage('assets/images/title_bg_2.png'), 
-                fit: BoxFit.cover, // 画面全体を覆うように拡大縮小
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          const topBandHeight = 18.0;
+          const bottomBandHeight = 18.0;
+          const accentBandHeight = 12.0;
+          const middleBandHeight = 10.0;
+          const middleBandToTitleGap = 20.0;
+          const titleToButtonGap = 28.0;
+          const buttonGap = 14.0;
+          const bottomGap = 28.0;
+          final fillColor = AppColors.actionPrimary.withValues(alpha: 0.35);
+          final accentFillColor = AppColors.actionPrimary.withValues(alpha: 0.55);
+
+          final titleFontSize = (constraints.maxWidth * 0.09).clamp(28.0, 56.0);
+          final startButtonHeight = (constraints.maxWidth * 0.5) / 3.0;
+          final helpButtonHeight = (constraints.maxWidth * 0.4) / 3.0;
+          final titleHeight = titleFontSize * 1.0; // タイトルの高さをフォントサイズから推定（行間込み）
+
+          final contentHeight =
+              topBandHeight +
+              middleBandHeight +
+              middleBandToTitleGap +
+              titleHeight +
+              titleToButtonGap +
+              startButtonHeight +
+              buttonGap +
+              helpButtonHeight +
+              bottomGap +
+              bottomBandHeight;
+
+          final topFillHeight = ((constraints.maxHeight - contentHeight) / 2).clamp(0.0, constraints.maxHeight);
+          final accentOffset = (topFillHeight - accentBandHeight).clamp(0.0, constraints.maxHeight);
+
+          return Stack(
+            children: [
+              IgnorePointer(
+                child: Align(
+                  alignment: Alignment.topCenter,
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: topFillHeight,
+                    child: ColoredBox(
+                      color: fillColor,
+                    ),
+                  ),
+                ),
               ),
-              // color: Colors.blueAccent, // 画像がない時の代わりの背景色
-            ),
-          ),
-
-          Positioned(
-            top: 0,
-            right: 0,
-            child: SafeArea(
-              child: IconButton(
-                icon: const Icon(Icons.settings),
-                color: AppColors.textOnDark,
-                tooltip: AppTexts.goSettings,
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const SettingsScreen()),
-                  );
-                },
+              Positioned(
+                top: accentOffset,
+                left: 0,
+                right: 0,
+                child: IgnorePointer(
+                  child: SizedBox(
+                    height: accentBandHeight,
+                    child: ColoredBox(color: accentFillColor),
+                  ),
+                ),
               ),
-            ),
-          ),
-
-          // --- 2. ロゴとボタン ---
-          Center(
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                final titleFontSize = (constraints.maxWidth * 0.5).clamp(28.0, 100.0);
-
-                return Column(
+              IgnorePointer(
+                child: Align(
+                  alignment: Alignment.bottomCenter,
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: topFillHeight,
+                    child: ColoredBox(
+                      color: fillColor,
+                    ),
+                  ),
+                ),
+              ),
+              Positioned(
+                bottom: accentOffset,
+                left: 0,
+                right: 0,
+                child: IgnorePointer(
+                  child: SizedBox(
+                    height: accentBandHeight,
+                    child: ColoredBox(color: accentFillColor),
+                  ),
+                ),
+              ),
+              Positioned(
+                top: 0,
+                right: 0,
+                child: SafeArea(
+                  child: IconButton(
+                    icon: const Icon(Icons.settings),
+                    color: AppColors.textOnDark,
+                    tooltip: AppTexts.goSettings,
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const SettingsScreen()),
+                      );
+                    },
+                  ),
+                ),
+              ),
+              Center(
+                child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const SizedBox(height: 80),
                     const DecorativeBand(
                       showBadge: true,
                       badgeIcon: Icons.style,
+                      bandHeight: topBandHeight,
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(
+                      width: constraints.maxWidth,
+                      child: ColoredBox(
+                        color: fillColor, // レイヤーと同じ色
+                        child: const SizedBox(height: middleBandHeight), // 帯の太さ
+                      ),
+                    ),
+                    const SizedBox(height: middleBandToTitleGap),
                     Text(
                       AppTexts.gameTitle,
                       textAlign: TextAlign.center,
@@ -108,7 +175,7 @@ class _TitleScreenState extends State<TitleScreen> {
                         color: AppColors.textTitle,
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: titleToButtonGap),
                     FractionallySizedBox(
                       widthFactor: 0.5,
                       child: AspectRatio(
@@ -123,10 +190,13 @@ class _TitleScreenState extends State<TitleScreen> {
                               ),
                             );
                           },
+                          borderColor: AppColors.titleStartButtonBorder,
+                          fillColor: AppColors.titleStartButtonNormalTop,
+                          textColor: AppColors.titleStartButtonText,
                         ),
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: buttonGap),
                     FractionallySizedBox(
                       widthFactor: 0.4,
                       child: AspectRatio(
@@ -142,14 +212,21 @@ class _TitleScreenState extends State<TitleScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 24),
-                    const DecorativeBand(),
+                    const SizedBox(height: bottomGap),
+                    SizedBox(
+                      width: constraints.maxWidth,
+                      child: ColoredBox(
+                        color: fillColor, // レイヤーと同じ色
+                        child: const SizedBox(height: middleBandHeight), // 帯の太さ
+                      ),
+                    ),
+                    const DecorativeBand(bandHeight: bottomBandHeight),
                   ],
-                );
-              },
-            ),
-          ),
-        ],
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
