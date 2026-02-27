@@ -11,11 +11,9 @@ import 'voting_screen.dart';
 import 'result_view.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_text_styles.dart';
+import '../features/game_session/application/result_session_controller.dart';
 
-// 🌟 API通信用のファイルをインポート（パスは環境に合わせて調整してください）
 import '../services/api_service.dart';
-
-enum ScreenPhase { presentationStandby, presentation, votingStandby, voting, result }
 
 class ResultScreen extends StatefulWidget {
   final List<Player> players;
@@ -27,42 +25,25 @@ class ResultScreen extends StatefulWidget {
 }
 
 class _ResultScreenState extends State<ResultScreen> {
-  ScreenPhase currentPhase = ScreenPhase.presentationStandby;
-  int currentPresenterIndex = 0;
-  int currentVoterIndex = 0;
-  
-  Map<int, Map<int, int>> voteMatrix = {};
-  Map<int, int> currentAllocation = {};
-
-  // 🌟 AIの採点結果を保存するマップ（key: プレイヤーのIndex, value: AIの点数と講評）
-  Map<int, Map<String, dynamic>> aiResults = {};
-  // 🌟 AI採点中のローディングフラグ
-  bool _isFetchingAI = false;
-
-  Timer? _timer;
-  int _timeLeft = 30;
-  int _qaTimeLeft = 30; 
-  
-  bool _isPresentationMode = true; 
-  bool _isTimerRunning = false;    
+  late final ResultSessionController _controller;
 
   final AudioPlayer _audioPlayer = AudioPlayer();
 
   @override
   void initState() {
     super.initState();
-    for (int i = 0; i < widget.players.length; i++) {
-      voteMatrix[i] = {};
-    }
-    setState(() {
-      _timeLeft = widget.settings.presentationTimeSec;
-      _qaTimeLeft = widget.settings.qaTimeSec;
-    });
+    _controller = ResultSessionController(
+      players: widget.players,
+      presentationTimeSec: widget.settings.presentationTimeSec,
+      qaTimeSec: widget.settings.qaTimeSec,
+      titleScorer: ApiService.getTitleScore,
+      onTimeUp: _playSound,
+    );
   }
 
   @override
   void dispose() {
-    _timer?.cancel();
+    _controller.dispose();
     _audioPlayer.dispose();
     super.dispose();
   }
@@ -88,42 +69,6 @@ class _ResultScreenState extends State<ResultScreen> {
     );
   }
 
-  void _toggleTimer() {
-    if (_isTimerRunning) {
-      _timer?.cancel();
-      setState(() {
-        _isTimerRunning = false;
-      });
-    } else {
-      setState(() {
-        _isTimerRunning = true;
-      });
-      _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-        if (!mounted) return;
-        
-        setState(() {
-          if (_isPresentationMode) {
-            if (_timeLeft > 0) {
-              _timeLeft--;
-            } else {
-              _timer?.cancel();
-              _isTimerRunning = false;
-              _playSound(); 
-            }
-          } else {
-            if (_qaTimeLeft > 0) {
-              _qaTimeLeft--;
-            } else {
-              _timer?.cancel();
-              _isTimerRunning = false;
-              _playSound(); 
-            }
-          }
-        });
-      });
-    }
-  }
-
   Future<void> _playSound() async {
     try {
       await _audioPlayer.play(AssetSource('audio/timeup.mp3'));
@@ -132,192 +77,87 @@ class _ResultScreenState extends State<ResultScreen> {
     }
   }
 
-  void _startPresentation() {
-    _showConfirmDialog(
-      title: AppTexts.presentationStartTitle, 
-      content: AppTexts.presentationTimeMsg(widget.settings.presentationTimeSec),
-      onConfirm: () {
-        setState(() {
-          currentPhase = ScreenPhase.presentation;
-          _timeLeft = widget.settings.presentationTimeSec;
-          _qaTimeLeft = widget.settings.qaTimeSec;
-          _isPresentationMode = true;
-          _isTimerRunning = false;
-        });
-      }
-    );
-  }
-
-  void _proceedToNextStep() {
-    _timer?.cancel();
-    setState(() {
-      _isTimerRunning = false;
-    });
-
-    if (_isPresentationMode) {
-      setState(() {
-        _isPresentationMode = false;
-      });
-    } else {
-      if (currentPresenterIndex < widget.players.length - 1) {
-        setState(() {
-          currentPresenterIndex++;
-          currentPhase = ScreenPhase.presentationStandby;
-        });
-      } else {
-        setState(() {
-          currentPhase = ScreenPhase.votingStandby;
-        });
-      }
-    }
-  }
-
-  void _startVoting() {
-    currentAllocation = {};
-    for (int i = 0; i < widget.players.length; i++) {
-      if (i != currentVoterIndex) {
-        currentAllocation[i] = 0;
-      }
-    }
-    setState(() => currentPhase = ScreenPhase.voting);
-  }
-
-  void _submitVote() {
-    _showConfirmDialog(
-      title: AppTexts.voteConfirmTitle, 
-      content: AppTexts.checkBudget,
-      onConfirm: () {
-        currentAllocation.forEach((targetIndex, amount) {
-          voteMatrix[targetIndex]![currentVoterIndex] = amount;
-        });
-
-        if (currentVoterIndex < widget.players.length - 1) {
-          setState(() {
-            currentVoterIndex++;
-            currentPhase = ScreenPhase.votingStandby;
-          });
-        } else {
-          _calcResult(); // ここで集計とAI採点に進む！
-        }
-      }
-    );
-  }
-
-  // 🌟 変更点：非同期(async)にして、AIに全プレイヤーのタイトルを採点してもらう
-  Future<void> _calcResult() async {
-    // ローディング画面を表示
-    setState(() {
-      _isFetchingAI = true;
-    });
-
-    // 全プレイヤーのタイトルを順番にAWSに送って採点！
-    for (int i = 0; i < widget.players.length; i++) {
-      final title = widget.players[i].researchTitle;
-      final result = await ApiService.getTitleScore(title);
-      
-      if (result != null) {
-        aiResults[i] = result;
-      } else {
-        // 万が一通信エラーが起きた場合のダミーデータ
-        aiResults[i] = {'score': 0.0, 'feedback': 'AIサーバーと通信できませんでした。'};
-      }
-    }
-
-    // 採点完了！結果画面へ移行
-    setState(() {
-      _isFetchingAI = false;
-      currentPhase = ScreenPhase.result;
-    });
-
-    try {
-      //TODO: ここで結果発表の音を鳴らす（音声ファイルは assets/audio/result.mp3 としてプロジェクトに追加しておく）
-      //_audioPlayer.play(AssetSource('audio/result.mp3'));
-    } catch (e) {
-      debugPrint("音声ファイルエラー: $e");
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    // 🌟 変更点：AI採点中はローディング画面を出す
-    if (_isFetchingAI) {
-      return Scaffold(
-        backgroundColor: AppColors.surfacePanel, // 背景色
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
-              CircularProgressIndicator(color: AppColors.actionAccent),
-              SizedBox(height: 20),
-              Text(
-                'AIが全員のタイトルを厳正に審査中...',
-                style: AppTextStyles.headingOnDarkLarge,
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, _) {
+        if (_controller.isFetchingAI) {
+          return Scaffold(
+            backgroundColor: AppColors.surfacePanel,
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  CircularProgressIndicator(color: AppColors.actionAccent),
+                  SizedBox(height: 20),
+                  Text(
+                    'AIが全員のタイトルを厳正に審査中...',
+                    style: AppTextStyles.headingOnDarkLarge,
+                  ),
+                ],
               ),
-            ],
-          ),
-        ),
-      );
-    }
+            ),
+          );
+        }
 
-    switch (currentPhase) {
-      case ScreenPhase.presentationStandby:
-        return _buildStandbyScreen(
-          player: widget.players[currentPresenterIndex],
-          message: AppTexts.nextPresenter,
-          onReady: _startPresentation,
-        );
-      case ScreenPhase.presentation:
-        return PresentationScreen(
-          player: widget.players[currentPresenterIndex],
-          isPresentationMode: _isPresentationMode,
-          isTimerRunning: _isTimerRunning,
-          timeLeft: _timeLeft,
-          qaTimeLeft: _qaTimeLeft,
-          settings: widget.settings,
-          onHomePressed: _onHomePressed,
-          toggleTimer: _toggleTimer,
-          proceedToNextStep: _proceedToNextStep,
-        );
-      case ScreenPhase.votingStandby:
-        return _buildStandbyScreen(
-          player: widget.players[currentVoterIndex],
-          message: AppTexts.nextVoter,
-          onReady: _startVoting,
-        );
-      case ScreenPhase.voting:
-        return VotingScreen(
-          players: widget.players,
-          currentVoterIndex: currentVoterIndex,
-          currentAllocation: currentAllocation,
-          onHomePressed: _onHomePressed,
-          onAllocationChanged: (index, newVal) {
-            setState(() {
-              currentAllocation[index] = newVal;
-            });
-          },
-          onIncrement: (index) {
-            setState(() {
-              int cur = currentAllocation[index] ?? 0;
-              if ((currentAllocation.values.fold(0, (s, v) => s + v)) < 100) currentAllocation[index] = cur + 1;
-            });
-          },
-          onDecrement: (index) {
-            setState(() {
-              int cur = currentAllocation[index] ?? 0;
-              if (cur > 0) currentAllocation[index] = cur - 1;
-            });
-          },
-          submitVote: _submitVote,
-        );
-      case ScreenPhase.result:
-        return ResultView(
-          players: widget.players,
-          voteMatrix: voteMatrix,
-          aiResults: aiResults, // 🌟 ここで取得したAIの採点結果を丸ごと渡す！
-          getPlayerColor: _getPlayerColor,
-          onHomePressed: _onHomePressed,
-        );
-    }
+        switch (_controller.currentPhase) {
+          case ScreenPhase.presentationStandby:
+            return _buildStandbyScreen(
+              player: widget.players[_controller.currentPresenterIndex],
+              message: AppTexts.nextPresenter,
+              onReady: () => _showConfirmDialog(
+                title: AppTexts.presentationStartTitle,
+                content: AppTexts.presentationTimeMsg(widget.settings.presentationTimeSec),
+                onConfirm: _controller.startPresentation,
+              ),
+            );
+          case ScreenPhase.presentation:
+            return PresentationScreen(
+              player: widget.players[_controller.currentPresenterIndex],
+              isPresentationMode: _controller.isPresentationMode,
+              isTimerRunning: _controller.isTimerRunning,
+              timeLeft: _controller.timeLeft,
+              qaTimeLeft: _controller.qaTimeLeft,
+              settings: widget.settings,
+              onHomePressed: _onHomePressed,
+              toggleTimer: _controller.toggleTimer,
+              proceedToNextStep: _controller.proceedToNextStep,
+            );
+          case ScreenPhase.votingStandby:
+            return _buildStandbyScreen(
+              player: widget.players[_controller.currentVoterIndex],
+              message: AppTexts.nextVoter,
+              onReady: _controller.startVoting,
+            );
+          case ScreenPhase.voting:
+            return VotingScreen(
+              players: widget.players,
+              currentVoterIndex: _controller.currentVoterIndex,
+              currentAllocation: _controller.currentAllocation,
+              onHomePressed: _onHomePressed,
+              onAllocationChanged: _controller.setAllocation,
+              onIncrement: _controller.incrementAllocation,
+              onDecrement: _controller.decrementAllocation,
+              submitVote: () => _showConfirmDialog(
+                title: AppTexts.voteConfirmTitle,
+                content: AppTexts.checkBudget,
+                onConfirm: () {
+                  _controller.submitVote();
+                },
+              ),
+            );
+          case ScreenPhase.result:
+            return ResultView(
+              players: widget.players,
+              voteMatrix: _controller.voteMatrix,
+              aiResults: _controller.aiResults,
+              getPlayerColor: _getPlayerColor,
+              onHomePressed: _onHomePressed,
+            );
+        }
+      },
+    );
   }
 
   Widget _buildStandbyScreen({required Player player, required String message, required VoidCallback onReady}) {

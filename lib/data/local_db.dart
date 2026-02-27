@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
+import '../models/game_settings.dart';
 
 /// Local SQLite gateway for simple persistence (player names for now).
 class LocalDb {
@@ -8,6 +9,9 @@ class LocalDb {
 
   static final LocalDb instance = LocalDb._();
   static const String defaultPresetId = 'default';
+  static const String _keyPresentationTimeSec = 'presentation_time_sec';
+  static const String _keyQaTimeSec = 'qa_time_sec';
+  static const String _keyPlayerCount = 'player_count';
 
   Database? _db;
 
@@ -20,7 +24,7 @@ class LocalDb {
 
     final db = await openDatabase(
       path,
-      version: 2,
+      version: 3,
       onCreate: (db, version) async {
         await db.execute(
           'CREATE TABLE player_names ('
@@ -50,6 +54,21 @@ class LocalDb {
           'key': 'selected_preset_id',
           'value': defaultPresetId,
         });
+
+        await db.insert('app_settings', {
+          'key': _keyPresentationTimeSec,
+          'value': GameSettings.defaultPresentationTimeSec.toString(),
+        });
+
+        await db.insert('app_settings', {
+          'key': _keyQaTimeSec,
+          'value': GameSettings.defaultQaTimeSec.toString(),
+        });
+
+        await db.insert('app_settings', {
+          'key': _keyPlayerCount,
+          'value': GameSettings.defaultPlayerCount.toString(),
+        });
       },
       onUpgrade: (db, oldVersion, newVersion) async {
         if (oldVersion < 2) {
@@ -77,6 +96,63 @@ class LocalDb {
             },
             conflictAlgorithm: ConflictAlgorithm.ignore,
           );
+
+          await db.insert(
+            'app_settings',
+            {
+              'key': _keyPresentationTimeSec,
+              'value': GameSettings.defaultPresentationTimeSec.toString(),
+            },
+            conflictAlgorithm: ConflictAlgorithm.ignore,
+          );
+
+          await db.insert(
+            'app_settings',
+            {
+              'key': _keyQaTimeSec,
+              'value': GameSettings.defaultQaTimeSec.toString(),
+            },
+            conflictAlgorithm: ConflictAlgorithm.ignore,
+          );
+
+          await db.insert(
+            'app_settings',
+            {
+              'key': _keyPlayerCount,
+              'value': GameSettings.defaultPlayerCount.toString(),
+            },
+            conflictAlgorithm: ConflictAlgorithm.ignore,
+          );
+        }
+
+        if (oldVersion < 3) {
+          await db.insert(
+            'app_settings',
+            {
+              'key': _keyPresentationTimeSec,
+              'value': GameSettings.defaultPresentationTimeSec.toString(),
+            },
+            conflictAlgorithm: ConflictAlgorithm.ignore,
+          );
+
+          await db.insert(
+            'app_settings',
+            {
+              'key': _keyQaTimeSec,
+              'value': GameSettings.defaultQaTimeSec.toString(),
+            },
+            conflictAlgorithm: ConflictAlgorithm.ignore,
+          );
+
+          await db.insert(
+            'app_settings',
+            {
+              'key': _keyPlayerCount,
+              'value': GameSettings.defaultPlayerCount.toString(),
+            },
+            conflictAlgorithm: ConflictAlgorithm.ignore,
+          );
+
         }
       },
     );
@@ -187,6 +263,33 @@ class LocalDb {
       },
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
+  }
+
+  Future<GameSettings> loadGameSettings() async {
+    if (kIsWeb) {
+      return GameSettings.defaults;
+    }
+
+    final presentation = await loadAppSetting(_keyPresentationTimeSec);
+    final qa = await loadAppSetting(_keyQaTimeSec);
+    final playerCount = await loadAppSetting(_keyPlayerCount);
+
+    return GameSettings.fromSettingsMap({
+      _keyPresentationTimeSec: presentation,
+      _keyQaTimeSec: qa,
+      _keyPlayerCount: playerCount,
+    });
+  }
+
+  Future<void> saveGameSettings(GameSettings settings) async {
+    if (kIsWeb) {
+      return;
+    }
+
+    final map = settings.toSettingsMap();
+    for (final entry in map.entries) {
+      await saveAppSetting(entry.key, entry.value);
+    }
   }
 
   Future<String?> loadCache(String key) async {

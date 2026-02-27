@@ -2,16 +2,18 @@ import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../data/local_db.dart';
 import '../models/card_data.dart';
 import '../models/card_preset.dart';
 import '../models/player.dart';
-import '../models/game_settings.dart'; // 新規作成した設定モデル
+import '../models/game_settings.dart';
+import '../data/local_db.dart';
+import '../features/setup/application/setup_controller.dart';
+import '../features/setup/data/setup_repository_impl.dart';
 import 'game_loop_screen.dart';
 import 'help_screen.dart';
 import 'settings_screen.dart';
-import '../constants/texts.dart'; // 追加
-import '../widgets/custom_confirm_dialog.dart'; // 追加
+import '../constants/texts.dart';
+import '../widgets/custom_confirm_dialog.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_text_styles.dart';
 
@@ -26,16 +28,18 @@ class SetupScreen extends StatefulWidget {
 /// Holds setup state and persists player names to local SQLite.
 class _SetupScreenState extends State<SetupScreen> {
   int playerCount = 3;
-  int presentationTime = 30; // デフォルト30秒
-  int qaTime = 30; // 質疑応答時間 デフォルト30秒
+  int presentationTime = GameSettings.defaultPresentationTimeSec;
+  int qaTime = GameSettings.defaultQaTimeSec;
   final List<TextEditingController> _controllers = [];
   List<CardPreset> _presets = const [];
   String _selectedPresetId = LocalDb.defaultPresetId;
+  late final SetupController _setupController;
 
   @override
   void initState() {
     super.initState();
-    _loadPlayerNames(); // 保存された名前を読み込む
+    _setupController = SetupController(SetupRepositoryImpl());
+    _loadInitialData();
     _loadCardPresets();
   }
 
@@ -48,28 +52,29 @@ class _SetupScreenState extends State<SetupScreen> {
   }
 
   // --- 保存機能 ---
-  Future<void> _loadPlayerNames() async {
-    final savedNames = await LocalDb.instance.loadPlayerNames();
+  Future<void> _loadInitialData() async {
+    final initialData = await _setupController.loadInitialData();
 
     if (!mounted) return;
 
     setState(() {
+      _selectedPresetId = initialData.selectedPresetId;
+      presentationTime = initialData.settings.presentationTimeSec;
+      qaTime = initialData.settings.qaTimeSec;
+
+      final savedNames = initialData.playerNames;
       if (savedNames.isNotEmpty) {
-        playerCount = max(3, min(8, savedNames.length));
+        playerCount = _setupController.clampPlayerCount(savedNames.length);
         _controllers.clear();
-        for (String name in savedNames) {
+        for (final String name in savedNames) {
           _controllers.add(TextEditingController(text: name));
         }
         _syncControllerCount();
       } else {
+        playerCount = _setupController.clampPlayerCount(initialData.settings.playerCount);
         _syncControllerCount(); // 保存がない場合はデフォルト
       }
     });
-  }
-
-  Future<void> _savePlayerNames() async {
-    List<String> names = _controllers.map((c) => c.text).toList();
-    await LocalDb.instance.savePlayerNames(names);
   }
 
   Future<void> _loadCardPresets() async {
@@ -79,7 +84,7 @@ class _SetupScreenState extends State<SetupScreen> {
         .map((entry) => CardPreset.fromJson(entry as Map<String, dynamic>))
         .toList();
 
-    final selected = await LocalDb.instance.loadSelectedPresetId();
+    final selected = await _setupController.loadSelectedPresetId();
     final hasSelected = presets.any((preset) => preset.id == selected);
 
     if (!mounted) return;
@@ -90,7 +95,7 @@ class _SetupScreenState extends State<SetupScreen> {
     });
 
     if (!hasSelected) {
-      await LocalDb.instance.saveSelectedPresetId(_selectedPresetId);
+      await _setupController.saveSelectedPresetId(_selectedPresetId);
     }
   }
 
@@ -141,8 +146,15 @@ class _SetupScreenState extends State<SetupScreen> {
 
   // --- ゲーム開始 ---
   Future<void> _startGame() async {
-    // 名前を保存
-    await _savePlayerNames();
+    await _setupController.saveSetup(
+      playerNames: _controllers.map((controller) => controller.text).toList(),
+      settings: GameSettings(
+        presentationTimeSec: presentationTime,
+        qaTimeSec: qaTime,
+        playerCount: playerCount,
+      ),
+      selectedPresetId: _selectedPresetId,
+    );
 
     final presetPath = await _resolveSelectedPresetPath();
     final String response = await rootBundle.loadString(presetPath);
@@ -165,6 +177,7 @@ class _SetupScreenState extends State<SetupScreen> {
     GameSettings settings = GameSettings(
       presentationTimeSec: presentationTime,
       qaTimeSec: qaTime,
+      playerCount: playerCount,
     );
 
     Navigator.push(
@@ -290,7 +303,7 @@ class _SetupScreenState extends State<SetupScreen> {
                 setState(() {
                   _selectedPresetId = value;
                 });
-                await LocalDb.instance.saveSelectedPresetId(value);
+                await _setupController.saveSelectedPresetId(value);
               },
             ),
             const SizedBox(height: 20),
