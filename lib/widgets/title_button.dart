@@ -68,35 +68,15 @@ class _TitleButtonState extends State<TitleButton> {
                   )
                 ],
         ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // アイコン部分
-            // ※本来はご提示の画像を切り出してアセットとして使うのがベストです。
-            // ここでは標準アイコンを組み合わせて雰囲気を再現しています。
-            Stack(
-              alignment: Alignment.bottomCenter,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 4.0, right: 4.0),
-                  child: Icon(Icons.menu_book, color: AppColors.titleButtonText, size: 22),
-                ),
-                Transform.translate(
-                  offset: const Offset(4, -4),
-                  child: Transform.rotate(
-                    angle: -0.5, // ロケットを少し傾ける
-                    child: Icon(Icons.rocket, color: AppColors.titleButtonText, size: 24),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(width: 12),
-            // テキスト部分
-            Text(
+        child: Center(
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
               widget.label,
+              textAlign: TextAlign.center,
               style: AppTextStyles.titleButton,
             ),
-          ],
+          )
         ),
       ),
     );

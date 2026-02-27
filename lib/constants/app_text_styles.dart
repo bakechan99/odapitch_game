@@ -104,6 +104,7 @@ class AppTextStyles {
   // Buttons
   static const TextStyle buttonPrimary = TextStyle(
     fontSize: 20,
+    color: AppColors.textPrimary,
   );
 
   static const TextStyle buttonPrimaryBold = TextStyle(
@@ -131,7 +132,7 @@ class AppTextStyles {
   // Title button
   static const TextStyle titleButton = TextStyle(
     color: AppColors.titleButtonText,
-    fontSize: 22,
+    fontSize: 100,
     fontWeight: FontWeight.w700,
   );
 

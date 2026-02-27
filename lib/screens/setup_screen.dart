@@ -207,6 +207,7 @@ class _SetupScreenState extends State<SetupScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(AppTexts.setupTitle),
+        centerTitle: true,
         automaticallyImplyLeading: false, // 自動の戻るボタンを削除
         leading: IconButton(
           icon: const Icon(Icons.home),
@@ -260,9 +261,7 @@ class _SetupScreenState extends State<SetupScreen> {
                     onDecrement: () => _changeTime(-10),
                     onIncrement: () => _changeTime(10),
                   ),
-                  const SizedBox(height: 8),
-                  const Divider(),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 20),
                   _buildTimeSlider(
                     label: AppTexts.presentationFeedbackLabel,
                     value: qaTime,
@@ -335,8 +334,11 @@ class _SetupScreenState extends State<SetupScreen> {
                   Card(
                     key: ValueKey(_controllers[i]),
                     margin: const EdgeInsets.symmetric(vertical: 4),
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    elevation: 6,
+                    shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          side: BorderSide(color: AppColors.borderLight),
+                    ),
                     color: AppColors.surface,
                     child: ListTile(
                       title: TextField(
@@ -355,8 +357,23 @@ class _SetupScreenState extends State<SetupScreen> {
             const SizedBox(height: 30),
 
             // "ゲーム開始" -> AppTexts.startGameButton
-            SizedBox(width: double.infinity, height: 60, child: ElevatedButton(onPressed: _startGame, child: const Text(AppTexts.startGameButton, style: AppTextStyles.buttonPrimary))),
-          ],
+            Center(
+              child:FractionallySizedBox(
+                widthFactor: 0.5, // 横幅の80%に広げる)
+                child:SizedBox(
+                  width: double.infinity, 
+                  height: 60, 
+                  child: ElevatedButton(
+                    onPressed: _startGame, 
+                    child: const Text(
+                      AppTexts.startGameButton,
+                      style: AppTextStyles.buttonPrimary
+                    )
+                  )
+                ),
+              )
+            ),
+          ],  
         ),
       ),
     );

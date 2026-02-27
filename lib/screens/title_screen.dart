@@ -5,6 +5,7 @@ import 'help_screen.dart';
 import 'settings_screen.dart';
 import '../constants/texts.dart'; // 追加: 定数テキストのインポート
 import '../widgets/title_button.dart'; // 追加: カスタムボタンのインポート
+import '../widgets/decorative_band.dart';
 import '../constants/app_colors.dart';
   
 
@@ -58,16 +59,12 @@ class _TitleScreenState extends State<TitleScreen> {
             decoration: const BoxDecoration(
               image: DecorationImage(
                 // ※ ここに画像ファイル名を入れる
-                // 画像がないときはエラー防止のためコメントアウトし、色だけで表示しています
                 image: AssetImage('assets/images/title_bg_2.png'), 
                 fit: BoxFit.cover, // 画面全体を覆うように拡大縮小
               ),
               // color: Colors.blueAccent, // 画像がない時の代わりの背景色
             ),
           ),
-          
-          // 半透明の黒を重ねて文字を見やすくする（お好みで）
-          //Container(color: AppColors.overlayScrim.withOpacity(0.3)),
 
           Positioned(
             top: 0,
@@ -89,67 +86,67 @@ class _TitleScreenState extends State<TitleScreen> {
 
           // --- 2. ロゴとボタン ---
           Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // ロゴ表示エリア
-                const Spacer(), // 上の余白
-                
-                // --- ロゴ画像 ---
-                // 画像がある場合は以下のコメントアウトを外して使ってください
-                
-                Image.asset(
-                  'assets/images/logo_2.png',
-                  width: 300, // ロゴの幅
-                ), 
-                
-                // 画像がない時の代わりのテキスト
-                // const Text(
-                //   "科研費ゲーム",
-                //   style: TextStyle(
-                //     fontSize: 48,
-                //     fontWeight: FontWeight.bold,
-                //     color: Colors.white,
-                //     letterSpacing: 4,
-                //     shadows: [
-                //       Shadow(blurRadius: 10, color: Colors.black, offset: Offset(2, 2))
-                //     ],
-                //   ),
-                // ),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final titleFontSize = (constraints.maxWidth * 0.5).clamp(28.0, 100.0);
 
-                const Spacer(), // ロゴとボタンの間の余白
-
-                // --- 新規ゲームボタン ---
-                SizedBox(
-                  width: 250,
-                  height: 60,
-                  child: TitleButton(
-                    label: AppTexts.newGameButton,
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const SetupScreen()),
-                      );
-                    },
-                  ),
-                ),
-                const SizedBox(height: 16),
-                SizedBox(
-                  width: 250,
-                  height: 60,
-                  child: TitleButton(
-                    label: AppTexts.goHelp,
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const HelpScreen()),
-                      );
-                    },
-                  ),
-                ),
-                
-                const SizedBox(height: 100), // 下の余白
-              ],
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const SizedBox(height: 80),
+                    const DecorativeBand(
+                      showBadge: true,
+                      badgeIcon: Icons.style,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      AppTexts.gameTitle,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: titleFontSize,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.textTitle,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    FractionallySizedBox(
+                      widthFactor: 0.5,
+                      child: AspectRatio(
+                        aspectRatio: 3.0,
+                        child: TitleButton(
+                          label: AppTexts.newGameButton,
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const SetupScreen(),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    FractionallySizedBox(
+                      widthFactor: 0.4,
+                      child: AspectRatio(
+                        aspectRatio: 3.0,
+                        child: TitleButton(
+                          label: AppTexts.goHelp,
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const HelpScreen()),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    const DecorativeBand(),
+                  ],
+                );
+              },
             ),
           ),
         ],

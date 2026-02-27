@@ -16,6 +16,7 @@ class AppColors {
   static const Color textOnDark = Colors.white;
   static const Color textOnDarkMuted = Colors.white70;
   static const Color textAccent = Colors.blue;
+  static const Color textTitle = Colors.black87;
   static Color get textAccentStrong => Colors.blue.shade800;
   static Color get textPlaceholder => Colors.grey.shade400;
 
