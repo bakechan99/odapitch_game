@@ -4,13 +4,16 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'screens/title_screen.dart'; // 設定画面を呼び出す
 import 'constants/texts.dart';
 import 'constants/app_colors.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart'; 
 
-void main() {
+void main()async {
+  WidgetsFlutterBinding.ensureInitialized();
   // デスクトップ環境で sqflite を初期化
   if (!kIsWeb) {
     sqfliteFfiInit();
     databaseFactory = databaseFactoryFfi;
   }
+  await MobileAds.instance.initialize(); // Google Mobile Ads SDK の初期化
   
   runApp(const KakenhiGameApp());
 }
