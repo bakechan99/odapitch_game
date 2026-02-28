@@ -18,7 +18,7 @@ class AppTexts {
 
   // Setup Screen
   static const String setupTitle = "設定";
-  static const String playerCountSection = "① プレイヤー数";
+  static const String playerCountSection = "プレイヤー";
   static const String presentationTimeSection = "② 時間設定";
   static const String presentationTimeLabel = "プレゼン時間";
   static const String presentationFeedbackLabel = "質疑応答時間";

@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_text_styles.dart';
+import 'setting_stepper_control.dart';
 
 class TimeSettingControl extends StatelessWidget {
   final String label;
   final int value;
+  final TextStyle? style;
+  final double valueWidthRatio;
   final VoidCallback onDecrement;
   final VoidCallback onIncrement;
 
@@ -12,6 +15,8 @@ class TimeSettingControl extends StatelessWidget {
     super.key,
     required this.label,
     required this.value,
+    this.style,
+    this.valueWidthRatio = 0.5,
     required this.onDecrement,
     required this.onIncrement,
   });
@@ -24,74 +29,39 @@ class TimeSettingControl extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(bottom: 5),
-          child:Align(
-            alignment: Alignment.center,
-            child: Text(
-              label, 
-              style: AppTextStyles.labelField
+
+    return SettingStepperControl(
+      label: label,
+      onDecrement: onDecrement,
+      onIncrement: onIncrement,
+      valueChild: SizedBox(
+        width: 300,
+        child: Container(
+          height: 60,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(4),
+            border: Border.all(color: AppColors.textStrong, width: 1.5),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 6),
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                _formatClock(value),
+                maxLines: 1,
+                softWrap: false,
+                style: style ??
+                    AppTextStyles.timeValue.copyWith(
+                      fontSize: 40,
+                      letterSpacing: 1.2,
+                    ),
+              ),
             ),
           ),
         ),
-        const SizedBox(height: 5),
-        Row(
-          children: [
-            Container(
-              width: 30,
-              height: 30,
-              decoration: BoxDecoration(
-                color: AppColors.surfaceMuted,
-                shape: BoxShape.circle,
-                border: Border.all(color: AppColors.borderLight),
-              ),
-              child: IconButton(
-                padding: EdgeInsets.zero,
-                icon: const Icon(Icons.remove, size: 16, color: AppColors.textMuted),
-                onPressed: onDecrement,
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Container(
-                height: 36,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(4),
-                  border: Border.all(color: AppColors.textStrong, width: 1.5),
-                ),
-                child: Text(
-                  _formatClock(value),
-                  style: AppTextStyles.valueLarge.copyWith(
-                    fontSize: 26,
-                    letterSpacing: 1.2,
-                    fontFamily: 'monospace',
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 10),
-            Container(
-              width: 30,
-              height: 30,
-              decoration: BoxDecoration(
-                color: AppColors.surfaceMuted,
-                shape: BoxShape.circle,
-                border: Border.all(color: AppColors.borderLight),
-              ),
-              child: IconButton(
-                padding: EdgeInsets.zero,
-                icon: const Icon(Icons.add, size: 16, color: AppColors.textMuted),
-                onPressed: onIncrement,
-              ),
-            ),
-          ],
-        ),
-      ],
+      ),
     );
   }
 }

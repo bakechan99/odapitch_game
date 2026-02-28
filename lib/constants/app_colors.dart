@@ -58,7 +58,7 @@ class AppColors {
   static const Color shadowMuted = Colors.grey;
 
   // Section / highlight
-  static const Color sectionTitle = Colors.blueGrey;
+  static const Color sectionTitle = textPrimary;
   static Color get selectionHighlight => Colors.yellow.shade100;
 
   // Gradient helpers

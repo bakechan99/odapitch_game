@@ -80,7 +80,7 @@ class AppTextStyles {
 
   // Values
   static const TextStyle valueLarge = TextStyle(
-    fontSize: 24,
+    fontSize: 40,
     fontWeight: FontWeight.bold,
   );
 
@@ -132,6 +132,12 @@ class AppTextStyles {
 
   // Title button
   static final TextStyle titleButton =  GoogleFonts.delaGothicOne(
+    color: AppColors.titleButtonText,
+    fontSize: 100,
+    fontWeight: FontWeight.w700,
+  );
+
+  static final TextStyle timeValue = GoogleFonts.orbitron(
     color: AppColors.titleButtonText,
     fontSize: 100,
     fontWeight: FontWeight.w700,

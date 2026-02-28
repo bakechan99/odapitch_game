@@ -14,6 +14,7 @@ import 'help_screen.dart';
 import 'settings_screen.dart';
 import '../constants/texts.dart';
 import '../widgets/custom_confirm_dialog.dart';
+import '../widgets/setting_stepper_control.dart';
 import '../widgets/time_setting_control.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_text_styles.dart';
@@ -120,7 +121,9 @@ class _SetupScreenState extends State<SetupScreen> {
   void _syncControllerCount() {
     while (_controllers.length < playerCount) {
       // AppTexts.defaultPlayerNameWithIndex を使用
-      _controllers.add(TextEditingController(text: AppTexts.defaultPlayerNameWithIndex(_controllers.length + 1)));
+      _controllers.add(TextEditingController(
+        text: AppTexts.defaultPlayerNameWithIndex(_controllers.length + 1)
+      ));
     }
     while (_controllers.length > playerCount) {
       final controller = _controllers.removeLast();
@@ -241,49 +244,96 @@ class _SetupScreenState extends State<SetupScreen> {
         child: Column(
           children: [ 
             // 時間設定セクション（統合）
-            _buildSectionTitle(AppTexts.presentationTimeSection),
-            const SizedBox(height: 10),
+            //_buildSectionTitle(AppTexts.presentationTimeSection),
+            //const SizedBox(height: 10),
             
-
-            Container(
-              padding: const EdgeInsets.all(12),
-              margin: const EdgeInsets.symmetric(vertical: 6),
-              decoration: BoxDecoration(
-                color: AppColors.surface,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.borderLight),
+            FractionallySizedBox(
+              widthFactor: 0.9, // 横幅の80%に広げる
+              child: Container(
+                padding: const EdgeInsets.all(30),
+                margin: const EdgeInsets.symmetric(vertical: 6),
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.borderLight),
+                ),
+                child:Column(
+                  children: [
+                    _buildTimeSlider(
+                      label: AppTexts.presentationTimeLabel,
+                      value: presentationTime,
+                      valueWidthRatio: 0.5,
+                      onDecrement: () => _changeTime(-10),
+                      onIncrement: () => _changeTime(10),
+                    ),
+                    const SizedBox(height: 30),
+                    _buildTimeSlider(
+                      label: AppTexts.presentationFeedbackLabel,
+                      value: qaTime,
+                      valueWidthRatio: 0.5,
+                      onDecrement: () => _changeQaTime(-10),
+                      onIncrement: () => _changeQaTime(10),
+                    ),
+                  ],
+                )
               ),
-              child:Column(
-                children: [
-                  _buildTimeSlider(
-                    label: AppTexts.presentationTimeLabel,
-                    value: presentationTime,
-                    onDecrement: () => _changeTime(-10),
-                    onIncrement: () => _changeTime(10),
-                  ),
-                  const SizedBox(height: 20),
-                  _buildTimeSlider(
-                    label: AppTexts.presentationFeedbackLabel,
-                    value: qaTime,
-                    onDecrement: () => _changeQaTime(-10),
-                    onIncrement: () => _changeQaTime(10),
-                  ),
-                ],
-              )
             ),
-            
-            const SizedBox(height: 20),
 
             // プレイヤー数セクション
-            _buildSectionTitle(AppTexts.playerCountSection),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                IconButton.filled(onPressed: playerCount > 3 ? () { setState(() { playerCount--; _updateControllers(); }); } : null, icon: const Icon(Icons.remove)),
-                // "$playerCount人" -> AppTexts.playerCountUnit(playerCount)
-                Padding(padding: const EdgeInsets.symmetric(horizontal: 20), child: Text(AppTexts.playerCountUnit(playerCount), style: AppTextStyles.valueLarge)),
-                IconButton.filled(onPressed: playerCount < 8 ? () { setState(() { playerCount++; _updateControllers(); }); } : null, icon: const Icon(Icons.add)),
-              ],
+            FractionallySizedBox(
+              widthFactor: 0.9,
+              child: Container(
+                padding: const EdgeInsets.all(30),
+                margin: const EdgeInsets.symmetric(vertical: 6),
+                decoration: BoxDecoration(
+                  color: AppColors.transparent,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.transparent),
+                ),
+                child: Column(
+                  children: [
+                    _buildSectionTitle(AppTexts.playerCountSection),
+                    const SizedBox(height: 10),
+                    SettingStepperControl(
+                      onDecrement: playerCount > 3
+                          ? () {
+                              setState(() {
+                                playerCount--;
+                                _updateControllers();
+                              });
+                            }
+                          : null,
+                      onIncrement: playerCount < 6
+                          ? () {
+                              setState(() {
+                                playerCount++;
+                                _updateControllers();
+                              });
+                            }
+                          : null,
+                      valueChild: SizedBox(
+                        width: 300,
+                        child: Container(
+                          height: 60,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: AppColors.surface,
+                            borderRadius: BorderRadius.circular(4),
+                            border: Border.all(color: AppColors.textStrong, width: 1.5),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: Text(
+                              AppTexts.playerCountUnit(playerCount),
+                              style: AppTextStyles.valueLarge,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
             const SizedBox(height: 20),
 
@@ -380,19 +430,29 @@ class _SetupScreenState extends State<SetupScreen> {
   }
 
   Widget _buildSectionTitle(String title) {
-    return Align(alignment: Alignment.centerLeft, child: Text(title, style: AppTextStyles.headingSection));
+    return Align(
+      alignment: Alignment.center, 
+      child: Text(
+        title, 
+        style: AppTextStyles.headingSection
+      )
+    );
   }
 
   // 共通のスライダーUI構築メソッド
   Widget _buildTimeSlider({
     required String label,
     required int value,
+    TextStyle? style,
+    double valueWidthRatio = 0.5,
     required VoidCallback onDecrement,
     required VoidCallback onIncrement,
   }) {
     return TimeSettingControl(
       label: label,
       value: value,
+      style: style,
+      valueWidthRatio: valueWidthRatio,
       onDecrement: onDecrement,
       onIncrement: onIncrement,
     );
