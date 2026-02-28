@@ -18,7 +18,7 @@ class AppTexts {
 
   // Setup Screen
   static const String setupTitle = "設定";
-  static const String playerCountSection = "① プレイヤー数";
+  static const String playerCountSection = "プレイヤー";
   static const String presentationTimeSection = "② 時間設定";
   static const String presentationTimeLabel = "プレゼン時間";
   static const String presentationFeedbackLabel = "質疑応答時間";
@@ -58,7 +58,7 @@ class AppTexts {
   static const String turnTitleSuffix = " のターン";
   static const String researchAreaHeader = "【研究タイトル】 ドラッグで並び替え  タップで文字選択";
   static const String decideButton = "決定";
-  static const String hands = "手札";
+  static const String hands = "ドラッグで並び替え  タップで文字選択";
   
   // Presentation Screen
 
@@ -93,7 +93,7 @@ class AppTexts {
   // Game Loop Screen
   static String nextPlayerMessage(String name) => " $name さんの番です";
   static String areYouReady(String name) => "$nameさんで間違いありませんか？";
-  static String turnTitle(String name) => "$name のターン";
+  static String turnTitle(String name) => "$name さんのターン";
 
   // Result Screen
   static String nextPlayerStandby(String name) => "$name さん";
@@ -105,7 +105,7 @@ class AppTexts {
   static String winnerName(String name) => "👑 $name";
   static String voteCount(int votes) => "獲得票数: $votes 票";
   static String remainBudget(int remainingBudget) => "残り予算: $remainingBudget 万円 / 100 万円";
-  
+  static String odaitheme(String odai) => "お題：$odai";
   // 研究タイトルを整形して返す
   static String researchTitle(String title) => "【研究課題】$title";
 }

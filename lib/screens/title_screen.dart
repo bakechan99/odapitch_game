@@ -61,7 +61,7 @@ class _TitleScreenState extends State<TitleScreen> {
           const titleToButtonGap = 28.0;
           const buttonGap = 14.0;
           const bottomGap = 28.0;
-          final fillColor = AppColors.actionPrimary.withValues(alpha: 0.35);
+          final fillColor = AppColors.surfaceTheme;
           final accentFillColor = AppColors.actionPrimary.withValues(alpha: 0.55);
 
           final titleFontSize = (constraints.maxWidth * 0.09).clamp(28.0, 56.0);

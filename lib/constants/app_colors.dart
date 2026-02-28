@@ -5,8 +5,8 @@ class AppColors {
 
   // Theme palette
   static const MaterialColor primarySwatch = Colors.blue;
-  static const Color themePrimary = Color.fromARGB(255, 96, 224, 234);
-  static const Color themePrimaryDark = Color.fromARGB(255, 35, 195, 215);
+  static const Color themePrimary = Color.fromARGB(255, 150, 225, 234);
+  static const Color themePrimaryDark = Color.fromARGB(255, 53, 195, 215);
   static const Color themeAccent = Colors.blueAccent;
 
   // Text
@@ -23,6 +23,7 @@ class AppColors {
 
   // Backgrounds
   static const Color surface = Colors.white;
+  static Color get surfaceTheme => themePrimary;
   static Color get surfaceMuted => Colors.grey.shade100;
   static Color get surfaceSubtle => Colors.grey.shade200;
   static Color get surfacePanel => Colors.blueGrey.shade50;
@@ -50,15 +51,15 @@ class AppColors {
 
   // Borders / dividers / shadows
   static const Color borderAccent = themePrimaryDark;
-  static Color get borderLight => Colors.grey.shade300;
-  static Color get divider => Colors.grey.shade200;
+  static Color get borderLight => Colors.grey;
+  static Color get divider => Colors.grey;
   static Color get dividerStrong => Colors.grey.shade300;
   static const Color shadowLight = Colors.black12;
   static const Color shadowBase = Colors.black;
   static const Color shadowMuted = Colors.grey;
 
   // Section / highlight
-  static const Color sectionTitle = Colors.blueGrey;
+  static const Color sectionTitle = textPrimary;
   static Color get selectionHighlight => Colors.yellow.shade100;
 
   // Gradient helpers
