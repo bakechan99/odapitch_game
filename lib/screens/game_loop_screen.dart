@@ -79,39 +79,40 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
           
           // 背景
           Container(
-            decoration: const BoxDecoration(
-              image: DecorationImage(image: AssetImage('assets/images/title_bg_2.png'), fit: BoxFit.cover),
-            ),
+           color: AppColors.surfaceTheme,
           ),
-          Container(color: AppColors.overlayScrim.withOpacity(0.3)),
           Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(AppTexts.nextPlayerMessage(player.name), 
-                  style: AppTextStyles.headingOnDarkMedium),
-                const SizedBox(height: 30),
-                const Icon(Icons.phone_android, size: 100, color: AppColors.textOnDark),
-                const SizedBox(height: 30),
-                Text(AppTexts.passSmartphoneMessage, style: AppTextStyles.bodyOnDarkSmall),
-                const SizedBox(height: 50),
-                ElevatedButton(
-                  onPressed: () {
-                    _showConfirmDialog(
-                      title: AppTexts.confirmTitle,
-                      content: AppTexts.areYouReady(player.name), 
-                      onConfirm: () => setState(() => isPassing = false)
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                    backgroundColor: AppColors.actionAccent,
-                    foregroundColor: AppColors.textOnDark,
-                  ),
-                  child: const Text(AppTexts.startTurnButton, style: AppTextStyles.buttonPrimaryBold),
-                )
-              ],
-            ),
+            child: Container(
+              width: 300,
+              height: 300,
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: const [BoxShadow(color: AppColors.shadowBase, blurRadius: 8, offset: Offset(0, 4))],
+              ),
+              child:Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(AppTexts.nextPlayerMessage(player.name), 
+                    style: AppTextStyles.headingSection),
+                  const SizedBox(height: 50),
+                  ElevatedButton(
+                    onPressed: () { 
+                      setState(() => isPassing = false); 
+                    },
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                      backgroundColor: AppColors.surfaceMuted,
+                      foregroundColor: AppColors.textPrimary,
+                      shadowColor: AppColors.shadowBase,
+                      elevation: 10,
+                    ),
+                    child: const Text(AppTexts.startTurnButton, style: AppTextStyles.buttonPrimaryBold),
+                  )
+                  
+                ],
+              ),
+            )
           ),
           Positioned(
             top: 0,

@@ -5,7 +5,7 @@ class AppColors {
 
   // Theme palette
   static const MaterialColor primarySwatch = Colors.blue;
-  static const Color themePrimary = Color.fromARGB(255, 96, 224, 234);
+  static const Color themePrimary = Color.fromARGB(255, 96, 225, 234);
   static const Color themePrimaryDark = Color.fromARGB(255, 35, 195, 215);
   static const Color themeAccent = Colors.blueAccent;
 
@@ -23,6 +23,7 @@ class AppColors {
 
   // Backgrounds
   static const Color surface = Colors.white;
+  static Color get surfaceTheme => themePrimary.withOpacity(1.0);
   static Color get surfaceMuted => Colors.grey.shade100;
   static Color get surfaceSubtle => Colors.grey.shade200;
   static Color get surfacePanel => Colors.blueGrey.shade50;
