@@ -269,37 +269,19 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                 return Container(
                   width: double.infinity,
                   decoration: BoxDecoration(
-                    color: AppColors.surface,
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.shadowBase.withOpacity(0.15), // 影を少し濃く
-                        blurRadius: 8,
-                        offset: const Offset(0, -4),
-                      ),
-                    ],
+                    color: AppColors.surfaceTheme,
                   ),
                   child: Column(
+                    
                     children: [
                       // 手札エリアのヘッダー
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(AppTexts.hands, style: AppTextStyles.labelMutedBold),
-                            ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.actionPrimary,
-                                foregroundColor: AppColors.textOnDark,
-                                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                              ),
-                              onPressed: player.selectedCards.isEmpty ? null : _nextPlayer,
-                              child: const Text(AppTexts.decideButton, style: AppTextStyles.buttonSmall),
-                            ),
-                          ],
+                        child: const Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(AppTexts.hands, style: AppTextStyles.headingSection),
                         ),
-                      ),
-                      const Divider(height: 1, thickness: 1), // 区切り線
+                      ),// 区切り線
 
                       // 手札を固定 2x3 で表示
                       Expanded(
@@ -328,6 +310,22 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                                 ),
                               ],
                             ),
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                        child: Center(
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.surfaceMuted,
+                              foregroundColor: AppColors.textPrimary,
+                              shadowColor: AppColors.shadowBase,
+                              elevation: 5,
+                              padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 25),
+                            ),
+                            onPressed: player.selectedCards.isEmpty ? null : _nextPlayer,
+                            child: const Text(AppTexts.decideButton, style: AppTextStyles.buttonPrimaryBold),
                           ),
                         ),
                       ),
@@ -546,7 +544,10 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
           data: card,
           feedback: Material(
             color: AppColors.transparent,
-            child: Opacity(opacity: 0.8, child: _buildHandCardContent(card)),
+            child: Opacity(
+              opacity: 0.8, 
+              child: _buildHandCardContent(card)
+            ),
           ),
           childWhenDragging: Opacity(
             opacity: 0.3,
@@ -568,7 +569,13 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: AppColors.borderLight),
-        boxShadow: [BoxShadow(color: AppColors.shadowMuted.withOpacity(0.3), blurRadius: 3, offset: const Offset(0, 2))],
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.shadowMuted.withOpacity(0.6), 
+            blurRadius: 6, 
+            offset: const Offset(0, 2)
+          )
+        ],
       ),
       padding: const EdgeInsets.all(4),
       child: Column(

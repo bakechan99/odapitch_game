@@ -51,8 +51,8 @@ class AppColors {
 
   // Borders / dividers / shadows
   static const Color borderAccent = themePrimaryDark;
-  static Color get borderLight => Colors.grey.shade300;
-  static Color get divider => Colors.grey.shade200;
+  static Color get borderLight => Colors.grey;
+  static Color get divider => Colors.grey;
   static Color get dividerStrong => Colors.grey.shade300;
   static const Color shadowLight = Colors.black12;
   static const Color shadowBase = Colors.black;

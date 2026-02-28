@@ -58,7 +58,7 @@ class AppTexts {
   static const String turnTitleSuffix = " のターン";
   static const String researchAreaHeader = "【研究タイトル】 ドラッグで並び替え  タップで文字選択";
   static const String decideButton = "決定";
-  static const String hands = "手札";
+  static const String hands = "ドラッグで並び替え  タップで文字選択";
   
   // Presentation Screen
 
