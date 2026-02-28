@@ -23,7 +23,7 @@ class AppColors {
 
   // Backgrounds
   static const Color surface = Colors.white;
-  static Color get surfaceTheme => themePrimary.withOpacity(1.0);
+  static Color get surfaceTheme => themePrimary;
   static Color get surfaceMuted => Colors.grey.shade100;
   static Color get surfaceSubtle => Colors.grey.shade200;
   static Color get surfacePanel => Colors.blueGrey.shade50;

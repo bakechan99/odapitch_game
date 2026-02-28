@@ -28,6 +28,13 @@ class GameLoopScreen extends StatefulWidget {
 class _GameLoopScreenState extends State<GameLoopScreen> {
   int currentPlayerIndex = 0;
   bool isPassing = true;
+  final ScrollController _fieldScrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _fieldScrollController.dispose();
+    super.dispose();
+  }
 
   void _openSettings() {
     Navigator.push(
@@ -203,32 +210,40 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                       
                       // 横スクロールエリア
                       Expanded(
-                        child: Scrollbar(
-                          thumbVisibility: true, // スクロールバーを常に表示
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.center, // 縦方向中央揃え
-                              children: [
-                                // カード配置エリア (Rowの中身)
-                                ..._buildFieldItems(player),
-                                
-                                // 領域が空の時のメッセージ（カードがない場合のみ表示）
-                                if (player.selectedCards.isEmpty)
-                                  Container(
-                                    width: 200,
-                                    height: 140,
-                                    alignment: Alignment.center,
-                                    child: Text(
-                                      AppTexts.handEmpty,
-                                      style: AppTextStyles.bodyPlaceholder,
-                                    ),
-                                  ),
+                        child: PrimaryScrollController(
+                          controller: _fieldScrollController,
+                          child: Scrollbar(
+                            controller: _fieldScrollController,
+                            thumbVisibility: true,
+                            trackVisibility: true,
+                            interactive: true,
+                            child: SingleChildScrollView(
+                              controller: _fieldScrollController,
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              scrollDirection: Axis.horizontal,
+                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.center, // 縦方向中央揃え
+                                children: [
+                                  // カード配置エリア (Rowの中身)
+                                  ..._buildFieldItems(player),
                                   
-                                // 末尾に余白を持たせてドロップしやすくする
-                                const SizedBox(width: 100),
-                              ],
+                                  // 領域が空の時のメッセージ（カードがない場合のみ表示）
+                                  if (player.selectedCards.isEmpty)
+                                    Container(
+                                      width: 200,
+                                      height: 140,
+                                      alignment: Alignment.center,
+                                      child: Text(
+                                        AppTexts.handEmpty,
+                                        style: AppTextStyles.bodyPlaceholder,
+                                      ),
+                                    ),
+                                    
+                                  // 末尾に余白を持たせてドロップしやすくする
+                                  const SizedBox(width: 100),
+                                ],
+                              ),
                             ),
                           ),
                         ),
@@ -244,9 +259,11 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
           Expanded(
             flex: 1, // 1:1 の比率で分割
             child: DragTarget<CardData>(
-              onWillAccept: (data) => data != null,
-              onAccept: (card) {
-                _returnToHand(player, card);
+              onWillAcceptWithDetails: (details) {
+                return _isCardOnField(player, details.data);
+              }, 
+              onAcceptWithDetails: (details) {
+                _returnToHand(player, details.data);
               },
               builder: (context, candidates, rejected) {
                 return Container(
@@ -283,35 +300,34 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                         ),
                       ),
                       const Divider(height: 1, thickness: 1), // 区切り線
-                      
-                      // 横スクロールリスト
+
+                      // 手札を固定 2x3 で表示
                       Expanded(
-                        child: Scrollbar(
-                          thumbVisibility: true,
-                          child: ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            padding: const EdgeInsets.all(16),
-                            itemCount: player.hand.length,
-                            itemBuilder: (context, index) {
-                              final card = player.hand[index];
-                              return Padding(
-                                padding: const EdgeInsets.only(right: 12),
-                                child: Center( // 縦方向中央揃え
-                                  child: Draggable<CardData>(
-                                    data: card,
-                                    feedback: Material(
-                                      color: AppColors.transparent,
-                                      child: Opacity(opacity: 0.8, child: _buildHandCardContent(card)),
-                                    ),
-                                    childWhenDragging: Opacity(
-                                      opacity: 0.3,
-                                      child: _buildHandCardContent(card),
-                                    ),
-                                    child: _buildHandCardContent(card),
-                                  ),
+                        child: Center(
+                          child: SizedBox(
+                            width: 324,
+                            height: 272,
+                            child: Column(
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    _buildHandGridSlot(player, 0),
+                                    _buildHandGridSlot(player, 1),
+                                    _buildHandGridSlot(player, 2),
+                                  ],
                                 ),
-                              );
-                            },
+                                const SizedBox(height: 12),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    _buildHandGridSlot(player, 3),
+                                    _buildHandGridSlot(player, 4),
+                                    _buildHandGridSlot(player, 5),
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
@@ -445,6 +461,15 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
     });
   }
 
+  bool _isCardOnField(Player player, CardData card) {
+    for (final placedCard in player.selectedCards) {
+      if (placedCard.card.id == card.id) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   // --- ロジック: 手札へのドロップ処理 ---
   void _returnToHand(Player player, CardData card) {
     setState(() {
@@ -502,6 +527,32 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
           style: isSelected ? AppTextStyles.cardTextSelected : AppTextStyles.cardTextUnselected,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHandGridSlot(Player player, int index) {
+    if (index >= player.hand.length) {
+      return const SizedBox(width: 100, height: 130);
+    }
+
+    final card = player.hand[index];
+    return SizedBox(
+      width: 100,
+      height: 130,
+      child: Center(
+        child: Draggable<CardData>(
+          data: card,
+          feedback: Material(
+            color: AppColors.transparent,
+            child: Opacity(opacity: 0.8, child: _buildHandCardContent(card)),
+          ),
+          childWhenDragging: Opacity(
+            opacity: 0.3,
+            child: _buildHandCardContent(card),
+          ),
+          child: _buildHandCardContent(card),
         ),
       ),
     );
