@@ -5,6 +5,7 @@ import 'help_screen.dart';
 import 'settings_screen.dart';
 import '../constants/texts.dart'; // 追加: 定数テキストのインポート
 import '../widgets/title_button.dart'; // 追加: カスタムボタンのインポート
+import '../widgets/decorative_band.dart';
 import '../constants/app_colors.dart';
   
 
@@ -50,109 +51,182 @@ class _TitleScreenState extends State<TitleScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       // Stackを使うと、要素を「重ねて」表示できます（背景の上にボタン、など）
-      body: Stack(
-        children: [
-          // --- 1. 背景画像 ---
-          // 画面いっぱいに画像を広げる設定
-          Container(
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                // ※ ここに画像ファイル名を入れる
-                // 画像がないときはエラー防止のためコメントアウトし、色だけで表示しています
-                image: AssetImage('assets/images/title_bg_2.png'), 
-                fit: BoxFit.cover, // 画面全体を覆うように拡大縮小
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          const topBandHeight = 18.0;
+          const bottomBandHeight = 18.0;
+          const accentBandHeight = 12.0;
+          const middleBandHeight = 10.0;
+          const middleBandToTitleGap = 20.0;
+          const titleToButtonGap = 28.0;
+          const buttonGap = 14.0;
+          const bottomGap = 28.0;
+          final fillColor = AppColors.actionPrimary.withValues(alpha: 0.35);
+          final accentFillColor = AppColors.actionPrimary.withValues(alpha: 0.55);
+
+          final titleFontSize = (constraints.maxWidth * 0.09).clamp(28.0, 56.0);
+          final startButtonHeight = (constraints.maxWidth * 0.5) / 3.0;
+          final helpButtonHeight = (constraints.maxWidth * 0.4) / 3.0;
+          final titleHeight = titleFontSize * 1.0; // タイトルの高さをフォントサイズから推定（行間込み）
+
+          final contentHeight =
+              topBandHeight +
+              middleBandHeight +
+              middleBandToTitleGap +
+              titleHeight +
+              titleToButtonGap +
+              startButtonHeight +
+              buttonGap +
+              helpButtonHeight +
+              bottomGap +
+              bottomBandHeight;
+
+          final topFillHeight = ((constraints.maxHeight - contentHeight) / 2).clamp(0.0, constraints.maxHeight);
+          final accentOffset = (topFillHeight - accentBandHeight).clamp(0.0, constraints.maxHeight);
+
+          return Stack(
+            children: [
+              IgnorePointer(
+                child: Align(
+                  alignment: Alignment.topCenter,
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: topFillHeight,
+                    child: ColoredBox(
+                      color: fillColor,
+                    ),
+                  ),
+                ),
               ),
-              // color: Colors.blueAccent, // 画像がない時の代わりの背景色
-            ),
-          ),
-          
-          // 半透明の黒を重ねて文字を見やすくする（お好みで）
-          //Container(color: AppColors.overlayScrim.withOpacity(0.3)),
-
-          Positioned(
-            top: 0,
-            right: 0,
-            child: SafeArea(
-              child: IconButton(
-                icon: const Icon(Icons.settings),
-                color: AppColors.textOnDark,
-                tooltip: AppTexts.goSettings,
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const SettingsScreen()),
-                  );
-                },
+              Positioned(
+                top: accentOffset,
+                left: 0,
+                right: 0,
+                child: IgnorePointer(
+                  child: SizedBox(
+                    height: accentBandHeight,
+                    child: ColoredBox(color: accentFillColor),
+                  ),
+                ),
               ),
-            ),
-          ),
-
-          // --- 2. ロゴとボタン ---
-          Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // ロゴ表示エリア
-                const Spacer(), // 上の余白
-                
-                // --- ロゴ画像 ---
-                // 画像がある場合は以下のコメントアウトを外して使ってください
-                
-                Image.asset(
-                  'assets/images/logo_2.png',
-                  width: 300, // ロゴの幅
-                ), 
-                
-                // 画像がない時の代わりのテキスト
-                // const Text(
-                //   "科研費ゲーム",
-                //   style: TextStyle(
-                //     fontSize: 48,
-                //     fontWeight: FontWeight.bold,
-                //     color: Colors.white,
-                //     letterSpacing: 4,
-                //     shadows: [
-                //       Shadow(blurRadius: 10, color: Colors.black, offset: Offset(2, 2))
-                //     ],
-                //   ),
-                // ),
-
-                const Spacer(), // ロゴとボタンの間の余白
-
-                // --- 新規ゲームボタン ---
-                SizedBox(
-                  width: 250,
-                  height: 60,
-                  child: TitleButton(
-                    label: AppTexts.newGameButton,
+              IgnorePointer(
+                child: Align(
+                  alignment: Alignment.bottomCenter,
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: topFillHeight,
+                    child: ColoredBox(
+                      color: fillColor,
+                    ),
+                  ),
+                ),
+              ),
+              Positioned(
+                bottom: accentOffset,
+                left: 0,
+                right: 0,
+                child: IgnorePointer(
+                  child: SizedBox(
+                    height: accentBandHeight,
+                    child: ColoredBox(color: accentFillColor),
+                  ),
+                ),
+              ),
+              Positioned(
+                top: 0,
+                right: 0,
+                child: SafeArea(
+                  child: IconButton(
+                    icon: const Icon(Icons.settings),
+                    color: AppColors.textOnDark,
+                    tooltip: AppTexts.goSettings,
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const SetupScreen()),
+                        MaterialPageRoute(builder: (context) => const SettingsScreen()),
                       );
                     },
                   ),
                 ),
-                const SizedBox(height: 16),
-                SizedBox(
-                  width: 250,
-                  height: 60,
-                  child: TitleButton(
-                    label: AppTexts.goHelp,
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const HelpScreen()),
-                      );
-                    },
-                  ),
+              ),
+              Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const DecorativeBand(
+                      showBadge: true,
+                      badgeIcon: Icons.style,
+                      bandHeight: topBandHeight,
+                    ),
+                    SizedBox(
+                      width: constraints.maxWidth,
+                      child: ColoredBox(
+                        color: fillColor, // レイヤーと同じ色
+                        child: const SizedBox(height: middleBandHeight), // 帯の太さ
+                      ),
+                    ),
+                    const SizedBox(height: middleBandToTitleGap),
+                    Text(
+                      AppTexts.gameTitle,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: titleFontSize,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.textTitle,
+                      ),
+                    ),
+                    const SizedBox(height: titleToButtonGap),
+                    FractionallySizedBox(
+                      widthFactor: 0.5,
+                      child: AspectRatio(
+                        aspectRatio: 3.0,
+                        child: TitleButton(
+                          label: AppTexts.newGameButton,
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const SetupScreen(),
+                              ),
+                            );
+                          },
+                          borderColor: AppColors.titleStartButtonBorder,
+                          fillColor: AppColors.titleStartButtonNormalTop,
+                          textColor: AppColors.titleStartButtonText,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: buttonGap),
+                    FractionallySizedBox(
+                      widthFactor: 0.4,
+                      child: AspectRatio(
+                        aspectRatio: 3.0,
+                        child: TitleButton(
+                          label: AppTexts.goHelp,
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const HelpScreen()),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: bottomGap),
+                    SizedBox(
+                      width: constraints.maxWidth,
+                      child: ColoredBox(
+                        color: fillColor, // レイヤーと同じ色
+                        child: const SizedBox(height: middleBandHeight), // 帯の太さ
+                      ),
+                    ),
+                    const DecorativeBand(bandHeight: bottomBandHeight),
+                  ],
                 ),
-                
-                const SizedBox(height: 100), // 下の余白
-              ],
-            ),
-          ),
-        ],
+              ),
+            ],
+          );
+        },
       ),
     );
   }
