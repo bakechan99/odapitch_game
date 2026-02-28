@@ -12,8 +12,10 @@ void main()async {
   if (!kIsWeb) {
     sqfliteFfiInit();
     databaseFactory = databaseFactoryFfi;
+
+    await MobileAds.instance.initialize(); // Google Mobile Ads SDK の初期化
   }
-  await MobileAds.instance.initialize(); // Google Mobile Ads SDK の初期化
+  
   
   runApp(const KakenhiGameApp());
 }

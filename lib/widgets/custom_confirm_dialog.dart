@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../constants/texts.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_text_styles.dart';
+import 'custom_banner_ad.dart';
 
 class CustomConfirmDialog extends StatelessWidget {
   final String title;
@@ -98,6 +99,13 @@ class CustomConfirmDialog extends StatelessWidget {
                   ),
                 ),
               ],
+            ),
+            const SizedBox(height: 20),
+            
+            // 広告バナー
+            const SizedBox(
+              height: 60, // 広告の高さ分のスペースを確保
+              child: CustomBannerAd(),
             ),
           ],
         ),
