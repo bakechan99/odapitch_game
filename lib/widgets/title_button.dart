@@ -6,12 +6,18 @@ import '../constants/app_text_styles.dart';
 class TitleButton extends StatefulWidget {
   final VoidCallback onPressed;
   final String label;
+  final Color borderColor;
+  final Color fillColor;
+  final Color textColor;
 
   const TitleButton({
-    Key? key,
+    super.key,
     required this.onPressed,
     this.label = AppTexts.startGameButton,
-  }) : super(key: key);
+    this.borderColor = AppColors.titleButtonBorder,
+    this.fillColor = AppColors.titleButtonNormalTop,
+    this.textColor = AppColors.titleButtonText,
+  });
 
   @override
   _TitleButtonState createState() => _TitleButtonState();
@@ -22,6 +28,10 @@ class _TitleButtonState extends State<TitleButton> {
 
   @override
   Widget build(BuildContext context) {
+    final pressedColor = HSLColor.fromColor(widget.fillColor)
+        .withLightness((HSLColor.fromColor(widget.fillColor).lightness - 0.08).clamp(0.0, 1.0))
+        .toColor();
+
     return GestureDetector(
       // タップ時の状態を管理
       onTapDown: (_) => setState(() => _isPressed = true),
@@ -36,17 +46,10 @@ class _TitleButtonState extends State<TitleButton> {
         decoration: BoxDecoration(
           // 角丸の設定
           borderRadius: BorderRadius.circular(30),
-          // 背景色：立体感を出すための微妙なグラデーション
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: _isPressed
-                ? [AppColors.titleButtonPressedTop, AppColors.titleButtonPressedBottom] // 押下時（少し暗く）
-                : [AppColors.titleButtonNormalTop, AppColors.titleButtonNormalBottom], // 通常時（上から光）
-          ),
+          color: _isPressed ? pressedColor : widget.fillColor,
           // 外側の枠線
           border: Border.all(
-            color: AppColors.titleButtonBorder,
+            color: widget.borderColor,
             width: 2.5,
           ),
           // 影と内側のハイライト（二重枠のような表現）
@@ -59,44 +62,17 @@ class _TitleButtonState extends State<TitleButton> {
                     offset: Offset(0, 4),
                     blurRadius: 4,
                   ),
-                  // 内側上部のハイライト（立体感の強調）
-                  BoxShadow(
-                    color: AppColors.titleButtonInnerHighlight.withOpacity(0.4),
-                    offset: const Offset(0, 1),
-                    blurRadius: 0,
-                    spreadRadius: -1, // 内側に影を入れるテクニック
-                  )
                 ],
         ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // アイコン部分
-            // ※本来はご提示の画像を切り出してアセットとして使うのがベストです。
-            // ここでは標準アイコンを組み合わせて雰囲気を再現しています。
-            Stack(
-              alignment: Alignment.bottomCenter,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 4.0, right: 4.0),
-                  child: Icon(Icons.menu_book, color: AppColors.titleButtonText, size: 22),
-                ),
-                Transform.translate(
-                  offset: const Offset(4, -4),
-                  child: Transform.rotate(
-                    angle: -0.5, // ロケットを少し傾ける
-                    child: Icon(Icons.rocket, color: AppColors.titleButtonText, size: 24),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(width: 12),
-            // テキスト部分
-            Text(
+        child: Center(
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
               widget.label,
-              style: AppTextStyles.titleButton,
+              textAlign: TextAlign.center,
+              style: AppTextStyles.titleButton.copyWith(color: widget.textColor),
             ),
-          ],
+          )
         ),
       ),
     );

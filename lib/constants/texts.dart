@@ -8,11 +8,13 @@ class AppTexts {
   static const String san = "さん";
   static const String checkPop = "確認";
   static const String cautionBackHome = "タイトル画面に戻りますか？\n\n現在のデータは失われます。";
+  static const String goHome = "ホームへ";
+  static const String goHelp = "せつめい";
+  static const String goSettings = "設定へ";
 
   // Title Screen
-  static const String gameTitle = "カケンヒゲーム";
-  static const String startGameButton = "ゲームを始める";
-  static const String newGameButton = "新規ゲーム";
+  static const String gameTitle = "オダピチ";
+  static const String newGameButton = "はじめる";
 
   // Setup Screen
   static const String setupTitle = "設定";
@@ -24,10 +26,9 @@ class AppTexts {
   static const String cardPresetLabel = "使用するカードセット";
   static const String setupPlayerNameSection = "④ プレイヤー名（ドラッグで入替）";
   static const String defaultPlayerName = "プレイヤー";
-  static const String goHome = "ホームへ";
-  static const String goHelp = "ヘルプへ";
-  static const String goSettings = "設定へ";
 
+  static const String startGameButton = "スタート";
+  
   // Help Screen
   static const String helpTitle = "ヘルプ";
   static const String helpSetupOverview = "この画面では、ゲーム開始前の設定を行います。";
