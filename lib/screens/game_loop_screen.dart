@@ -13,7 +13,13 @@ import '../constants/app_text_styles.dart';
 class GameLoopScreen extends StatefulWidget {
   final List<Player> players;
   final GameSettings settings; // 設定を受け取る
-  const GameLoopScreen({super.key, required this.players, required this.settings});
+  final String odaiTheme;
+  const GameLoopScreen({
+    super.key,
+    required this.players,
+    required this.settings,
+    required this.odaiTheme,
+  });
 
   @override
   State<GameLoopScreen> createState() => _GameLoopScreenState();
@@ -136,7 +142,11 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
   Widget _buildGameScreen(Player player) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppTexts.turnTitle(player.name)),
+        backgroundColor: AppColors.surfaceTheme,
+        foregroundColor: AppColors.textPrimary,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        surfaceTintColor: AppColors.transparent,
         automaticallyImplyLeading: false,
         leading: IconButton(
           icon: const Icon(Icons.home),
@@ -176,13 +186,21 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // ヘッダーテキスト
-                      const Padding(
-                        padding: EdgeInsets.all(10),
+                      Padding(
+                        padding: const EdgeInsets.all(10),
                         child: Text(
-                          AppTexts.researchAreaHeader,
-                          style: AppTextStyles.labelAccentBold,
+                          AppTexts.nextPlayerStandby(player.name),
+                          style: AppTextStyles.headingSection.copyWith(fontSize: 14),
                         ),
                       ),
+                      Padding(
+                        padding: const EdgeInsetsGeometry.all(10),
+                        child: Text(
+                          AppTexts.odaitheme(widget.odaiTheme),
+                          style: AppTextStyles.themeTitlelarge,
+                        ),
+                      ),
+                      
                       // 横スクロールエリア
                       Expanded(
                         child: Scrollbar(

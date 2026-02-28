@@ -114,6 +114,39 @@ class _SetupScreenState extends State<SetupScreen> {
     return _presets.first.path;
   }
 
+  Future<String> _resolveSelectedPresetOdai() async {
+    CardPreset? selectedPreset;
+
+    if (_presets.isNotEmpty) {
+      for (final preset in _presets) {
+        if (preset.id == _selectedPresetId) {
+          selectedPreset = preset;
+          break;
+        }
+      }
+      selectedPreset ??= _presets.first;
+    } else {
+      final jsonText = await rootBundle.loadString('assets/card_presets.json');
+      final List<dynamic> decoded = json.decode(jsonText) as List<dynamic>;
+      final presets = decoded
+          .map((entry) => CardPreset.fromJson(entry as Map<String, dynamic>))
+          .toList();
+
+      for (final preset in presets) {
+        if (preset.id == _selectedPresetId) {
+          selectedPreset = preset;
+          break;
+        }
+      }
+      if (selectedPreset == null && presets.isNotEmpty) {
+        selectedPreset = presets.first;
+      }
+    }
+
+    final odai = selectedPreset?.odai.trim() ?? '';
+    return odai.isEmpty ? '科研費を取れる研究テーマ' : odai;
+  }
+
   void _updateControllers() {
     setState(_syncControllerCount);
   }
@@ -184,9 +217,17 @@ class _SetupScreenState extends State<SetupScreen> {
       playerCount: playerCount,
     );
 
+    final selectedOdai = await _resolveSelectedPresetOdai();
+
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => GameLoopScreen(players: players, settings: settings)),
+      MaterialPageRoute(
+        builder: (context) => GameLoopScreen(
+          players: players,
+          settings: settings,
+          odaiTheme: selectedOdai,
+        ),
+      ),
     );
   }
 
@@ -209,6 +250,7 @@ class _SetupScreenState extends State<SetupScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: AppColors.transparent,
         title: const Text(AppTexts.setupTitle),
         centerTitle: true,
         automaticallyImplyLeading: false, // 自動の戻るボタンを削除
@@ -228,7 +270,7 @@ class _SetupScreenState extends State<SetupScreen> {
             },
           ),
           IconButton(
-            icon: const Icon(Icons.volume_up_outlined),
+            icon: const Icon(Icons.settings),
             tooltip: AppTexts.goSettings,
             onPressed: () {
               Navigator.push(

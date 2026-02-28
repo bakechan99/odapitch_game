@@ -2,26 +2,31 @@
   {
     "id": "default",
     "name": "標準（既存）",
+    "odai": "科研費を取れる研究テーマ",
     "path": "assets/presets/cards.json"
   },
   {
     "id": "travel",
     "name": "旅行",
+    "odai": "いきたくなる旅行予定",
     "path": "assets/presets/travel_20260216.json"
   },
   {
     "id": "cooking",
     "name": "料理",
+    "odai": "美味しそうな料理名",
     "path": "assets/presets/cooking_20260216.json"
   },
   {
     "id": "bunkei",
     "name": "文系向け",
+    "odai": "科研費を取れる研究テーマ",
     "path": "assets/presets/bunkei_20260216.json"
   },
   {
     "id": "meme",
     "name": "ミーム",
+    "odai": "流行りそうなミーム",
     "path": "assets/presets/meme_20260216.json"
   }
 ]

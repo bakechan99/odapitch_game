@@ -41,13 +41,12 @@ class AppTextStyles {
     color: AppColors.textOnDark,
   );
 
-  static const TextStyle headingOnDarkMedium = 
+  static const TextStyle themeTitlelarge =
   TextStyle(
     fontSize: 24,
     fontWeight: FontWeight.bold,
-    color: AppColors.textOnDark,
+    color: AppColors.textPrimary,
   );
-
   // Labels
   static const TextStyle labelField = 
   TextStyle(
@@ -67,11 +66,6 @@ class AppTextStyles {
     fontSize: 14,
     fontWeight: FontWeight.normal,
     color: AppColors.textMuted,
-  );
-
-  static const TextStyle labelAccentBold = TextStyle(
-    fontWeight: FontWeight.bold,
-    color: AppColors.textAccent,
   );
 
   static const TextStyle labelBold = TextStyle(
@@ -235,11 +229,4 @@ class AppTextStyles {
     fontSize: 10,
     fontWeight: FontWeight.bold,
   );
-
-  // Legacy aliases (avoid for new code)
-  static const TextStyle sectionTitle = headingSection;
-  static const TextStyle sliderLabel = labelField;
-  static const TextStyle sliderValue = valueLarge;
-  static const TextStyle primaryButton = buttonPrimary;
-  static final TextStyle titleButtonLabel = titleButton;
 }

@@ -5,8 +5,8 @@ class AppColors {
 
   // Theme palette
   static const MaterialColor primarySwatch = Colors.blue;
-  static const Color themePrimary = Color.fromARGB(255, 96, 225, 234);
-  static const Color themePrimaryDark = Color.fromARGB(255, 35, 195, 215);
+  static const Color themePrimary = Color.fromARGB(255, 150, 225, 234);
+  static const Color themePrimaryDark = Color.fromARGB(255, 53, 195, 215);
   static const Color themeAccent = Colors.blueAccent;
 
   // Text

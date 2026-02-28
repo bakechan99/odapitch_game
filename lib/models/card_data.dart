@@ -13,10 +13,10 @@ class CardData {
 
   factory CardData.fromJson(Map<String, dynamic> json) {
     return CardData(
-      id: json['id'],
-      top: json['top'],
-      middle: json['middle'] ?? "",
-      bottom: json['bottom'],
+      id: (json['id'] as num?)?.toInt() ?? 0,
+      top: (json['top'] as String?) ?? "",
+      middle: (json['middle'] as String?) ?? "",
+      bottom: (json['bottom'] as String?) ?? "",
     );
   }
 }

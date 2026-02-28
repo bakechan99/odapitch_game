@@ -93,7 +93,7 @@ class AppTexts {
   // Game Loop Screen
   static String nextPlayerMessage(String name) => " $name さんの番です";
   static String areYouReady(String name) => "$nameさんで間違いありませんか？";
-  static String turnTitle(String name) => "$name のターン";
+  static String turnTitle(String name) => "$name さんのターン";
 
   // Result Screen
   static String nextPlayerStandby(String name) => "$name さん";
@@ -105,7 +105,7 @@ class AppTexts {
   static String winnerName(String name) => "👑 $name";
   static String voteCount(int votes) => "獲得票数: $votes 票";
   static String remainBudget(int remainingBudget) => "残り予算: $remainingBudget 万円 / 100 万円";
-  
+  static String odaitheme(String odai) => "お題：$odai";
   // 研究タイトルを整形して返す
   static String researchTitle(String title) => "【研究課題】$title";
 }
