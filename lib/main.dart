@@ -28,6 +28,14 @@ class KakenhiGameApp extends StatelessWidget {
     return MaterialApp(
       title: AppTexts.appTitle,
       theme: ThemeData(
+        appBarTheme: const AppBarTheme(
+          toolbarHeight: 72,
+          backgroundColor: AppColors.themePrimary,
+          foregroundColor: AppColors.textPrimary,
+          elevation: 0,
+          scrolledUnderElevation: 0,
+          surfaceTintColor: AppColors.transparent,
+        ),
         primarySwatch: AppColors.primarySwatch,
         useMaterial3: true,
         fontFamily: 'Roboto',

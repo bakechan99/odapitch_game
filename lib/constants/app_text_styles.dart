@@ -41,13 +41,12 @@ class AppTextStyles {
     color: AppColors.textOnDark,
   );
 
-  static const TextStyle headingOnDarkMedium = 
+  static const TextStyle themeTitlelarge =
   TextStyle(
     fontSize: 24,
     fontWeight: FontWeight.bold,
-    color: AppColors.textOnDark,
+    color: AppColors.textPrimary,
   );
-
   // Labels
   static const TextStyle labelField = 
   TextStyle(
@@ -69,18 +68,13 @@ class AppTextStyles {
     color: AppColors.textMuted,
   );
 
-  static const TextStyle labelAccentBold = TextStyle(
-    fontWeight: FontWeight.bold,
-    color: AppColors.textAccent,
-  );
-
   static const TextStyle labelBold = TextStyle(
     fontWeight: FontWeight.bold,
   );
 
   // Values
   static const TextStyle valueLarge = TextStyle(
-    fontSize: 24,
+    fontSize: 40,
     fontWeight: FontWeight.bold,
   );
 
@@ -132,6 +126,12 @@ class AppTextStyles {
 
   // Title button
   static final TextStyle titleButton =  GoogleFonts.delaGothicOne(
+    color: AppColors.titleButtonText,
+    fontSize: 100,
+    fontWeight: FontWeight.w700,
+  );
+
+  static final TextStyle timeValue = GoogleFonts.orbitron(
     color: AppColors.titleButtonText,
     fontSize: 100,
     fontWeight: FontWeight.w700,
@@ -229,11 +229,4 @@ class AppTextStyles {
     fontSize: 10,
     fontWeight: FontWeight.bold,
   );
-
-  // Legacy aliases (avoid for new code)
-  static const TextStyle sectionTitle = headingSection;
-  static const TextStyle sliderLabel = labelField;
-  static const TextStyle sliderValue = valueLarge;
-  static const TextStyle primaryButton = buttonPrimary;
-  static final TextStyle titleButtonLabel = titleButton;
 }

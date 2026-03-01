@@ -13,7 +13,13 @@ import '../constants/app_text_styles.dart';
 class GameLoopScreen extends StatefulWidget {
   final List<Player> players;
   final GameSettings settings; // 設定を受け取る
-  const GameLoopScreen({super.key, required this.players, required this.settings});
+  final String odaiTheme;
+  const GameLoopScreen({
+    super.key,
+    required this.players,
+    required this.settings,
+    required this.odaiTheme,
+  });
 
   @override
   State<GameLoopScreen> createState() => _GameLoopScreenState();
@@ -22,6 +28,13 @@ class GameLoopScreen extends StatefulWidget {
 class _GameLoopScreenState extends State<GameLoopScreen> {
   int currentPlayerIndex = 0;
   bool isPassing = true;
+  final ScrollController _fieldScrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _fieldScrollController.dispose();
+    super.dispose();
+  }
 
   void _openSettings() {
     Navigator.push(
@@ -79,39 +92,40 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
           
           // 背景
           Container(
-            decoration: const BoxDecoration(
-              image: DecorationImage(image: AssetImage('assets/images/title_bg_2.png'), fit: BoxFit.cover),
-            ),
+           color: AppColors.surfaceTheme,
           ),
-          Container(color: AppColors.overlayScrim.withOpacity(0.3)),
           Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(AppTexts.nextPlayerMessage(player.name), 
-                  style: AppTextStyles.headingOnDarkMedium),
-                const SizedBox(height: 30),
-                const Icon(Icons.phone_android, size: 100, color: AppColors.textOnDark),
-                const SizedBox(height: 30),
-                Text(AppTexts.passSmartphoneMessage, style: AppTextStyles.bodyOnDarkSmall),
-                const SizedBox(height: 50),
-                ElevatedButton(
-                  onPressed: () {
-                    _showConfirmDialog(
-                      title: AppTexts.confirmTitle,
-                      content: AppTexts.areYouReady(player.name), 
-                      onConfirm: () => setState(() => isPassing = false)
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                    backgroundColor: AppColors.actionAccent,
-                    foregroundColor: AppColors.textOnDark,
-                  ),
-                  child: const Text(AppTexts.startTurnButton, style: AppTextStyles.buttonPrimaryBold),
-                )
-              ],
-            ),
+            child: Container(
+              width: 300,
+              height: 300,
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: const [BoxShadow(color: AppColors.shadowBase, blurRadius: 8, offset: Offset(0, 4))],
+              ),
+              child:Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(AppTexts.nextPlayerMessage(player.name), 
+                    style: AppTextStyles.headingSection),
+                  const SizedBox(height: 50),
+                  ElevatedButton(
+                    onPressed: () { 
+                      setState(() => isPassing = false); 
+                    },
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                      backgroundColor: AppColors.surfaceMuted,
+                      foregroundColor: AppColors.textPrimary,
+                      shadowColor: AppColors.shadowBase,
+                      elevation: 10,
+                    ),
+                    child: const Text(AppTexts.startTurnButton, style: AppTextStyles.buttonPrimaryBold),
+                  )
+                  
+                ],
+              ),
+            )
           ),
           Positioned(
             top: 0,
@@ -135,7 +149,11 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
   Widget _buildGameScreen(Player player) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppTexts.turnTitle(player.name)),
+        backgroundColor: AppColors.surfaceTheme,
+        foregroundColor: AppColors.textPrimary,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        surfaceTintColor: AppColors.transparent,
         automaticallyImplyLeading: false,
         leading: IconButton(
           icon: const Icon(Icons.home),
@@ -175,41 +193,57 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // ヘッダーテキスト
-                      const Padding(
-                        padding: EdgeInsets.all(10),
+                      Padding(
+                        padding: const EdgeInsets.all(10),
                         child: Text(
-                          AppTexts.researchAreaHeader,
-                          style: AppTextStyles.labelAccentBold,
+                          AppTexts.nextPlayerStandby(player.name),
+                          style: AppTextStyles.headingSection.copyWith(fontSize: 14),
                         ),
                       ),
+                      Padding(
+                        padding: const EdgeInsetsGeometry.all(10),
+                        child: Text(
+                          AppTexts.odaitheme(widget.odaiTheme),
+                          style: AppTextStyles.themeTitlelarge,
+                        ),
+                      ),
+                      
                       // 横スクロールエリア
                       Expanded(
-                        child: Scrollbar(
-                          thumbVisibility: true, // スクロールバーを常に表示
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.center, // 縦方向中央揃え
-                              children: [
-                                // カード配置エリア (Rowの中身)
-                                ..._buildFieldItems(player),
-                                
-                                // 領域が空の時のメッセージ（カードがない場合のみ表示）
-                                if (player.selectedCards.isEmpty)
-                                  Container(
-                                    width: 200,
-                                    height: 140,
-                                    alignment: Alignment.center,
-                                    child: Text(
-                                      AppTexts.handEmpty,
-                                      style: AppTextStyles.bodyPlaceholder,
-                                    ),
-                                  ),
+                        child: PrimaryScrollController(
+                          controller: _fieldScrollController,
+                          child: Scrollbar(
+                            controller: _fieldScrollController,
+                            thumbVisibility: true,
+                            trackVisibility: true,
+                            interactive: true,
+                            child: SingleChildScrollView(
+                              controller: _fieldScrollController,
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              scrollDirection: Axis.horizontal,
+                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.center, // 縦方向中央揃え
+                                children: [
+                                  // カード配置エリア (Rowの中身)
+                                  ..._buildFieldItems(player),
                                   
-                                // 末尾に余白を持たせてドロップしやすくする
-                                const SizedBox(width: 100),
-                              ],
+                                  // 領域が空の時のメッセージ（カードがない場合のみ表示）
+                                  if (player.selectedCards.isEmpty)
+                                    Container(
+                                      width: 200,
+                                      height: 140,
+                                      alignment: Alignment.center,
+                                      child: Text(
+                                        AppTexts.handEmpty,
+                                        style: AppTextStyles.bodyPlaceholder,
+                                      ),
+                                    ),
+                                    
+                                  // 末尾に余白を持たせてドロップしやすくする
+                                  const SizedBox(width: 100),
+                                ],
+                              ),
                             ),
                           ),
                         ),
@@ -225,74 +259,73 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
           Expanded(
             flex: 1, // 1:1 の比率で分割
             child: DragTarget<CardData>(
-              onWillAccept: (data) => data != null,
-              onAccept: (card) {
-                _returnToHand(player, card);
+              onWillAcceptWithDetails: (details) {
+                return _isCardOnField(player, details.data);
+              }, 
+              onAcceptWithDetails: (details) {
+                _returnToHand(player, details.data);
               },
               builder: (context, candidates, rejected) {
                 return Container(
                   width: double.infinity,
                   decoration: BoxDecoration(
-                    color: AppColors.surface,
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.shadowBase.withOpacity(0.15), // 影を少し濃く
-                        blurRadius: 8,
-                        offset: const Offset(0, -4),
-                      ),
-                    ],
+                    color: AppColors.surfaceTheme,
                   ),
                   child: Column(
+                    
                     children: [
                       // 手札エリアのヘッダー
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(AppTexts.hands, style: AppTextStyles.labelMutedBold),
-                            ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.actionPrimary,
-                                foregroundColor: AppColors.textOnDark,
-                                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                              ),
-                              onPressed: player.selectedCards.isEmpty ? null : _nextPlayer,
-                              child: const Text(AppTexts.decideButton, style: AppTextStyles.buttonSmall),
+                        child: const Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(AppTexts.hands, style: AppTextStyles.headingSection),
+                        ),
+                      ),// 区切り線
+
+                      // 手札を固定 2x3 で表示
+                      Expanded(
+                        child: Center(
+                          child: SizedBox(
+                            width: 324,
+                            height: 272,
+                            child: Column(
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    _buildHandGridSlot(player, 0),
+                                    _buildHandGridSlot(player, 1),
+                                    _buildHandGridSlot(player, 2),
+                                  ],
+                                ),
+                                const SizedBox(height: 12),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    _buildHandGridSlot(player, 3),
+                                    _buildHandGridSlot(player, 4),
+                                    _buildHandGridSlot(player, 5),
+                                  ],
+                                ),
+                              ],
                             ),
-                          ],
+                          ),
                         ),
                       ),
-                      const Divider(height: 1, thickness: 1), // 区切り線
-                      
-                      // 横スクロールリスト
-                      Expanded(
-                        child: Scrollbar(
-                          thumbVisibility: true,
-                          child: ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            padding: const EdgeInsets.all(16),
-                            itemCount: player.hand.length,
-                            itemBuilder: (context, index) {
-                              final card = player.hand[index];
-                              return Padding(
-                                padding: const EdgeInsets.only(right: 12),
-                                child: Center( // 縦方向中央揃え
-                                  child: Draggable<CardData>(
-                                    data: card,
-                                    feedback: Material(
-                                      color: AppColors.transparent,
-                                      child: Opacity(opacity: 0.8, child: _buildHandCardContent(card)),
-                                    ),
-                                    childWhenDragging: Opacity(
-                                      opacity: 0.3,
-                                      child: _buildHandCardContent(card),
-                                    ),
-                                    child: _buildHandCardContent(card),
-                                  ),
-                                ),
-                              );
-                            },
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                        child: Center(
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.surfaceMuted,
+                              foregroundColor: AppColors.textPrimary,
+                              shadowColor: AppColors.shadowBase,
+                              elevation: 5,
+                              padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 25),
+                            ),
+                            onPressed: player.selectedCards.isEmpty ? null : _nextPlayer,
+                            child: const Text(AppTexts.decideButton, style: AppTextStyles.buttonPrimaryBold),
                           ),
                         ),
                       ),
@@ -426,6 +459,15 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
     });
   }
 
+  bool _isCardOnField(Player player, CardData card) {
+    for (final placedCard in player.selectedCards) {
+      if (placedCard.card.id == card.id) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   // --- ロジック: 手札へのドロップ処理 ---
   void _returnToHand(Player player, CardData card) {
     setState(() {
@@ -488,6 +530,35 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
     );
   }
 
+  Widget _buildHandGridSlot(Player player, int index) {
+    if (index >= player.hand.length) {
+      return const SizedBox(width: 100, height: 130);
+    }
+
+    final card = player.hand[index];
+    return SizedBox(
+      width: 100,
+      height: 130,
+      child: Center(
+        child: Draggable<CardData>(
+          data: card,
+          feedback: Material(
+            color: AppColors.transparent,
+            child: Opacity(
+              opacity: 0.8, 
+              child: _buildHandCardContent(card)
+            ),
+          ),
+          childWhenDragging: Opacity(
+            opacity: 0.3,
+            child: _buildHandCardContent(card),
+          ),
+          child: _buildHandCardContent(card),
+        ),
+      ),
+    );
+  }
+
   // --- UI: 手札カードの見た目 ---
   Widget _buildHandCardContent(CardData card) {
     const textStyle = AppTextStyles.cardHandText;
@@ -498,7 +569,13 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: AppColors.borderLight),
-        boxShadow: [BoxShadow(color: AppColors.shadowMuted.withOpacity(0.3), blurRadius: 3, offset: const Offset(0, 2))],
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.shadowMuted.withOpacity(0.6), 
+            blurRadius: 6, 
+            offset: const Offset(0, 2)
+          )
+        ],
       ),
       padding: const EdgeInsets.all(4),
       child: Column(
