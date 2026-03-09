@@ -8,6 +8,8 @@ class AppColors {
   static const Color themePrimary = Color.fromARGB(255, 150, 225, 234);
   static const Color themePrimaryDark = Color.fromARGB(255, 53, 195, 215);
   static const Color themeAccent = Colors.blueAccent;
+  static const Color highlights = Color(0xFFFF4C47);
+
 
   // Text
   static const Color textPrimary = Colors.black87;
@@ -29,6 +31,8 @@ class AppColors {
   static Color get surfacePanel => Colors.blueGrey.shade50;
   static const Color overlayScrim = Colors.black;
   static const Color transparent = Colors.transparent;
+  static const Color borderNeutral = surface;
+
 
   // Actions
   static const Color actionPrimary = themePrimaryDark;
@@ -87,9 +91,12 @@ class AppColors {
   static const Color titleButtonNormalBottom = Color(0xFFBDBDBD);
   static const Color titleButtonInnerHighlight = Colors.white;
 
-  static const Color titleStartButtonBorder = Color(0xFFFF4C47);
+  static Color get buttonYes => highlights;
+  static Color get buttonNo => Colors.grey.shade300;
+
+  static Color get titleStartButtonBorder => highlights;
   static const Color titleStartButtonText = Color(0xFFFFFFFF);
-  static const Color titleStartButtonNormalTop =Color(0xFFFF4C47);
+  static Color get titleStartButtonNormalTop => highlights;
 
   static const Color cardBackground = surface;
   static const Color iconMuted = textMuted;

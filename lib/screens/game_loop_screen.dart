@@ -5,8 +5,10 @@ import '../models/placed_card.dart';
 import '../models/game_settings.dart'; // 設定モデル
 import 'result_screen.dart';
 import 'settings_screen.dart';
+import 'passing_confirm_screen.dart';
+import 'research_title_confirm_screen.dart';
 import '../constants/texts.dart'; // 追加
-import '../widgets/custom_confirm_dialog.dart'; // 追加
+import '../widgets/passing_style_card.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_text_styles.dart';
 
@@ -44,11 +46,9 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
   }
 
   void _nextPlayer() {
-    // ポップアップで確認
     Player player = widget.players[currentPlayerIndex];
-    _showConfirmDialog(
-      title: AppTexts.confirmTitle,
-      content: "${AppTexts.confirmResearchTitle}\n\n「${player.researchTitle}」", // 研究タイトルを表示
+    _showResearchTitleConfirmDialog(
+      content: "「${player.researchTitle}」", // 研究タイトルを表示
       onConfirm: () {
         if (currentPlayerIndex < widget.players.length - 1) {
           setState(() {
@@ -73,15 +73,32 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
 
   // --- 共通確認ダイアログ ---
   Future<void> _showConfirmDialog({required String title, required String content, required VoidCallback onConfirm}) async {
-    return showDialog(
-      context: context,
-      builder: (context) => CustomConfirmDialog(
-        title: title,
-        content: content,
-        onConfirm: onConfirm,
-        cancelText: AppTexts.cancel,
+    final confirmed = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PassingConfirmScreen(
+          title: title,
+          content: content,
+        ),
       ),
     );
+
+    if (confirmed == true) {
+      onConfirm();
+    }
+  }
+
+  Future<void> _showResearchTitleConfirmDialog({required String content, required VoidCallback onConfirm}) async {
+    final confirmed = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ResearchTitleConfirmScreen(content: content),
+      ),
+    );
+
+    if (confirmed == true) {
+      onConfirm();
+    }
   }
 
   // --- 画面1: 順番確認（スマホ受渡）画面 ---
@@ -95,37 +112,13 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
            color: AppColors.surfaceTheme,
           ),
           Center(
-            child: Container(
-              width: 300,
-              height: 300,
-              decoration: BoxDecoration(
-                color: AppColors.surface,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: const [BoxShadow(color: AppColors.shadowBase, blurRadius: 8, offset: Offset(0, 4))],
-              ),
-              child:Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(AppTexts.nextPlayerMessage(player.name), 
-                    style: AppTextStyles.headingSection),
-                  const SizedBox(height: 50),
-                  ElevatedButton(
-                    onPressed: () { 
-                      setState(() => isPassing = false); 
-                    },
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                      backgroundColor: AppColors.surfaceMuted,
-                      foregroundColor: AppColors.textPrimary,
-                      shadowColor: AppColors.shadowBase,
-                      elevation: 10,
-                    ),
-                    child: const Text(AppTexts.startTurnButton, style: AppTextStyles.buttonPrimaryBold),
-                  )
-                  
-                ],
-              ),
-            )
+            child: PassingStyleCard(
+              title: AppTexts.nextPlayerMessage(player.name),
+              primaryButtonText: AppTexts.startTurnButton,
+              onPrimaryPressed: () {
+                setState(() => isPassing = false);
+              },
+            ),
           ),
           Positioned(
             top: 0,

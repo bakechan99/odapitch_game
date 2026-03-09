@@ -4,11 +4,12 @@ import 'package:flutter/material.dart';
 import '../models/game_settings.dart';
 import '../models/player.dart';
 import '../constants/texts.dart';
-import '../widgets/custom_confirm_dialog.dart';
 import 'settings_screen.dart';
 import 'presentation_screen.dart';
 import 'voting_screen.dart';
 import 'result_view.dart';
+import 'passing_confirm_screen.dart';
+import '../widgets/passing_style_card.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_text_styles.dart';
 import '../features/game_session/application/result_session_controller.dart';
@@ -49,16 +50,19 @@ class _ResultScreenState extends State<ResultScreen> {
   }
 
   Future<void> _showConfirmDialog({required String title, String? content, required VoidCallback onConfirm}) async {
-    return showDialog(
-      context: context,
-      builder: (context) => CustomConfirmDialog(
-        title: title,
-        content: content ?? "",
-        onConfirm: onConfirm,
-        cancelText: AppTexts.cancel, 
-        confirmText: AppTexts.ok, 
+    final confirmed = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PassingConfirmScreen(
+          title: title,
+          content: content ?? "",
+        ),
       ),
     );
+
+    if (confirmed == true) {
+      onConfirm();
+    }
   }
 
   void _onHomePressed() {
@@ -170,19 +174,11 @@ class _ResultScreenState extends State<ResultScreen> {
             ),
           ),
           Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(AppTexts.nextPlayerStandby(player.name), style: AppTextStyles.headingOnDarkLarge),
-                const SizedBox(height: 10),
-                Text(message, style: AppTextStyles.bodyOnDarkMedium),
-                const SizedBox(height: 40),
-                ElevatedButton(
-                  onPressed: onReady,
-                  style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15)),
-                  child: const Text(AppTexts.startVoteButton, style: AppTextStyles.buttonPrimary),
-                ),
-              ],
+            child: PassingStyleCard(
+              title: AppTexts.nextPlayerStandby(player.name),
+              content: message,
+              primaryButtonText: AppTexts.startVoteButton,
+              onPrimaryPressed: onReady,
             ),
           ),
           Positioned(

@@ -3,7 +3,7 @@ class AppTexts {
   
   // Common
   static const String appTitle = "カケンヒゲーム";
-  static const String cancel = "キャンセル";
+  static const String cancel = "戻る";
   static const String ok = "OK";
   static const String san = "さん";
   static const String checkPop = "確認";
@@ -81,7 +81,7 @@ class AppTexts {
   static const String madeTitleHeader = "【研究課題】";
 
   // Pop-up messages 
-  static const String confirmTitle = "本人確認";
+  static const String confirmTitle = "このタイトルでよろしいですか？";
 
   // --- Methods (変数を埋め込む動的な文字列) ---
   
