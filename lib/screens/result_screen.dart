@@ -110,11 +110,7 @@ class _ResultScreenState extends State<ResultScreen> {
             return _buildStandbyScreen(
               player: widget.players[_controller.currentPresenterIndex],
               message: AppTexts.nextPresenter,
-              onReady: () => _showConfirmDialog(
-                title: AppTexts.presentationStartTitle,
-                content: AppTexts.presentationTimeMsg(widget.settings.presentationTimeSec),
-                onConfirm: _controller.startPresentation,
-              ),
+              onReady: _controller.startPresentation,
             );
           case ScreenPhase.presentation:
             return PresentationScreen(
@@ -127,6 +123,7 @@ class _ResultScreenState extends State<ResultScreen> {
               onHomePressed: _onHomePressed,
               toggleTimer: _controller.toggleTimer,
               proceedToNextStep: _controller.proceedToNextStep,
+              onResetTimer: _controller.resetTimer,
             );
           case ScreenPhase.votingStandby:
             return _buildStandbyScreen(
@@ -169,15 +166,15 @@ class _ResultScreenState extends State<ResultScreen> {
       body: Stack(
         children: [
           Container(
-             decoration: const BoxDecoration(
-              gradient: LinearGradient(colors: [AppColors.gradientStart, AppColors.gradientEnd], begin: Alignment.topLeft, end: Alignment.bottomRight),
+            decoration: BoxDecoration(
+              color: AppColors.surfaceTheme,
             ),
           ),
           Center(
             child: PassingStyleCard(
               title: AppTexts.nextPlayerStandby(player.name),
               content: message,
-              primaryButtonText: AppTexts.startVoteButton,
+              primaryButtonText: AppTexts.startTurnButton,
               onPrimaryPressed: onReady,
             ),
           ),

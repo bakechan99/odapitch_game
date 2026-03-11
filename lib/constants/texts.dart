@@ -76,9 +76,20 @@ class AppTexts {
   static const String startVoteButton = "START";
   static const String decideBudget = "投票を確定する";
   static const String feedbackTitle = "質疑応答";
+  static const String presentationLabel = "発表時間";
+  static const String qaLabel = "質疑応答";
   static const String goFeedback = "質疑応答へ進む";
   static const String goNextPlayer = "終了して次の人へ";
+  static const String goToQa = "質疑応答に移ります。";
+  static const String presentationTimerLabel = "⏱  プレゼン時間";
+  static const String qaTimerLabel = "⏱  質疑応答時間";
   static const String madeTitleHeader = "【研究課題】";
+  static const String rankFirstEmoji = "🥇 ";
+  static const String rankSecondEmoji = "🥈 ";
+  static const String rankThirdEmoji = "🥉 ";
+  static const String aiEvaluationPrefix = "AI評価";
+  static const String aiFeedbackPrefix = "講評";
+  static const String aiNoFeedback = "評価なし";
 
   // Pop-up messages 
   static const String confirmTitle = "このタイトルでよろしいですか？";
@@ -89,6 +100,7 @@ class AppTexts {
   static String defaultPlayerNameWithIndex(int index) => "$defaultPlayerName$index";
   static String playerCountUnit(int count) => "$count人";
   static String secondsUnit(int sec) => "${sec}秒";
+  static String timerFormat(int sec) => "${(sec ~/ 60).toString().padLeft(2, '0')}:${(sec % 60).toString().padLeft(2, '0')}";
 
   // Game Loop Screen
   static String nextPlayerMessage(String name) => " $name さんの番です";
@@ -106,6 +118,12 @@ class AppTexts {
   static String voteCount(int votes) => "獲得票数: $votes 票";
   static String remainBudget(int remainingBudget) => "残り予算: $remainingBudget 万円 / 100 万円";
   static String odaitheme(String odai) => "お題：$odai";
+  static String researcherName(String name) => "研究者: $name";
+  static String budgetAmount(int amount) => "$amount 万円";
+  static String rankPosition(int rank) => "${rank}位";
+  static String amountOnly(int amount) => "$amount";
+  static String aiScoreLabel(Object score) => "$aiEvaluationPrefix: $score点";
+  static String aiFeedbackLabel(String feedback) => "$aiFeedbackPrefix: $feedback";
   // 研究タイトルを整形して返す
   static String researchTitle(String title) => "【研究課題】$title";
 }

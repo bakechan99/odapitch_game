@@ -109,10 +109,10 @@ class ResultView extends StatelessWidget {
                       children: [
                         Row(
                           children: [
-                            if (index == 0) const Text("🥇 ", style: AppTextStyles.rankEmoji),
-                            if (index == 1) const Text("🥈 ", style: AppTextStyles.rankEmoji),
-                            if (index == 2) const Text("🥉 ", style: AppTextStyles.rankEmoji),
-                            Text("${index + 1}位", style: AppTextStyles.headingPrimaryMedium),
+                            if (index == 0) const Text(AppTexts.rankFirstEmoji, style: AppTextStyles.rankEmoji),
+                            if (index == 1) const Text(AppTexts.rankSecondEmoji, style: AppTextStyles.rankEmoji),
+                            if (index == 2) const Text(AppTexts.rankThirdEmoji, style: AppTextStyles.rankEmoji),
+                            Text(AppTexts.rankPosition(index + 1), style: AppTextStyles.headingPrimaryMedium),
                             const SizedBox(width: 10),
                             Expanded(
                               child: Column(
@@ -123,7 +123,7 @@ class ResultView extends StatelessWidget {
                                 ],
                               ),
                             ),
-                            Text("$total 万円", style: AppTextStyles.amountTotal),
+                            Text(AppTexts.budgetAmount(total), style: AppTextStyles.amountTotal),
                           ],
                         ),
                         const SizedBox(height: 15),
@@ -147,7 +147,7 @@ class ResultView extends StatelessWidget {
                                               child: Container(
                                                 color: getPlayerColor(voterIndex),
                                                 alignment: Alignment.center,
-                                                child: amount >= 10 ? Text("$amount", style: AppTextStyles.amountTinyOnDark) : null,
+                                                child: amount >= 10 ? Text(AppTexts.amountOnly(amount), style: AppTextStyles.amountTinyOnDark) : null,
                                               ),
                                             );
                                           }).toList(),
@@ -168,24 +168,24 @@ class ResultView extends StatelessWidget {
                             decoration: BoxDecoration(
                               color: AppColors.surfaceSubtle,
                               borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: Colors.amber.withOpacity(0.3)),
+                              border: Border.all(color: AppColors.aiAccentSoft),
                             ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Row(
                                   children: [
-                                    const Icon(Icons.smart_toy, size: 20, color: Colors.amber),
+                                    const Icon(Icons.smart_toy, size: 20, color: AppColors.aiAccent),
                                     const SizedBox(width: 8),
                                     Text(
-                                      'AI評価: ${playerAiData['score'] ?? 0}点', 
-                                      style: const TextStyle(color: Colors.amber, fontWeight: FontWeight.bold, fontSize: 16)
+                                      AppTexts.aiScoreLabel(playerAiData['score'] ?? 0), 
+                                      style: const TextStyle(color: AppColors.aiAccent, fontWeight: FontWeight.bold, fontSize: 16)
                                     ),
                                   ],
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  '講評: ${playerAiData['feedback'] ?? '評価なし'}', 
+                                  AppTexts.aiFeedbackLabel((playerAiData['feedback'] ?? AppTexts.aiNoFeedback).toString()), 
                                   style: const TextStyle(fontSize: 14, height: 1.4)
                                 ),
                               ],

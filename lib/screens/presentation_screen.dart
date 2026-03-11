@@ -16,6 +16,7 @@ class PresentationScreen extends StatelessWidget {
   final VoidCallback onHomePressed;
   final VoidCallback toggleTimer;
   final VoidCallback proceedToNextStep;
+  final VoidCallback onResetTimer;
 
   const PresentationScreen({
     super.key,
@@ -28,14 +29,18 @@ class PresentationScreen extends StatelessWidget {
     required this.onHomePressed,
     required this.toggleTimer,
     required this.proceedToNextStep,
+    required this.onResetTimer,
   });
 
   @override
   Widget build(BuildContext context) {
-    final activeTextStyle = AppTextStyles.valueDisplayMedium;
-    final inactiveTextStyle = AppTextStyles.valueDisplayMuted;
-    final activeLabelStyle = AppTextStyles.labelField;
-    final inactiveLabelStyle = AppTextStyles.labelMutedSmall;
+    final int activeTime = isPresentationMode ? timeLeft : qaTimeLeft;
+    final String timerLabel = isPresentationMode
+        ? AppTexts.presentationTimerLabel
+        : AppTexts.qaTimerLabel;
+    final Color timerColor = isPresentationMode
+        ? AppColors.actionAccent
+        : AppColors.actionPrimary;
 
     return Scaffold(
       appBar: AppBar(
@@ -62,53 +67,55 @@ class PresentationScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
+            // --- タイマーカード ---
             Container(
-              padding: const EdgeInsets.symmetric(vertical: 10),
+              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
               decoration: BoxDecoration(
                 color: AppColors.surfaceMuted,
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              child: Column(
                 children: [
-                  Column(
-                    children: [
-                      Text("発表時間", style: isPresentationMode ? activeLabelStyle : inactiveLabelStyle),
-                      Text(AppTexts.secondsUnit(timeLeft), style: isPresentationMode ? activeTextStyle : inactiveTextStyle),
-                      const SizedBox(height: 5),
-                      if (isPresentationMode)
-                        IconButton(
-                          icon: Icon(isTimerRunning ? Icons.pause_circle_filled : Icons.play_circle_fill),
-                          iconSize: 56,
-                          color: AppColors.actionAccent,
-                          onPressed: toggleTimer,
-                        )
-                      else
-                        const SizedBox(height: 56 + 16),
-                    ],
+                  Text(timerLabel, style: AppTextStyles.labelMutedSmall),
+                  const SizedBox(height: 8),
+                  Text(
+                    AppTexts.timerFormat(activeTime),
+                    style: AppTextStyles.timeValue.copyWith(
+                      fontSize: 64,
+                      color: timerColor,
+                    ),
                   ),
-                  Container(width: 1, height: 100, color: AppColors.dividerStrong),
-                  Column(
+                  const SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text("質疑応答", style: !isPresentationMode ? activeLabelStyle : inactiveLabelStyle),
-                      Text(AppTexts.secondsUnit(qaTimeLeft), style: !isPresentationMode ? activeTextStyle : inactiveTextStyle),
-                      const SizedBox(height: 5),
-                      if (!isPresentationMode)
-                        IconButton(
-                          icon: Icon(isTimerRunning ? Icons.pause_circle_filled : Icons.play_circle_fill),
-                          iconSize: 56,
-                          color: AppColors.actionPrimary,
-                          onPressed: toggleTimer,
-                        )
-                      else
-                        const SizedBox(height: 56 + 16),
+                      // リセットボタン
+                      IconButton(
+                        icon: const Icon(Icons.replay),
+                        iconSize: 36,
+                        color: AppColors.textMuted,
+                        onPressed: onResetTimer,
+                        tooltip: "リセット",
+                      ),
+                      const SizedBox(width: 24),
+                      // 再生/一時停止ボタン
+                      IconButton(
+                        icon: Icon(
+                          isTimerRunning
+                              ? Icons.pause_circle_filled
+                              : Icons.play_circle_fill,
+                        ),
+                        iconSize: 56,
+                        color: timerColor,
+                        onPressed: toggleTimer,
+                      ),
                     ],
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 40),
-            const Text("【研究課題】", style: AppTextStyles.headingSectionLarge),
+            const Text(AppTexts.madeTitleHeader, style: AppTextStyles.headingSectionLarge),
             const SizedBox(height: 20),
             Expanded(
               child: Center(
@@ -119,18 +126,22 @@ class PresentationScreen extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(
-              width: double.infinity,
-              height: 60,
-              child: ElevatedButton(
-                onPressed: proceedToNextStep,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: isPresentationMode ? AppColors.actionAccent : AppColors.actionPrimary,
-                  foregroundColor: AppColors.textOnDark,
-                  elevation: 4,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+            // --- バナー ---
+            GestureDetector(
+              onTap: proceedToNextStep,
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 18),
+                decoration: BoxDecoration(
+                  color: timerColor.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(30),
+                  border: Border.all(color: timerColor.withOpacity(0.4), width: 1.5),
                 ),
-                child: Text(isPresentationMode ? "質疑応答へ進む" : "終了して次の人へ", style: AppTextStyles.buttonPrimaryBold),
+                child: Text(
+                  isPresentationMode ? AppTexts.goFeedback : AppTexts.goToQa,
+                  textAlign: TextAlign.center,
+                  style: AppTextStyles.buttonPrimaryBold.copyWith(color: timerColor),
+                ),
               ),
             ),
             const SizedBox(height: 20),

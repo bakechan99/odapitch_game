@@ -9,6 +9,8 @@ import 'passing_confirm_screen.dart';
 import 'research_title_confirm_screen.dart';
 import '../constants/texts.dart'; // 追加
 import '../widgets/passing_style_card.dart';
+import '../widgets/placed_card_widget.dart';
+import '../widgets/hand_card_widget.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_text_styles.dart';
 
@@ -351,16 +353,16 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
             color: AppColors.transparent,
             child: Opacity(
               opacity: 0.8,
-              child: _buildPlacedCardContent(placedCard, null), // feedback用
+              child: PlacedCardWidget(placedCard: placedCard),
             ),
           ),
           childWhenDragging: Opacity(
             opacity: 0.3,
-            child: _buildPlacedCardContent(placedCard, null),
+            child: PlacedCardWidget(placedCard: placedCard),
           ),
-          child: _buildPlacedCardContent(
-            placedCard,
-            (sectionIndex) {
+          child: PlacedCardWidget(
+            placedCard: placedCard,
+            onTapSection: (sectionIndex) {
               setState(() {
                 placedCard.selectedSection = sectionIndex;
               });
@@ -481,48 +483,6 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
     });
   }
 
-  // --- UI: 配置済みカードの見た目 ---
-  Widget _buildPlacedCardContent(PlacedCard placedCard, Function(int)? onTapSection) {
-    return Container(
-      width: 110,
-      height: 140, // 固定高さ
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColors.borderAccent, width: 2),
-        boxShadow: const [BoxShadow(color: AppColors.shadowLight, blurRadius: 4, offset: Offset(0, 2))],
-      ),
-      child: Column(
-        children: [
-          Expanded(child: _buildSection(placedCard.card.top, placedCard.selectedSection == 0, () => onTapSection?.call(0))),
-          const Divider(height: 1),
-          Expanded(child: _buildSection(placedCard.card.middle, placedCard.selectedSection == 1, () => onTapSection?.call(1))),
-          const Divider(height: 1),
-          Expanded(child: _buildSection(placedCard.card.bottom, placedCard.selectedSection == 2, () => onTapSection?.call(2))),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSection(String text, bool isSelected, VoidCallback onTap) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        width: double.infinity,
-        color: isSelected ? AppColors.selectionHighlight : AppColors.transparent,
-        alignment: Alignment.center,
-        padding: const EdgeInsets.symmetric(horizontal: 2),
-        child: Text(
-          text,
-          textAlign: TextAlign.center,
-          style: isSelected ? AppTextStyles.cardTextSelected : AppTextStyles.cardTextUnselected,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-        ),
-      ),
-    );
-  }
-
   Widget _buildHandGridSlot(Player player, int index) {
     if (index >= player.hand.length) {
       return const SizedBox(width: 100, height: 130);
@@ -538,48 +498,16 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
           feedback: Material(
             color: AppColors.transparent,
             child: Opacity(
-              opacity: 0.8, 
-              child: _buildHandCardContent(card)
+              opacity: 0.8,
+              child: HandCardWidget(card: card),
             ),
           ),
           childWhenDragging: Opacity(
             opacity: 0.3,
-            child: _buildHandCardContent(card),
+            child: HandCardWidget(card: card),
           ),
-          child: _buildHandCardContent(card),
+          child: HandCardWidget(card: card),
         ),
-      ),
-    );
-  }
-
-  // --- UI: 手札カードの見た目 ---
-  Widget _buildHandCardContent(CardData card) {
-    const textStyle = AppTextStyles.cardHandText;
-    return Container(
-      width: 100,
-      height: 130,
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColors.borderLight),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.shadowMuted.withOpacity(0.6), 
-            blurRadius: 6, 
-            offset: const Offset(0, 2)
-          )
-        ],
-      ),
-      padding: const EdgeInsets.all(4),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          Text(card.top, style: textStyle, textAlign: TextAlign.center, maxLines: 1, overflow: TextOverflow.ellipsis),
-          Divider(height: 1, color: AppColors.divider),
-          Text(card.middle, style: textStyle, textAlign: TextAlign.center, maxLines: 1, overflow: TextOverflow.ellipsis),
-          Divider(height: 1, color: AppColors.divider),
-          Text(card.bottom, style: textStyle, textAlign: TextAlign.center, maxLines: 1, overflow: TextOverflow.ellipsis),
-        ],
       ),
     );
   }

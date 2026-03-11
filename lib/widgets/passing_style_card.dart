@@ -45,14 +45,14 @@ class PassingStyleCard extends StatelessWidget {
           children: [
             Text(
               title,
-              style: AppTextStyles.headingSection,
+              style: AppTextStyles.headingSectionLarge,
               textAlign: TextAlign.center,
             ),
             if ((content ?? '').isNotEmpty) ...[
               const SizedBox(height: 16),
               Text(
                 content!,
-                style: AppTextStyles.labelMutedBold,
+                style: AppTextStyles.headingPrimaryMedium,
                 textAlign: TextAlign.center,
               ),
             ],
@@ -98,8 +98,8 @@ class PassingStyleCard extends StatelessWidget {
                 onPressed: onPrimaryPressed,
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                  backgroundColor: AppColors.surfaceMuted,
-                  foregroundColor: AppColors.textPrimary,
+                  backgroundColor: AppColors.buttonYes,
+                  foregroundColor: AppColors.textOnDark,
                   shadowColor: AppColors.shadowBase,
                   elevation: 10,
                 ),

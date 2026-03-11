@@ -60,10 +60,10 @@ class VotingScreen extends StatelessWidget {
             width: double.infinity,
             child: Column(
               children: [
-                const Text("最も予算を与えたい研究に配分してください", style: AppTextStyles.labelBold),
+                const Text(AppTexts.voteSelectionTitle, style: AppTextStyles.labelBold),
                 const SizedBox(height: 10),
                 Text(
-                  "残り予算: $remainingBudget 万円 / 100 万円",
+                  AppTexts.remainBudget(remainingBudget),
                   style: AppTextStyles.valueLarge.copyWith(
                     color: remainingBudget < 0 ? AppColors.actionDanger : AppColors.textAccentStrong,
                   ),
@@ -89,11 +89,11 @@ class VotingScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(AppTexts.researchTitle(p.researchTitle), style: AppTextStyles.labelField),
-                        Text("研究者: ${p.name}", style: AppTextStyles.bodyMuted),
+                        Text(AppTexts.researcherName(p.name), style: AppTextStyles.bodyMuted),
                         const SizedBox(height: 8),
                         Row(
                           children: [
-                            Text("$currentAmount 万円", style: AppTextStyles.amountAccent),
+                            Text(AppTexts.budgetAmount(currentAmount), style: AppTextStyles.amountAccent),
                             IconButton(icon: const Icon(Icons.remove_circle_outline), onPressed: () => onDecrement(index)),
                             Expanded(
                               child: Slider(
@@ -101,7 +101,7 @@ class VotingScreen extends StatelessWidget {
                                 min: 0,
                                 max: 100,
                                 divisions: 100,
-                                label: "$currentAmount",
+                                label: AppTexts.amountOnly(currentAmount),
                                 onChanged: (val) {
                                   int newVal = val.toInt();
                                   if (newVal > currentAmount + remainingBudget) {
@@ -129,7 +129,7 @@ class VotingScreen extends StatelessWidget {
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(backgroundColor: isComplete ? AppColors.actionDanger : AppColors.actionDisabled, foregroundColor: AppColors.textOnDark, padding: const EdgeInsets.symmetric(vertical: 15)),
                   onPressed: isComplete ? submitVote : null,
-                  child: const Text("投票を確定する", style: AppTextStyles.buttonMediumBold),
+                  child: const Text(AppTexts.decideBudget, style: AppTextStyles.buttonMediumBold),
                 ),
               ),
             ),
