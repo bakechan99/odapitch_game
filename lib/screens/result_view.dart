@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/player.dart';
-import 'settings_screen.dart';
+import '../widgets/common_app_bar.dart';
 import '../constants/texts.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_text_styles.dart';
@@ -66,22 +66,9 @@ class ResultView extends StatelessWidget {
     final int maxPossibleTotal = players.length * 100;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(AppTexts.resultTitle),
-        automaticallyImplyLeading: false,
-        leading: IconButton(icon: const Icon(Icons.home), onPressed: onHomePressed),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings),
-            tooltip: AppTexts.goSettings,
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const SettingsScreen()),
-              );
-            },
-          ),
-        ],
+      appBar: CommonAppBar(
+        title: AppTexts.resultTitle,
+        onHomePressed: onHomePressed,
       ),
       body: Column(
         children: [

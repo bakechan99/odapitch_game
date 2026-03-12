@@ -10,8 +10,7 @@ import '../data/local_db.dart';
 import '../features/setup/application/setup_controller.dart';
 import '../features/setup/data/setup_repository_impl.dart';
 import 'game_loop_screen.dart';
-import 'help_screen.dart';
-import 'settings_screen.dart';
+import '../widgets/common_app_bar.dart';
 import '../constants/texts.dart';
 import '../widgets/custom_confirm_dialog.dart';
 import '../widgets/setting_stepper_control.dart';
@@ -249,37 +248,10 @@ class _SetupScreenState extends State<SetupScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: AppColors.transparent,
-        title: const Text(AppTexts.setupTitle),
-        centerTitle: true,
-        automaticallyImplyLeading: false, // 自動の戻るボタンを削除
-        leading: IconButton(
-          icon: const Icon(Icons.home),
-          onPressed: _showBackToTitleDialog,
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.help_outline),
-            tooltip: AppTexts.goHelp,
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const HelpScreen()),
-              );
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.settings),
-            tooltip: AppTexts.goSettings,
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const SettingsScreen()),
-              );
-            },
-          ),
-        ],
+      appBar: CommonAppBar(
+        title: AppTexts.setupTitle,
+        onHomePressed: _showBackToTitleDialog,
+        showHelp: true,
       ),
       body: SingleChildScrollView( // 画面からはみ出ないようにスクロール可能に
         padding: const EdgeInsets.all(16.0),

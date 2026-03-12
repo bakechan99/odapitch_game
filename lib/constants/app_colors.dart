@@ -9,7 +9,7 @@ class AppColors {
   static const Color themePrimaryDark = Color.fromARGB(255, 53, 195, 215);
   static const Color themeAccent = Colors.blueAccent;
   static const Color highlights = Color(0xFFFF4C47);
-
+  static const Color accent = Color(0xFFfff9e3);
 
   // Text
   static const Color textPrimary = Colors.black87;
@@ -26,6 +26,7 @@ class AppColors {
   // Backgrounds
   static const Color surface = Colors.white;
   static Color get surfaceTheme => themePrimary;
+  static Color get surfaceAccent => accent;
   static Color get surfaceMuted => Colors.grey.shade100;
   static Color get surfaceSubtle => Colors.grey.shade200;
   static Color get surfacePanel => Colors.blueGrey.shade50;

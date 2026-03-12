@@ -80,9 +80,9 @@ class AppTexts {
   static const String qaLabel = "質疑応答";
   static const String goFeedback = "質疑応答へ進む";
   static const String goNextPlayer = "終了して次の人へ";
-  static const String goToQa = "質疑応答に移ります。";
-  static const String presentationTimerLabel = "⏱  プレゼン時間";
-  static const String qaTimerLabel = "⏱  質疑応答時間";
+  static const String goToQa = "次のプレイヤーに進む";
+  static const String presentationTimerLabel = "プレゼン時間";
+  static const String qaTimerLabel = "質疑応答時間";
   static const String madeTitleHeader = "【研究課題】";
   static const String rankFirstEmoji = "🥇 ";
   static const String rankSecondEmoji = "🥈 ";

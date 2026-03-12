@@ -132,9 +132,9 @@ class AppTextStyles {
   );
 
   static final TextStyle timeValue = GoogleFonts.orbitron(
-    color: AppColors.titleButtonText,
+    color: AppColors.textPrimary,
     fontSize: 100,
-    fontWeight: FontWeight.w700,
+    fontWeight: FontWeight.w100,
   );
 
   // Dialog

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/player.dart';
 import '../models/game_settings.dart';
-import 'settings_screen.dart';
+import '../widgets/common_app_bar.dart';
 import '../constants/texts.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_text_styles.dart';
@@ -35,119 +35,222 @@ class PresentationScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final int activeTime = isPresentationMode ? timeLeft : qaTimeLeft;
+
     final String timerLabel = isPresentationMode
         ? AppTexts.presentationTimerLabel
         : AppTexts.qaTimerLabel;
-    final Color timerColor = isPresentationMode
-        ? AppColors.actionAccent
-        : AppColors.actionPrimary;
+    final String goNextText = isPresentationMode 
+        ? AppTexts.goFeedback 
+        : AppTexts.goToQa;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(AppTexts.presentationTitle(player.name)),
-        automaticallyImplyLeading: false,
-        leading: IconButton(
-          icon: const Icon(Icons.home),
-          onPressed: onHomePressed,
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings),
-            tooltip: AppTexts.goSettings,
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const SettingsScreen()),
-              );
-            },
-          ),
-        ],
+      appBar: CommonAppBar(
+        title: AppTexts.presentationTitle(player.name),
+        onHomePressed: onHomePressed,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            // --- タイマーカード ---
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-              decoration: BoxDecoration(
-                color: AppColors.surfaceMuted,
-                borderRadius: BorderRadius.circular(16),
+      body:Container(
+        decoration:BoxDecoration(
+          image: DecorationImage(
+            image: isPresentationMode 
+              ? AssetImage('assets/images/GND_presentation.png') 
+              : AssetImage('assets/images/GND_presentation_2.png'),
+            fit: BoxFit.cover
+          ),  
+        ),
+        child:Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              // --- タイマーカード ---
+              Container(
+                width: 400,
+                height: 160,
+                padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceAccent,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.black26,
+                      offset: Offset(0, 2),
+                      blurRadius: 4,
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      timerLabel, 
+                      style: AppTextStyles.headingPrimaryLarge
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // リセットボタン
+                        IconButton(
+                          icon: const Icon(Icons.replay),
+                          iconSize: 56,
+                          color: AppColors.textPrimary,
+                          onPressed: onResetTimer,
+                          tooltip: "リセット",
+                        ),
+                        Expanded(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: AppColors.surface,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child:Center(
+                            child: SizedBox(
+                              width: 240,
+                              child: Center(
+                                child: Text(
+                                  AppTexts.timerFormat(activeTime),
+                                  style: AppTextStyles.timeValue.copyWith(
+                                    fontSize: 48,
+                                    color: AppColors.textPrimary,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          )
+                        ),
+                        // 再生/一時停止ボタン
+                        IconButton(
+                          icon: Icon(
+                            isTimerRunning
+                                ? Icons.pause_circle_filled
+                                : Icons.play_circle_outline,
+                          ),
+                          iconSize: 56,
+                          color: AppColors.textPrimary,
+                          onPressed: toggleTimer,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-              child: Column(
-                children: [
-                  Text(timerLabel, style: AppTextStyles.labelMutedSmall),
-                  const SizedBox(height: 8),
-                  Text(
-                    AppTexts.timerFormat(activeTime),
-                    style: AppTextStyles.timeValue.copyWith(
-                      fontSize: 64,
-                      color: timerColor,
+              const SizedBox(height: 20),
+              // --- 研究タイトルエリア ---
+              Expanded(
+                child: Container(
+                  width: 400,
+                  height: 300,
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: isPresentationMode
+                          ? AssetImage('assets/images/presentation_background.png')
+                          : AssetImage('assets/images/question_background.png'), 
+                       //fit: BoxFit.fill,
                     ),
                   ),
-                  const SizedBox(height: 12),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // リセットボタン
-                      IconButton(
-                        icon: const Icon(Icons.replay),
-                        iconSize: 36,
-                        color: AppColors.textMuted,
-                        onPressed: onResetTimer,
-                        tooltip: "リセット",
-                      ),
-                      const SizedBox(width: 24),
-                      // 再生/一時停止ボタン
-                      IconButton(
-                        icon: Icon(
-                          isTimerRunning
-                              ? Icons.pause_circle_filled
-                              : Icons.play_circle_fill,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 20, bottom: 60, left: 40, right: 40),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        // 吹き出し上部
+                        const SizedBox(height: 88),
+                        Text(
+                          AppTexts.presentationTitle(player.name),
+                          style: AppTextStyles.headingSection.copyWith(
+                            fontWeight: FontWeight.w200,
+                          ),
                         ),
-                        iconSize: 56,
-                        color: timerColor,
-                        onPressed: toggleTimer,
-                      ),
-                    ],
+                        // タイトルを残りスペースの中央に
+                        Expanded(
+                          child: Center(
+                            child: Text(
+                              player.researchTitle,
+                              textAlign: TextAlign.center,
+                              style: AppTextStyles.valueDisplayLarge,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 88),
+                      ],
+                    ),
                   ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 40),
-            const Text(AppTexts.madeTitleHeader, style: AppTextStyles.headingSectionLarge),
-            const SizedBox(height: 20),
-            Expanded(
-              child: Center(
-                child: Text(
-                  player.researchTitle,
-                  textAlign: TextAlign.center,
-                  style: AppTextStyles.valueDisplayLarge,
                 ),
               ),
-            ),
-            // --- バナー ---
-            GestureDetector(
-              onTap: proceedToNextStep,
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 18),
-                decoration: BoxDecoration(
-                  color: timerColor.withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(30),
-                  border: Border.all(color: timerColor.withOpacity(0.4), width: 1.5),
-                ),
-                child: Text(
-                  isPresentationMode ? AppTexts.goFeedback : AppTexts.goToQa,
-                  textAlign: TextAlign.center,
-                  style: AppTextStyles.buttonPrimaryBold.copyWith(color: timerColor),
+              // --- バナー（矢印形状） ---
+              Center(
+                child:GestureDetector(
+                  onTap: proceedToNextStep,
+                  child: CustomPaint(
+                    painter: ArrowShadowPainter(arrowDepth: 28),
+                    child: ClipPath(
+                      clipper: ArrowClipper(),
+                      child: Container(
+                          width: 400,
+                          height: 60,
+                          padding: const EdgeInsets.symmetric(vertical: 18),
+                          decoration: BoxDecoration(
+                            color: AppColors.accent,
+                          ),
+                          child: Text(
+                            goNextText,
+                            textAlign: TextAlign.center,
+                            style: AppTextStyles.buttonPrimaryBold.copyWith(
+                              fontSize: 20,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                 ),
               ),
-            ),
-            const SizedBox(height: 20),
-          ],
+              const SizedBox(height: 20),
+            ],
+          ),
         ),
-      ),
-    );
+        ),
+      );
   }
+}
+
+/// 矢印形状の影を描くPainter
+class ArrowShadowPainter extends CustomPainter {
+  final double arrowDepth;
+  ArrowShadowPainter({this.arrowDepth = 28});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final path = Path();
+    path.moveTo(0, 0);
+    path.lineTo(size.width - arrowDepth, 0);
+    path.lineTo(size.width, size.height / 2);
+    path.lineTo(size.width - arrowDepth, size.height);
+    path.lineTo(0, size.height);
+    path.close();
+    canvas.drawShadow(path, Colors.black38, 6, true);
+  }
+
+  @override
+  bool shouldRepaint(ArrowShadowPainter oldDelegate) =>
+      oldDelegate.arrowDepth != arrowDepth;
+}
+
+/// 右側が矢印（▶）の形状になるClipper
+class ArrowClipper extends CustomClipper<Path> {
+  final double arrowDepth;
+  ArrowClipper({this.arrowDepth = 28});
+
+  @override
+  Path getClip(Size size) {
+    final path = Path();
+    path.moveTo(0, 0);
+    path.lineTo(size.width - arrowDepth, 0);
+    path.lineTo(size.width, size.height / 2);
+    path.lineTo(size.width - arrowDepth, size.height);
+    path.lineTo(0, size.height);
+    path.close();
+    return path;
+  }
+
+  @override
+  bool shouldReclip(ArrowClipper oldClipper) => oldClipper.arrowDepth != arrowDepth;
 }

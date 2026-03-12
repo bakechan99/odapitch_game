@@ -5,6 +5,7 @@ import '../models/placed_card.dart';
 import '../models/game_settings.dart'; // 設定モデル
 import 'result_screen.dart';
 import 'settings_screen.dart';
+import '../widgets/common_app_bar.dart';
 import 'passing_confirm_screen.dart';
 import 'research_title_confirm_screen.dart';
 import '../constants/texts.dart'; // 追加
@@ -143,30 +144,15 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
   // --- 画面2: メインゲーム画面 ---
   Widget _buildGameScreen(Player player) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: AppColors.surfaceTheme,
-        foregroundColor: AppColors.textPrimary,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        surfaceTintColor: AppColors.transparent,
-        automaticallyImplyLeading: false,
-        leading: IconButton(
-          icon: const Icon(Icons.home),
-          onPressed: () {
-            _showConfirmDialog(
-              title: AppTexts.checkPop,
-              content: AppTexts.cautionBackHome,
-              onConfirm: () => Navigator.of(context).popUntil((route) => route.isFirst),
-            );
-          },
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings),
-            tooltip: AppTexts.goSettings,
-            onPressed: _openSettings,
-          ),
-        ],
+      appBar: CommonAppBar(
+        title: AppTexts.turnTitle(player.name),
+        onHomePressed: () {
+          _showConfirmDialog(
+            title: AppTexts.checkPop,
+            content: AppTexts.cautionBackHome,
+            onConfirm: () => Navigator.of(context).popUntil((route) => route.isFirst),
+          );
+        },
       ),
       body: Column(
         children: [
