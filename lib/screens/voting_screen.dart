@@ -48,10 +48,10 @@ class VotingScreen extends StatelessWidget {
               horizontal: 16, 
               vertical: 12
             ),
-            color: AppColors.accent,
             width: 400,
-            decoration: const BoxDecoration(
-              boxShadow: [
+            decoration: BoxDecoration(
+              color: AppColors.accent,
+              boxShadow: const [
                 BoxShadow(
                   blurRadius: 4,
                   offset: Offset(0, 2),
