@@ -9,6 +9,7 @@ import '../constants/app_text_styles.dart';
 
 class ResultView extends StatelessWidget {
   final List<Player> players;
+  final String odaiTheme;
   final Map<int, Map<int, int>> voteMatrix;
   // AIの結果を受け取る
   final Map<int, Map<String, dynamic>> aiResults;
@@ -18,6 +19,7 @@ class ResultView extends StatelessWidget {
   const ResultView({
     super.key,
     required this.players,
+    required this.odaiTheme,
     required this.voteMatrix,
     required this.aiResults, // AI用追加
     required this.getPlayerColor,
@@ -65,23 +67,53 @@ class ResultView extends StatelessWidget {
     // }
     // // 獲得金額順にソート
     // results.sort((a, b) => (b['total'] as int).compareTo(a['total'] as int));
-    final int maxPossibleTotal = players.length * 100;
+
+    // バーの最大値 = 全プレイヤー中の最高得点の1.1倍（切り上げ）
+    // results はソート済みなので先頭が最大値
+    final int _maxResultTotal = results.isEmpty ? 0 : (results[0]['total'] as int);
+    final int barMax = _maxResultTotal > 0 ? (_maxResultTotal * 11 + 9) ~/ 10 : 1;
 
     return Scaffold(
       appBar: CommonAppBar(
-        title: AppTexts.resultTitle,
+        title: "",
         onHomePressed: onHomePressed,
       ),
-      body: Column(
+      body:Column(
         children: [
-          const Padding(padding: EdgeInsets.all(20.0), child: Text(AppTexts.resultHeader, style: AppTextStyles.headingPrimaryLarge)),
           Expanded(
             child: ListView.builder(
-              itemCount: results.length,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              itemCount: results.length + 1, // +1 はヘッダー（画像＋テーマ）分
+              padding: EdgeInsets.zero, // 画像をフルwidthにするためpadding無し
               itemBuilder: (context, index) {
-                final data = results[index];
+                // index 0 はヘッダー（画像＋テーマ名）
+                if (index == 0) {
+                  return Column(
+                    children: [
+                      Container(
+                        width: double.infinity,
+                        height: MediaQuery.of(context).size.width / 3,
+                        decoration: const BoxDecoration(
+                          image: DecorationImage(
+                            image: AssetImage('assets/images/GND_showResults.png'),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                        child: Text(
+                          AppTexts.odaitheme(odaiTheme),
+                          style: AppTextStyles.headingPrimaryLarge.copyWith(
+                            fontSize: 28,
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                }
+                final data = results[index - 1]; // ヘッダー分ずらす
                 final player = data['player'] as Player;
+                final int baseTotal = data['baseTotal'] as int;
                 final int total = data['total'] as int;
                 final Map<int, int> breakdown = data['breakdown'] as Map<int, int>;
                 
@@ -89,7 +121,7 @@ class ResultView extends StatelessWidget {
                 final Map<String, dynamic>? playerAiData = data['aiData'] as Map<String, dynamic>?;
 
                 return Card(
-                  margin: const EdgeInsets.only(bottom: 20),
+                  margin: const EdgeInsets.fromLTRB(16, 0, 16, 20),
                   elevation: 4,
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
@@ -98,29 +130,118 @@ class ResultView extends StatelessWidget {
                       children: [
                         Row(
                           children: [
-                            if (index == 0) const Text(AppTexts.rankFirstEmoji, style: AppTextStyles.rankEmoji),
-                            if (index == 1) const Text(AppTexts.rankSecondEmoji, style: AppTextStyles.rankEmoji),
-                            if (index == 2) const Text(AppTexts.rankThirdEmoji, style: AppTextStyles.rankEmoji),
-                            Text(AppTexts.rankPosition(index + 1), style: AppTextStyles.headingPrimaryMedium),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(player.name, style: AppTextStyles.playerName),
-                                  Text(player.researchTitle, style: AppTextStyles.captionMuted, maxLines: 1, overflow: TextOverflow.ellipsis),
-                                ],
+                            if (index == 1) // index 1 が1位（index 0 はヘッダー）
+                              SizedBox(
+                                width: 50,
+                                height: 50,
+                                child: Image.asset(
+                                  'assets/images/winners_crown_icon.png',
+                                  fit: BoxFit.contain,
+                                ),
+                              )
+                            else
+                              Container(
+                                width: 50,
+                                height: 50,
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: Colors.black87,
+                                    width: 1.2,
+                                  ),
+                                  color: AppColors.surface, // 背景色（不要なら削除）
+                                ),
+                                child: Text(
+                                  '$index', // index 1 → 1位, index 2 → 2位...
+                                  style: AppTextStyles.headingPrimaryMedium,
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            const SizedBox(width: 20),
+                            SizedBox(
+                              width: 150,
+                              child:Text(
+                                player.name, 
+                                style: AppTextStyles.playerName.copyWith(
+                                  fontSize: 24,
+                                )
                               ),
                             ),
-                            Text(AppTexts.budgetAmount(total), style: AppTextStyles.amountTotal),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Center(
+                                child: Text.rich(
+                                  TextSpan(
+                                    children: [
+                                      TextSpan(
+                                        text: ' $total ',
+                                        style: AppTextStyles.headingPrimaryLarge.copyWith(
+                                          fontSize: 32
+                                        ),
+                                      ),
+                                      TextSpan(
+                                        text: '万円',
+                                        style: AppTextStyles.headingPrimaryLarge.copyWith(
+                                          fontSize: 24,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
                           ],
                         ),
+                        const SizedBox(height: 12),
+                        Center(
+                          child: Text(
+                            player.researchTitle, 
+                            textAlign: TextAlign.center,
+                            style: AppTextStyles.headingPrimaryLarge.copyWith(
+                              fontSize: 24,
+                            ),
+                            maxLines: 1, 
+                            overflow: TextOverflow.ellipsis
+                          ),
+                        ),
                         const SizedBox(height: 15),
-                        ClipRRect(
+                        Center(
+                          child: playerAiData != null
+                            ? Text.rich(
+                                TextSpan(
+                                  style: AppTextStyles.headingPrimaryMedium.copyWith(
+                                    fontSize: 24,
+                                  ),
+                                  children: [
+                                    TextSpan(text: AppTexts.budgetAmount(baseTotal)),
+                                    TextSpan(text: AppTexts.aiScoreLabel(playerAiData['score'] ?? 0)),
+                                  ],
+                                ),
+                                textAlign: TextAlign.center,
+                              )
+                            : Text(
+                                AppTexts.budgetAmount(baseTotal),
+                                style: AppTextStyles.headingPrimaryMedium.copyWith(
+                                  fontSize: 24,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                        ),
+                        const SizedBox(height: 8),
+                        Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              color: AppColors.titleButtonBorder,
+                              width: 1.0,
+                            ),
+                          ),
+                          child: ClipRRect(
                           borderRadius: BorderRadius.circular(10),
                           child: Container(
-                            height: 30,
-                            color: AppColors.surfaceSubtle,
+                            height: 20,
+                            color: AppColors.actionDisabled,
                             child: Row(
                               children: [
                                 Expanded(
@@ -143,41 +264,71 @@ class ResultView extends StatelessWidget {
                                         )
                                       : const SizedBox.shrink(),
                                 ),
-                                Expanded(flex: maxPossibleTotal - total, child: const SizedBox.shrink()),
+                                Expanded(
+                                  flex: barMax - total, 
+                                  child: const SizedBox.shrink()
+                                ),
                               ],
                             ),
                           ),
-                        ),
+                        ),  // ClipRRect
+                        ),  // border Container
                         const SizedBox(height: 16),
                         
                         // 🌟 ここからAIの採点結果表示UI！
+                        // Stack で「枠線上にラベルを重ねる」InputDecoration風のデザイン
                         if (playerAiData != null)
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: AppColors.surfaceSubtle,
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: AppColors.aiAccentSoft),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    const Icon(Icons.smart_toy, size: 20, color: AppColors.aiAccent),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      AppTexts.aiScoreLabel(playerAiData['score'] ?? 0), 
-                                      style: const TextStyle(color: AppColors.aiAccent, fontWeight: FontWeight.bold, fontSize: 16)
+                          Center(
+                            child: SizedBox(
+                              width: double.infinity,
+                              child: Stack(
+                                clipBehavior: Clip.none,
+                                children: [
+                                  // 枠線付きContainer（上マージンでラベル分のスペースを確保）
+                                  Container(
+                                    width: double.infinity,
+                                    margin: const EdgeInsets.only(top: 10),
+                                    padding: const EdgeInsets.fromLTRB(12, 16, 12, 12),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.surface,
+                                      borderRadius: BorderRadius.circular(20),
+                                      border: Border.all(color: AppColors.sectionTitle),
                                     ),
-                                  ],
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  AppTexts.aiFeedbackLabel((playerAiData['feedback'] ?? AppTexts.aiNoFeedback).toString()), 
-                                  style: const TextStyle(fontSize: 14, height: 1.4)
-                                ),
-                              ],
+                                    child: Text(
+                                      AppTexts.aiFeedbackLabel(
+                                        (playerAiData['feedback'] ?? AppTexts.aiNoFeedback).toString()
+                                      ),
+                                      style: const TextStyle(fontSize: 14, height: 1.4),
+                                    ),
+                                  ),
+                                  // 枠線に重なるラベル（背景色で枠線を隠してフローティング表示）
+                                  Positioned(
+                                    top: -12,
+                                    left: 12,                                    child: Container(
+                                      color: AppColors.surface,
+                                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.max,
+                                        children: [
+                                          Text(
+                                            AppTexts.aiEvaluationPrefix,
+                                            style: AppTextStyles.headingPrimaryLarge.copyWith(
+                                              fontSize: 20,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 6),
+                                          Text(
+                                            AppTexts.aiScoreLabel(playerAiData['score'] ?? 0),
+                                            style: AppTextStyles.headingPrimaryLarge.copyWith(
+                                              fontSize: 20,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                       ],
@@ -189,7 +340,18 @@ class ResultView extends StatelessWidget {
           ),
           Container(
             padding: const EdgeInsets.all(10),
-            color: AppColors.surfaceSubtle,
+            decoration: BoxDecoration(
+              color: AppColors.surfaceAccent,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: const [
+                BoxShadow(
+                  color: Colors.black26, 
+                  blurRadius: 4, 
+                  offset: Offset(0, 2),
+                  
+                ),
+              ],
+            ),
             child: Wrap(
               spacing: 10,
               runSpacing: 5,
@@ -209,17 +371,28 @@ class ResultView extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: SizedBox(
-                width: double.infinity,
+                width: 300,
+                height: 60,
                 child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(padding: const EdgeInsets.all(15)),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.all(15),
+                    backgroundColor: AppColors.themePrimaryLight,
+                    shadowColor: AppColors.shadowBase,
+                    elevation: 10,
+                  ),
                   onPressed: onHomePressed,
-                  child: const Text(AppTexts.backToTitle, style: AppTextStyles.buttonMedium),
+                  child: Text(
+                    AppTexts.backToTitle, 
+                    style: AppTextStyles.headingPrimaryLarge.copyWith(
+                      fontSize: 28,
+                    )
+                  ),
                 ),
               ),
             ),
           ),
         ],
-      ),
+        ),
     );
   }
 }

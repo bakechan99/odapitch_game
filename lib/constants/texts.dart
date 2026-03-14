@@ -87,7 +87,7 @@ class AppTexts {
   static const String rankFirstEmoji = "🥇 ";
   static const String rankSecondEmoji = "🥈 ";
   static const String rankThirdEmoji = "🥉 ";
-  static const String aiEvaluationPrefix = "AI評価";
+  static const String aiEvaluationPrefix = "AI評価 : ";
   static const String aiFeedbackPrefix = "講評";
   static const String aiNoFeedback = "評価なし";
 
@@ -119,10 +119,10 @@ class AppTexts {
   static String remainBudget(int remainingBudget) => "残り予算: $remainingBudget 万円 / 100 万円";
   static String odaitheme(String odai) => "お題：$odai";
   static String researcherName(String name) => "$name";
-  static String budgetAmount(int amount) => "$amount 万円";
-  static String rankPosition(int rank) => "${rank}位";
+  static String budgetAmount(int amount) => "$amount\u00A0万円";
+  static String rankPosition(int rank) => "${rank}";
   static String amountOnly(int amount) => "$amount";
-  static String aiScoreLabel(Object score) => "$aiEvaluationPrefix: $score点";
+  static String aiScoreLabel(Object score) => " × $score 倍";
   static String aiFeedbackLabel(String feedback) => "$aiFeedbackPrefix: $feedback";
   // 研究タイトルを整形して返す
   static String researchTitle(String title) => "【研究課題】$title";

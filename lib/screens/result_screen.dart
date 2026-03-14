@@ -23,7 +23,13 @@ import '../models/card_data.dart';
 class ResultScreen extends StatefulWidget {
   final List<Player> players;
   final GameSettings settings;
-  const ResultScreen({super.key, required this.players, required this.settings});
+  final String odaiTheme;
+  const ResultScreen({
+    super.key,
+    required this.players,
+    required this.settings,
+    required this.odaiTheme,
+  });
 
   @override
   State<ResultScreen> createState() => _ResultScreenState();
@@ -311,6 +317,7 @@ class _ResultScreenState extends State<ResultScreen> {
           case ScreenPhase.result:
             return ResultView(
               players: widget.players,
+              odaiTheme: widget.odaiTheme,
               voteMatrix: _controller.voteMatrix,
               aiResults: _controller.aiResults,
               getPlayerColor: _getPlayerColor,

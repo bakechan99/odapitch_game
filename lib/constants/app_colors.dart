@@ -75,13 +75,13 @@ class AppColors {
   static const Color gradientEnd = Colors.black87;
 
   // Player palette
-  static const List<Color> playerPalette = [
-    Colors.blue,
-    Colors.red,
-    Colors.green,
-    Colors.orange,
-    Colors.purple,
-    Colors.teal,
+  static List<Color> get playerPalette => [
+    themePrimary,
+    Color.fromARGB(255, 150, 150, 234),
+    Color.fromARGB(255, 234, 178, 150),
+    Color.fromARGB(255, 158, 234, 150), 
+    Color.fromARGB(255, 242, 246, 119),
+    Color.fromARGB(255, 254, 162, 162),
     Colors.pink,
     Colors.brown,
   ];

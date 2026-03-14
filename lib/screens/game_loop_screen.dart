@@ -66,6 +66,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
               builder: (context) => ResultScreen(
                 players: widget.players,
                 settings: widget.settings,
+                odaiTheme: widget.odaiTheme,
               ),
             ),
           );

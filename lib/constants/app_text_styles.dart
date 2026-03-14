@@ -215,7 +215,7 @@ class AppTextStyles {
   static const TextStyle amountTotal = TextStyle(
     fontSize: 24,
     fontWeight: FontWeight.bold,
-    color: AppColors.themeAccent,
+    color: AppColors.themePrimaryDark,
   );
 
   static final TextStyle amountAccent = GoogleFonts.zenMaruGothic(
