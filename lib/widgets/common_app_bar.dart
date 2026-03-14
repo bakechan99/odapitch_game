@@ -15,6 +15,7 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback onHomePressed;
   final bool showHelp;
   final List<Widget> extraActions;
+  final Color? backgroundColor;
 
   const CommonAppBar({
     super.key,
@@ -22,12 +23,13 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
     required this.onHomePressed,
     this.showHelp = false,
     this.extraActions = const [],
+    this.backgroundColor,
   });
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: AppColors.surfaceTheme,
+      backgroundColor: backgroundColor ?? AppColors.themePrimary,
       foregroundColor: AppColors.textPrimary,
       elevation: 0,
       scrolledUnderElevation: 0,

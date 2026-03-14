@@ -103,7 +103,7 @@ class AppTextStyles {
   );
 
   static const TextStyle buttonPrimaryBold = TextStyle(
-    fontSize: 20,
+    fontSize: 28,
     fontWeight: FontWeight.bold,
   );
 
@@ -218,10 +218,10 @@ class AppTextStyles {
     color: AppColors.themeAccent,
   );
 
-  static const TextStyle amountAccent = TextStyle(
-    fontSize: 20,
-    fontWeight: FontWeight.bold,
+  static final TextStyle amountAccent = GoogleFonts.zenMaruGothic(
+    fontSize: 28,
     color: AppColors.textAccent,
+    fontWeight: FontWeight.bold,
   );
 
   static const TextStyle amountTinyOnDark = TextStyle(

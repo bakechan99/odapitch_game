@@ -74,7 +74,7 @@ class AppTexts {
   static const String resultHeader = "採択された研究課題は...";
   static const String checkBudget = "この配分で投票しますか？";
   static const String startVoteButton = "START";
-  static const String decideBudget = "投票を確定する";
+  static const String decideBudget = "次へ";
   static const String feedbackTitle = "質疑応答";
   static const String presentationLabel = "発表時間";
   static const String qaLabel = "質疑応答";
@@ -98,7 +98,7 @@ class AppTexts {
   
   // Setup Screen
   static String defaultPlayerNameWithIndex(int index) => "$defaultPlayerName$index";
-  static String playerCountUnit(int count) => "$count人";
+  static String playerCountUnit(int count) => "$count";
   static String secondsUnit(int sec) => "${sec}秒";
   static String timerFormat(int sec) => "${(sec ~/ 60).toString().padLeft(2, '0')}:${(sec % 60).toString().padLeft(2, '0')}";
 
@@ -118,7 +118,7 @@ class AppTexts {
   static String voteCount(int votes) => "獲得票数: $votes 票";
   static String remainBudget(int remainingBudget) => "残り予算: $remainingBudget 万円 / 100 万円";
   static String odaitheme(String odai) => "お題：$odai";
-  static String researcherName(String name) => "研究者: $name";
+  static String researcherName(String name) => "$name";
   static String budgetAmount(int amount) => "$amount 万円";
   static String rankPosition(int rank) => "${rank}位";
   static String amountOnly(int amount) => "$amount";

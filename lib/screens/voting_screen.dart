@@ -40,17 +40,23 @@ class VotingScreen extends StatelessWidget {
         onHomePressed: onHomePressed,
         showHelp: true,
       ),
-      body: Column(
-        children: [
+      body: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/images/GND_voting.png'),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: Column(
+          children: [
           // --- ヘッダー ---
           Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16, 
-              vertical: 12
-            ),
+            padding: const EdgeInsets.all(24),
+            margin: const EdgeInsets.only(bottom: 12),
             width: 400,
             decoration: BoxDecoration(
               color: AppColors.accent,
+              borderRadius: BorderRadius.circular(24),
               boxShadow: const [
                 BoxShadow(
                   blurRadius: 4,
@@ -63,31 +69,69 @@ class VotingScreen extends StatelessWidget {
               children: [
                 Text(
                   "${voter.name}さん${AppTexts.nextVoter}",
-                  style: AppTextStyles.labelBold,
+                  style: AppTextStyles.headingPrimaryLarge.copyWith(
+                    fontWeight: FontWeight.normal,
+                  ),
                 ),
                 const SizedBox(height: 10),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     _budgetChip(
-                      "のこり",
+                      "ーのこりー",
                       remainingBudget,
-                      remainingBudget < 0
+                      remainingBudget == 0
                           ? AppColors.actionDanger
-                          : AppColors.textAccentStrong,
+                          : AppColors.textPrimary,
                     ),
-                    _budgetChip("さいだい", 100, AppColors.textPrimary),
+                    _budgetChip(
+                      "ーさいだいー", 
+                      100, 
+                      AppColors.textPrimary),
                   ],
                 ),
               ],
             ),
           ),
-          // --- 投票カード一覧 ---
+          // --- 投票カード一覧 + 確定ボタン ---
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.only(top: 8, bottom: 8),
-              itemCount: players.length,
+              itemCount: players.length + 1,
               itemBuilder: (context, index) {
+                // 最後のアイテムとして確定ボタンを表示
+                if (index == players.length) {
+                  return Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                    child: Center(
+                      child: SizedBox(
+                        width: 216,
+                        height: 72,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: isComplete
+                                ? AppColors.actionDanger
+                                : AppColors.actionDisabled,
+                            foregroundColor: AppColors.textOnDark,
+                            padding: const EdgeInsets.symmetric(vertical: 15),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(60),
+                            ),
+                          ),
+                          onPressed: isComplete ? submitVote : null,
+                          child: Text(
+                            AppTexts.decideBudget,
+                            style: AppTextStyles.buttonPrimaryBold.copyWith(
+                              fontSize: 36,
+                              fontFamily: "ZenMaruGothic",
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                }
+
                 final p = players[index];
                 if (index == currentVoterIndex) return const SizedBox.shrink();
 
@@ -103,15 +147,27 @@ class VotingScreen extends StatelessWidget {
                       children: [
                         // 研究タイトル（大）
                         Text(
-                          p.researchTitle,
-                          style: AppTextStyles.valueDisplayLarge,
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
                           AppTexts.researcherName(p.name),
-                          style: AppTextStyles.bodyMuted,
+                          style: AppTextStyles.headingPrimaryMedium,
                         ),
-                        const SizedBox(height: 10),
+                        Center(
+                          child:Column(
+                            children: [
+                              Text(
+                                p.researchTitle,
+                                style: AppTextStyles.valueDisplayLarge,
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 10),
+                              Text(
+                                AppTexts.budgetAmount(currentAmount),
+                                style: AppTextStyles.amountAccent.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          )
+                        ),
                         // カスタムバー
                         BudgetBar(
                           value: currentAmount,
@@ -119,10 +175,7 @@ class VotingScreen extends StatelessWidget {
                           onChanged: (val) => onAllocationChanged(index, val),
                         ),
                         const SizedBox(height: 6),
-                        Text(
-                          AppTexts.budgetAmount(currentAmount),
-                          style: AppTextStyles.amountAccent,
-                        ),
+                        
                       ],
                     ),
                   ),
@@ -130,30 +183,36 @@ class VotingScreen extends StatelessWidget {
               },
             ),
           ),
-          // --- 確定ボタン ---
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-              child: SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: isComplete
-                        ? AppColors.actionDanger
-                        : AppColors.actionDisabled,
-                    foregroundColor: AppColors.textOnDark,
-                    padding: const EdgeInsets.symmetric(vertical: 15),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                  ),
-                  onPressed: isComplete ? submitVote : null,
-                  child: const Text(
-                    AppTexts.decideBudget,
-                    style: AppTextStyles.buttonMediumBold,
-                  ),
-                ),
-              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _budgetChip(String label, int amount, Color color) {
+    return Container(
+      width: 160,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.black26,
+            blurRadius: 4,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child:Column(
+        children: [
+          Text(label, style: AppTextStyles.bodyMuted),
+          const SizedBox(height: 2),
+          Text(
+            "${amount}万円",
+            style: AppTextStyles.timeValue.copyWith(
+              color: color,
+              fontSize: 24,
             ),
           ),
         ],
@@ -161,21 +220,6 @@ class VotingScreen extends StatelessWidget {
     );
   }
 
-  Widget _budgetChip(String label, int amount, Color color) {
-    return Column(
-      children: [
-        Text(label, style: AppTextStyles.bodyMuted),
-        const SizedBox(height: 2),
-        Text(
-          "${amount}万円",
-          style: AppTextStyles.valueLarge.copyWith(
-            color: color,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ],
-    );
-  }
 }
 
 /// ドラッグ可能な予算配分バー
@@ -183,12 +227,18 @@ class BudgetBar extends StatefulWidget {
   final int value;
   final int maxAllowable;
   final void Function(int) onChanged;
+  final Color trackColor;   // トラック（背景の薄いバー）の色
+  final Color fillColor;    // フィル（塗り部分）の色
+  final Color thumbColor;   // サム（丸いハンドル）の色
 
   const BudgetBar({
     super.key,
     required this.value,
     required this.maxAllowable,
     required this.onChanged,
+    this.trackColor = AppColors.actionDisabled,
+    this.fillColor = AppColors.actionPrimary,
+    this.thumbColor = AppColors.actionPrimary,
   });
 
   @override
@@ -225,9 +275,9 @@ class _BudgetBarState extends State<BudgetBar> {
               children: [
                 // トラック（背景）
                 Container(
-                  height: 6,
+                  height: 12,
                   decoration: BoxDecoration(
-                    color: AppColors.surfaceAccent.withOpacity(0.4),
+                    color: widget.trackColor,
                     borderRadius: BorderRadius.circular(3),
                   ),
                 ),
@@ -235,9 +285,9 @@ class _BudgetBarState extends State<BudgetBar> {
                 FractionallySizedBox(
                   widthFactor: fillRatio,
                   child: Container(
-                    height: 6,
+                    height: 12,
                     decoration: BoxDecoration(
-                      color: AppColors.actionPrimary,
+                      color: widget.fillColor,
                       borderRadius: BorderRadius.circular(3),
                     ),
                   ),
@@ -249,8 +299,12 @@ class _BudgetBarState extends State<BudgetBar> {
                     width: 24,
                     height: 24,
                     decoration: BoxDecoration(
-                      color: AppColors.actionPrimary,
+                      color: widget.thumbColor,
                       shape: BoxShape.circle,
+                      border: Border.all(
+                        color: widget.trackColor.withAlpha(150), 
+                        width: 2
+                      ),
                       boxShadow: const [
                         BoxShadow(
                           color: Colors.black26,

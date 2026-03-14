@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/player.dart';
+import '../models/card_data.dart';
+import '../models/placed_card.dart';
 import '../widgets/common_app_bar.dart';
 import '../constants/texts.dart';
 import '../constants/app_colors.dart';
@@ -216,6 +218,65 @@ class ResultView extends StatelessWidget {
               ),
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 結果画面用カードWidget（選択段をハイライト表示）
+class ResultCardWidget extends StatelessWidget {
+  final CardData card;
+  final int? selectedSection; // null = 使っていないカード
+
+  const ResultCardWidget({super.key, required this.card, this.selectedSection});
+
+  @override
+  Widget build(BuildContext context) {
+    Widget section(String text, int idx) {
+      final bool isSelected = idx == selectedSection;
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 2),
+        decoration: BoxDecoration(
+          color: isSelected ? AppColors.actionAccent : Colors.transparent,
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: Text(
+          text,
+          style: AppTextStyles.cardHandText.copyWith(
+            color: isSelected ? AppColors.textPrimary : AppColors.textPrimary,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+          ),
+          textAlign: TextAlign.center,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+      );
+    }
+
+    return Container(
+      width: 100,
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: selectedSection != null ? AppColors.borderLight : AppColors.borderLight,
+          width: selectedSection != null ? 1.5 : 1.0,
+        ),
+        boxShadow: const [
+          BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2)),
+        ],
+      ),
+      padding: const EdgeInsets.all(4),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          section(card.top, 0),
+          Divider(height: 1, color: AppColors.divider),
+          section(card.middle, 1),
+          Divider(height: 1, color: AppColors.divider),
+          section(card.bottom, 2),
         ],
       ),
     );
