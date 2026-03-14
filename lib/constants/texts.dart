@@ -43,8 +43,8 @@ class AppTexts {
   static const String settingsAudioSection = "音声設定";
   static const String settingsBgmEnabled = "BGMを有効にする";
   static const String settingsSeEnabled = "効果音を有効にする";
-  static const String settingsBgmVolume = "BGM音量";
-  static const String settingsSeVolume = "効果音音量";
+  static const String settingsBgmVolume = "BGM";
+  static const String settingsSeVolume = "効果音";
 
   // Game Loop Screen
   static const String dragInstruction = "研究タイトルを決めてください";

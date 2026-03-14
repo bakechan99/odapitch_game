@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kakenhi_game/constants/app_colors.dart';
 import '../constants/texts.dart';
 import '../constants/app_text_styles.dart';
 import '../data/local_db.dart';
@@ -57,60 +58,87 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(AppTexts.settingsTitle),
+        title: const Text(""),
+        backgroundColor: AppColors.transparent,
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                const Text(AppTexts.settingsAudioSection, style: AppTextStyles.headingSection),
-                const SizedBox(height: 12),
-                SwitchListTile(
-                  title: const Text(AppTexts.settingsBgmEnabled),
-                  value: _bgmEnabled,
-                  onChanged: (value) async {
-                    setState(() => _bgmEnabled = value);
-                    await _saveBool(_keyBgmEnabled, value);
-                  },
-                ),
-                SwitchListTile(
-                  title: const Text(AppTexts.settingsSeEnabled),
-                  value: _seEnabled,
-                  onChanged: (value) async {
-                    setState(() => _seEnabled = value);
-                    await _saveBool(_keySeEnabled, value);
-                  },
-                ),
-                const SizedBox(height: 8),
-                Text('${AppTexts.settingsBgmVolume} (${(_bgmVolume * 100).round()}%)', style: AppTextStyles.labelField),
-                Slider(
-                  value: _bgmVolume,
-                  min: 0,
-                  max: 1,
-                  divisions: 20,
-                  onChanged: (value) {
-                    setState(() => _bgmVolume = value);
-                  },
-                  onChangeEnd: (value) async {
-                    await _saveDouble(_keyBgmVolume, value);
-                  },
-                ),
-                Text('${AppTexts.settingsSeVolume} (${(_seVolume * 100).round()}%)', style: AppTextStyles.labelField),
-                Slider(
-                  value: _seVolume,
-                  min: 0,
-                  max: 1,
-                  divisions: 20,
-                  onChanged: (value) {
-                    setState(() => _seVolume = value);
-                  },
-                  onChangeEnd: (value) async {
-                    await _saveDouble(_keySeVolume, value);
-                  },
-                ),
-              ],
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: Image.asset(
+              'assets/images/GND_setting.png',
+              fit: BoxFit.cover,
             ),
+          ),
+          _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : ListView(
+                  padding: const EdgeInsets.all(16),
+                  children: [
+                    Text(
+                      AppTexts.settingsAudioSection, 
+                      style: AppTextStyles.headingSection.copyWith(
+                        fontSize: 30
+                      )
+                    ),
+                    const SizedBox(height: 12),
+                    SwitchListTile(
+                      title: const Text(AppTexts.settingsBgmEnabled),
+                      value: _bgmEnabled,
+                      onChanged: (value) async {
+                        setState(() => _bgmEnabled = value);
+                        await _saveBool(_keyBgmEnabled, value);
+                      },
+                    ),
+                    SwitchListTile(
+                      title: const Text(AppTexts.settingsSeEnabled),
+                      value: _seEnabled,
+                      onChanged: (value) async {
+                        setState(() => _seEnabled = value);
+                        await _saveBool(_keySeEnabled, value);
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                    Text(
+                      '${AppTexts.settingsBgmVolume} (${(_bgmVolume * 100).round()}%)', 
+                      style: AppTextStyles.labelField.copyWith(
+                        fontSize: 30,
+                        )
+                      ),
+                    Slider(
+                      value: _bgmVolume,
+                      min: 0,
+                      max: 1,
+                      divisions: 20,
+                      onChanged: (value) {
+                        setState(() => _bgmVolume = value);
+                      },
+                      onChangeEnd: (value) async {
+                        await _saveDouble(_keyBgmVolume, value);
+                      },
+                    ),
+                    const SizedBox(height: 30),
+                    Text(
+                      '${AppTexts.settingsSeVolume} (${(_seVolume * 100).round()}%)', 
+                      style: AppTextStyles.labelField.copyWith(
+                        fontSize: 30,
+                      )
+                    ),
+                    Slider(
+                      value: _seVolume,
+                      min: 0,
+                      max: 1,
+                      divisions: 20,
+                      onChanged: (value) {
+                        setState(() => _seVolume = value);
+                      },
+                      onChangeEnd: (value) async {
+                        await _saveDouble(_keySeVolume, value);
+                      },
+                    ),
+                  ],
+                ),
+        ],
+      ),
     );
   }
 }
