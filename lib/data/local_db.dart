@@ -9,6 +9,8 @@ class LocalDb {
 
   static final LocalDb instance = LocalDb._();
   static const String defaultPresetId = 'default';
+  static const String defaultOdaiPresetId = 'default';
+  static const String _keySelectedOdaiPresetId = 'selected_odai_preset_id';
   static const String _keyPresentationTimeSec = 'presentation_time_sec';
   static const String _keyQaTimeSec = 'qa_time_sec';
   static const String _keyPlayerCount = 'player_count';
@@ -24,7 +26,7 @@ class LocalDb {
 
     final db = await openDatabase(
       path,
-      version: 3,
+      version: 4,
       onCreate: (db, version) async {
         await db.execute(
           'CREATE TABLE player_names ('
@@ -53,6 +55,11 @@ class LocalDb {
         await db.insert('app_settings', {
           'key': 'selected_preset_id',
           'value': defaultPresetId,
+        });
+
+        await db.insert('app_settings', {
+          'key': _keySelectedOdaiPresetId,
+          'value': defaultOdaiPresetId,
         });
 
         await db.insert('app_settings', {
@@ -123,6 +130,15 @@ class LocalDb {
             },
             conflictAlgorithm: ConflictAlgorithm.ignore,
           );
+
+          await db.insert(
+            'app_settings',
+            {
+              'key': _keySelectedOdaiPresetId,
+              'value': defaultOdaiPresetId,
+            },
+            conflictAlgorithm: ConflictAlgorithm.ignore,
+          );
         }
 
         if (oldVersion < 3) {
@@ -153,6 +169,17 @@ class LocalDb {
             conflictAlgorithm: ConflictAlgorithm.ignore,
           );
 
+        }
+
+        if (oldVersion < 4) {
+          await db.insert(
+            'app_settings',
+            {
+              'key': _keySelectedOdaiPresetId,
+              'value': defaultOdaiPresetId,
+            },
+            conflictAlgorithm: ConflictAlgorithm.ignore,
+          );
         }
       },
     );
@@ -222,6 +249,44 @@ class LocalDb {
       'app_settings',
       {
         'key': 'selected_preset_id',
+        'value': presetId,
+      },
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<String> loadSelectedOdaiPresetId({String fallback = defaultOdaiPresetId}) async {
+    if (kIsWeb) {
+      return fallback;
+    }
+
+    final db = await database;
+    final rows = await db.query(
+      'app_settings',
+      columns: ['value'],
+      where: 'key = ?',
+      whereArgs: [_keySelectedOdaiPresetId],
+      limit: 1,
+    );
+
+    if (rows.isEmpty) {
+      await saveSelectedOdaiPresetId(fallback);
+      return fallback;
+    }
+
+    return rows.first['value'] as String;
+  }
+
+  Future<void> saveSelectedOdaiPresetId(String presetId) async {
+    if (kIsWeb) {
+      return;
+    }
+
+    final db = await database;
+    await db.insert(
+      'app_settings',
+      {
+        'key': _keySelectedOdaiPresetId,
         'value': presetId,
       },
       conflictAlgorithm: ConflictAlgorithm.replace,

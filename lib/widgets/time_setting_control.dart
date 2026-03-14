@@ -42,7 +42,7 @@ class TimeSettingControl extends StatelessWidget {
           decoration: BoxDecoration(
             color: AppColors.surface,
             borderRadius: BorderRadius.circular(4),
-            border: Border.all(color: AppColors.textStrong, width: 1.5),
+            //border: Border.all(color: AppColors.textStrong, width: 1.5),
           ),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 6),

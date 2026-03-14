@@ -66,6 +66,7 @@ flutter:
   assets:
     #- assets/cards.json
     - assets/card_presets.json
+    - assets/odai_presets/
     - assets/presets/
     - assets/images/
 

@@ -18,13 +18,15 @@ class AppTexts {
 
   // Setup Screen
   static const String setupTitle = "設定";
-  static const String playerCountSection = "プレイヤー";
+  static const String playerCountSection = "ープレイヤー数ー";
   static const String presentationTimeSection = "② 時間設定";
   static const String presentationTimeLabel = "プレゼン時間";
   static const String presentationFeedbackLabel = "質疑応答時間";
-  static const String cardPresetSection = "③ カードプリセット";
-  static const String cardPresetLabel = "使用するカードセット";
-  static const String setupPlayerNameSection = "④ プレイヤー名（ドラッグで入替）";
+  static const String cardPresetSection = "ーカードプリセットー";
+  static const String cardPresetLabel = "カードセット";
+  static const String odaiPresetSection = "④ お題プリセット";
+  static const String odaiPresetLabel = "お題";
+  static const String setupPlayerNameSection = "ープレイヤー名（ドラッグで入れ替え）ー";
   static const String defaultPlayerName = "プレイヤー";
 
   static const String startGameButton = "スタート";
@@ -98,7 +100,7 @@ class AppTexts {
   
   // Setup Screen
   static String defaultPlayerNameWithIndex(int index) => "$defaultPlayerName$index";
-  static String playerCountUnit(int count) => "$count";
+  static String playerCountUnit(int count) => "$count 人";
   static String secondsUnit(int sec) => "${sec}秒";
   static String timerFormat(int sec) => "${(sec ~/ 60).toString().padLeft(2, '0')}:${(sec % 60).toString().padLeft(2, '0')}";
 
