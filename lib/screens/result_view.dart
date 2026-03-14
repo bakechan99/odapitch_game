@@ -239,7 +239,7 @@ class ResultCardWidget extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 2),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.actionAccent : Colors.transparent,
+          color: isSelected ? AppColors.selectionHighlight : Colors.transparent,
           borderRadius: BorderRadius.circular(4),
         ),
         child: Text(

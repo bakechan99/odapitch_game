@@ -18,7 +18,7 @@ import '../features/game_session/application/result_session_controller.dart';
 
 import '../services/api_service.dart';
 import '../models/card_data.dart';
-import '../models/placed_card.dart';
+//import '../models/placed_card.dart';
 
 class ResultScreen extends StatefulWidget {
   final List<Player> players;
@@ -92,8 +92,8 @@ class _ResultScreenState extends State<ResultScreen> {
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, _) {
-        //if (_controller.isFetchingAI) {
-        if (true) {
+        if (_controller.isFetchingAI) {
+        //if (true) {
           return Scaffold(
             appBar: CommonAppBar(
               title: "",
@@ -135,7 +135,7 @@ class _ResultScreenState extends State<ResultScreen> {
                       LayoutBuilder(
                         builder: (context, constraints) {
                           final int count = widget.players.length;
-                          final double cardsWidth = (count * 340) + ((count > 0 ? count - 1 : 0) * 16);
+                          final double cardsWidth = (count * 400) + ((count > 0 ? count - 1 : 0) * 16);
                           final double horizontalPadding = 32; // 左右16ずつ
                           final double trailingSpace = 100;
                           final double contentWidth = cardsWidth + horizontalPadding + trailingSpace;

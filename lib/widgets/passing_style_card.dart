@@ -64,8 +64,13 @@ class PassingStyleCard extends StatelessWidget {
                     child: OutlinedButton(
                       onPressed: onSecondaryPressed,
                       style: OutlinedButton.styleFrom(
+                        backgroundColor: AppColors.buttonNo,
                         foregroundColor: AppColors.textPrimary,
-                        side: const BorderSide(color: AppColors.borderNeutral),
+                        side: const BorderSide(
+                          color: AppColors.titleButtonBorder
+                        ),
+                        shadowColor: AppColors.shadowBase,
+                        elevation: 5,
                         padding: const EdgeInsets.symmetric(vertical: 15),
                       ),
                       child: Text(
@@ -79,9 +84,9 @@ class PassingStyleCard extends StatelessWidget {
                     child: ElevatedButton(
                       onPressed: onPrimaryPressed,
                       style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 15),
-                        backgroundColor: AppColors.surfaceMuted,
-                        foregroundColor: AppColors.textPrimary,
+                        padding: EdgeInsets.symmetric(vertical: 15),
+                        backgroundColor: AppColors.buttonYes,
+                        foregroundColor: AppColors.textOnDark,
                         shadowColor: AppColors.shadowBase,
                         elevation: 10,
                       ),

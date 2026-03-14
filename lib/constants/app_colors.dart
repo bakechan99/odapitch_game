@@ -66,7 +66,7 @@ class AppColors {
 
   // Section / highlight
   static const Color sectionTitle = textPrimary;
-  static Color get selectionHighlight => Colors.yellow.shade100;
+  static Color get selectionHighlight => Colors.yellow.shade400;
   static const Color aiAccent = Colors.amber;
   static Color get aiAccentSoft => aiAccent.withOpacity(0.3);
 
