@@ -30,11 +30,11 @@ class AppTexts {
   static const String startGameButton = "スタート";
   
   // Help Screen
-  static const String helpTitle = "ヘルプ";
-  static const String helpSetupOverview = "この画面では、ゲーム開始前の設定を行います。";
-  static const String helpPlayerCount = "① プレイヤー数：3〜8人で設定できます。";
-  static const String helpTimeSettings = "② 時間設定：プレゼン時間と質疑応答時間を10秒刻みで設定できます。";
-  static const String helpCardPreset = "③ カードプリセット：使用するカードセットを選択できます。";
+  static const String helpTitle = "せつめい";
+  static const String helpSetupOverview = "配られたカードに書かれている\n単語を組み合わせて\nお題に沿った文章を作ろう！";
+  static const String helpPlayerCount = "（カードは全て使わなくてもOK）";
+  static const String helpTimeSettings = "全員の文章が完成したら\n みんなに発表！\n発表を聞いたらほかの人に\n持ち点を分配しよう！";
+  static const String helpCardPreset = "もらった点数の合計によって\n順位を決定！\n1位目指して頑張ろう！";
   static const String helpPlayerNames = "④ プレイヤー名：名前を編集し、ドラッグで順番を入れ替えられます。";
   static const String helpStartGame = "設定後、「ゲーム開始」を押すとゲームが始まります。";
 

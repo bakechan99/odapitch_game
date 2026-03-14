@@ -144,9 +144,9 @@ class AppTextStyles {
     color: AppColors.textPrimary,
   );
 
-  static const TextStyle dialogBody = TextStyle(
-    fontSize: 16,
-    color: AppColors.textSecondary,
+  static final TextStyle dialogBody = GoogleFonts.zenMaruGothic(
+    fontSize: 24,
+    color: AppColors.textPrimary,
     height: 1.5,
   );
 
