@@ -10,7 +10,9 @@ class AppTexts {
   static const String cautionBackHome = "タイトル画面に戻りますか？\n\n現在のデータは失われます。";
   static const String goHome = "ホームへ";
   static const String goHelp = "せつめい";
+  static const String goHistory = "りれき";
   static const String goSettings = "設定へ";
+  static const String goTerms = "利用規約";
 
   // Title Screen
   static const String gameTitle = "オダピチ";
