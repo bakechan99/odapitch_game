@@ -290,6 +290,7 @@ class _ResultScreenState extends State<ResultScreen> {
               toggleTimer: _controller.toggleTimer,
               proceedToNextStep: _controller.proceedToNextStep,
               onResetTimer: _controller.resetTimer,
+              isLastPresenter: _controller.currentPresenterIndex == widget.players.length - 1,
             );
           case ScreenPhase.votingStandby:
             return _buildStandbyScreen(

@@ -17,6 +17,7 @@ class PresentationScreen extends StatelessWidget {
   final VoidCallback toggleTimer;
   final VoidCallback proceedToNextStep;
   final VoidCallback onResetTimer;
+  final bool isLastPresenter;
 
   const PresentationScreen({
     super.key,
@@ -30,6 +31,7 @@ class PresentationScreen extends StatelessWidget {
     required this.toggleTimer,
     required this.proceedToNextStep,
     required this.onResetTimer,
+    this.isLastPresenter = false,
   });
 
   @override
@@ -39,13 +41,18 @@ class PresentationScreen extends StatelessWidget {
     final String timerLabel = isPresentationMode
         ? AppTexts.presentationTimerLabel
         : AppTexts.qaTimerLabel;
-    final String goNextText = isPresentationMode 
-        ? AppTexts.goFeedback 
-        : AppTexts.goToQa;
+    final String goNextText = isPresentationMode
+        ? AppTexts.goFeedback
+        : (isLastPresenter ? AppTexts.goToVoting : AppTexts.goToQa);
+
+    final Color backgroundColor = isPresentationMode 
+        ? AppColors.themePrimary
+        : AppColors.themePrimaryDark;
 
     return Scaffold(
       appBar: CommonAppBar(
-        title: AppTexts.presentationTitle(player.name),
+        title: "",
+        backgroundColor: backgroundColor,
         onHomePressed: onHomePressed,
       ),
       body:Container(
@@ -187,7 +194,10 @@ class PresentationScreen extends StatelessWidget {
                       child: Container(
                           width: 400,
                           height: 60,
-                          padding: const EdgeInsets.symmetric(vertical: 18),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 15
+
+                            ),
                           decoration: BoxDecoration(
                             color: AppColors.accent,
                           ),

@@ -304,10 +304,16 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                               foregroundColor: AppColors.textPrimary,
                               shadowColor: AppColors.shadowBase,
                               elevation: 5,
-                              padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 25),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 60, 
+                                vertical: 15
+                              ),
                             ),
                             onPressed: player.selectedCards.isEmpty ? null : _nextPlayer,
-                            child: const Text(AppTexts.decideButton, style: AppTextStyles.buttonPrimaryBold),
+                            child: const Text(
+                              AppTexts.decideButton, 
+                              style: AppTextStyles.buttonPrimaryBold
+                            ),
                           ),
                         ),
                       ),

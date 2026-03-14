@@ -85,6 +85,7 @@ class AppTexts {
   static const String goFeedback = "質疑応答へ進む";
   static const String goNextPlayer = "終了して次の人へ";
   static const String goToQa = "次のプレイヤーに進む";
+  static const String goToVoting = "投票画面に進む";
   static const String presentationTimerLabel = "プレゼン時間";
   static const String qaTimerLabel = "質疑応答時間";
   static const String madeTitleHeader = "【研究課題】";
