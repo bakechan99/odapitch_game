@@ -10,7 +10,7 @@ class ApiService {
   // タイトルを送信して、採点結果をMap（辞書型）で返す関数
   static Future<Map<String, dynamic>?> getTitleScore(String title) async {
     // Androidエミュレータ用のアドレス
-    final url = Uri.parse('http://127.0.0.1:8000/title-score');
+    final url = Uri.parse('https://dxaulrcbi7apve2f6ndyzuaviu0jdisf.lambda-url.ap-northeast-1.on.aws/title_score');
     
     try {
       final response = await http.post(
