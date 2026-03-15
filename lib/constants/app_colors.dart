@@ -7,8 +7,11 @@ class AppColors {
   static const MaterialColor primarySwatch = Colors.blue;
   static const Color themePrimary = Color.fromARGB(255, 150, 225, 234);
   static const Color themePrimaryDark = Color.fromARGB(255, 53, 195, 215);
+  static const Color themePrimaryLight = Color.fromARGB(255, 214, 243, 247);
   static const Color themeAccent = Colors.blueAccent;
-
+  static const Color highlights = Color(0xFFFF4C47);
+  static const Color accent = Color(0xFFfff9e3);
+  static const Color shadow = Color(0xFFD9D9D9);
   // Text
   static const Color textPrimary = Colors.black87;
   static const Color textStrong = Colors.black;
@@ -16,7 +19,7 @@ class AppColors {
   static const Color textMuted = Colors.grey;
   static const Color textOnDark = Colors.white;
   static const Color textOnDarkMuted = Colors.white70;
-  static const Color textAccent = Colors.blue;
+  static Color get textAccent => themePrimaryDark;
   static const Color textTitle = Colors.black87;
   static Color get textAccentStrong => Colors.blue.shade800;
   static Color get textPlaceholder => Colors.grey.shade400;
@@ -24,17 +27,20 @@ class AppColors {
   // Backgrounds
   static const Color surface = Colors.white;
   static Color get surfaceTheme => themePrimary;
+  static Color get surfaceAccent => accent;
   static Color get surfaceMuted => Colors.grey.shade100;
   static Color get surfaceSubtle => Colors.grey.shade200;
   static Color get surfacePanel => Colors.blueGrey.shade50;
   static const Color overlayScrim = Colors.black;
   static const Color transparent = Colors.transparent;
+  static const Color borderNeutral = surface;
+
 
   // Actions
   static const Color actionPrimary = themePrimaryDark;
-  static const Color actionAccent = Colors.orange;
+  static const Color actionAccent = Color.fromARGB(255, 254, 205, 189);
   static const Color actionDanger = Colors.red;
-  static const Color actionDisabled = Colors.grey;
+  static const Color actionDisabled = shadow;
   static const Color actionNeutral = Colors.grey;
 
   // Buttons (dialog / custom)
@@ -60,20 +66,22 @@ class AppColors {
 
   // Section / highlight
   static const Color sectionTitle = textPrimary;
-  static Color get selectionHighlight => Colors.yellow.shade100;
+  static Color get selectionHighlight => Colors.yellow.shade400;
+  static const Color aiAccent = Colors.amber;
+  static Color get aiAccentSoft => aiAccent.withOpacity(0.3);
 
   // Gradient helpers
   static const Color gradientStart = Colors.blueGrey;
   static const Color gradientEnd = Colors.black87;
 
   // Player palette
-  static const List<Color> playerPalette = [
-    Colors.blue,
-    Colors.red,
-    Colors.green,
-    Colors.orange,
-    Colors.purple,
-    Colors.teal,
+  static List<Color> get playerPalette => [
+    themePrimary,
+    Color.fromARGB(255, 150, 150, 234),
+    Color.fromARGB(255, 234, 178, 150),
+    Color.fromARGB(255, 158, 234, 150), 
+    Color.fromARGB(255, 242, 246, 119),
+    Color.fromARGB(255, 254, 162, 162),
     Colors.pink,
     Colors.brown,
   ];
@@ -87,9 +95,12 @@ class AppColors {
   static const Color titleButtonNormalBottom = Color(0xFFBDBDBD);
   static const Color titleButtonInnerHighlight = Colors.white;
 
-  static const Color titleStartButtonBorder = Color(0xFFFF4C47);
+  static Color get buttonYes => highlights;
+  static Color get buttonNo => Colors.grey.shade300;
+
+  static Color get titleStartButtonBorder => highlights;
   static const Color titleStartButtonText = Color(0xFFFFFFFF);
-  static const Color titleStartButtonNormalTop =Color(0xFFFF4C47);
+  static Color get titleStartButtonNormalTop => highlights;
 
   static const Color cardBackground = surface;
   static const Color iconMuted = textMuted;

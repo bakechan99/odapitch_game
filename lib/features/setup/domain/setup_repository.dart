@@ -6,6 +6,8 @@ abstract class SetupRepository {
 
   Future<String> loadSelectedPresetId();
   Future<void> saveSelectedPresetId(String presetId);
+  Future<String> loadSelectedOdaiPresetId();
+  Future<void> saveSelectedOdaiPresetId(String presetId);
 
   Future<GameSettings> loadGameSettings();
   Future<void> saveGameSettings(GameSettings settings);

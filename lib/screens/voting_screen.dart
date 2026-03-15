@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/player.dart';
-import 'settings_screen.dart';
+import '../widgets/common_app_bar.dart';
 import '../constants/texts.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_text_styles.dart';
@@ -35,85 +35,147 @@ class VotingScreen extends StatelessWidget {
     bool isComplete = usedBudget == 100;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(AppTexts.votingTitle(voter.name)),
-        automaticallyImplyLeading: false,
-        leading: IconButton(icon: const Icon(Icons.home), onPressed: onHomePressed),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings),
-            tooltip: AppTexts.goSettings,
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const SettingsScreen()),
-              );
-            },
-          ),
-        ],
+      appBar: CommonAppBar(
+        title: "",
+        onHomePressed: onHomePressed,
+        showHelp: true,
       ),
-      body: Column(
-        children: [
+      body: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/images/GND_voting.png'),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: Column(
+          children: [
+          // --- ヘッダー ---
           Container(
-            padding: const EdgeInsets.all(16),
-            color: AppColors.surfacePanel,
-            width: double.infinity,
+            padding: const EdgeInsets.all(24),
+            margin: const EdgeInsets.only(bottom: 12),
+            width: 400,
+            decoration: BoxDecoration(
+              color: AppColors.accent,
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: const [
+                BoxShadow(
+                  blurRadius: 4,
+                  offset: Offset(0, 2),
+                ),
+              ],
+            ),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const Text("最も予算を与えたい研究に配分してください", style: AppTextStyles.labelBold),
-                const SizedBox(height: 10),
                 Text(
-                  "残り予算: $remainingBudget 万円 / 100 万円",
-                  style: AppTextStyles.valueLarge.copyWith(
-                    color: remainingBudget < 0 ? AppColors.actionDanger : AppColors.textAccentStrong,
+                  "${voter.name}さん${AppTexts.nextVoter}",
+                  style: AppTextStyles.headingPrimaryLarge.copyWith(
+                    fontWeight: FontWeight.normal,
                   ),
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _budgetChip(
+                      "ーのこりー",
+                      remainingBudget,
+                      remainingBudget == 0
+                          ? AppColors.actionDanger
+                          : AppColors.textPrimary,
+                    ),
+                    _budgetChip(
+                      "ーさいだいー", 
+                      100, 
+                      AppColors.textPrimary),
+                  ],
                 ),
               ],
             ),
           ),
+          // --- 投票カード一覧 + 確定ボタン ---
           Expanded(
             child: ListView.builder(
-              itemCount: players.length,
+              padding: const EdgeInsets.only(top: 8, bottom: 8),
+              itemCount: players.length + 1,
               itemBuilder: (context, index) {
+                // 最後のアイテムとして確定ボタンを表示
+                if (index == players.length) {
+                  return Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                    child: Center(
+                      child: SizedBox(
+                        width: 216,
+                        height: 72,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: isComplete
+                                ? AppColors.actionDanger
+                                : AppColors.actionDisabled,
+                            foregroundColor: AppColors.textOnDark,
+                            padding: const EdgeInsets.symmetric(vertical: 15),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(60),
+                            ),
+                          ),
+                          onPressed: isComplete ? submitVote : null,
+                          child: Text(
+                            AppTexts.decideBudget,
+                            style: AppTextStyles.buttonPrimaryBold.copyWith(
+                              fontSize: 36,
+                              fontFamily: "ZenMaruGothic",
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                }
+
                 final p = players[index];
                 if (index == currentVoterIndex) return const SizedBox.shrink();
 
                 int currentAmount = currentAllocation[index] ?? 0;
-                //double maxVal = (currentAmount + remainingBudget).toDouble();
+                int maxAllowable = (currentAmount + remainingBudget).clamp(0, 100);
 
                 return Card(
-                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                   child: Padding(
-                    padding: const EdgeInsets.all(12.0),
+                    padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(AppTexts.researchTitle(p.researchTitle), style: AppTextStyles.labelField),
-                        Text("研究者: ${p.name}", style: AppTextStyles.bodyMuted),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            Text("$currentAmount 万円", style: AppTextStyles.amountAccent),
-                            IconButton(icon: const Icon(Icons.remove_circle_outline), onPressed: () => onDecrement(index)),
-                            Expanded(
-                              child: Slider(
-                                value: currentAmount.toDouble(),
-                                min: 0,
-                                max: 100,
-                                divisions: 100,
-                                label: "$currentAmount",
-                                onChanged: (val) {
-                                  int newVal = val.toInt();
-                                  if (newVal > currentAmount + remainingBudget) {
-                                    newVal = currentAmount + remainingBudget;
-                                  }
-                                  onAllocationChanged(index, newVal);
-                                },
-                              ),
-                            ),
-                            IconButton(icon: const Icon(Icons.add_circle_outline), onPressed: () => onIncrement(index)),
-                          ],
+                        // 研究タイトル（大）
+                        Text(
+                          AppTexts.researcherName(p.name),
+                          style: AppTextStyles.headingPrimaryMedium,
                         ),
+                        Center(
+                          child:Column(
+                            children: [
+                              Text(
+                                p.researchTitle,
+                                style: AppTextStyles.valueDisplayLarge,
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 10),
+                              Text(
+                                AppTexts.budgetAmount(currentAmount),
+                                style: AppTextStyles.amountAccent.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          )
+                        ),
+                        // カスタムバー
+                        BudgetBar(
+                          value: currentAmount,
+                          maxAllowable: maxAllowable,
+                          onChanged: (val) => onAllocationChanged(index, val),
+                        ),
+                        const SizedBox(height: 6),
+                        
                       ],
                     ),
                   ),
@@ -121,21 +183,143 @@ class VotingScreen extends StatelessWidget {
               },
             ),
           ),
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: isComplete ? AppColors.actionDanger : AppColors.actionDisabled, foregroundColor: AppColors.textOnDark, padding: const EdgeInsets.symmetric(vertical: 15)),
-                  onPressed: isComplete ? submitVote : null,
-                  child: const Text("投票を確定する", style: AppTextStyles.buttonMediumBold),
-                ),
-              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _budgetChip(String label, int amount, Color color) {
+    return Container(
+      width: 160,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.black26,
+            blurRadius: 4,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child:Column(
+        children: [
+          Text(label, style: AppTextStyles.bodyMuted),
+          const SizedBox(height: 2),
+          Text(
+            "${amount}万円",
+            style: AppTextStyles.timeValue.copyWith(
+              color: color,
+              fontSize: 24,
             ),
           ),
         ],
       ),
+    );
+  }
+
+}
+
+/// ドラッグ可能な予算配分バー
+class BudgetBar extends StatefulWidget {
+  final int value;
+  final int maxAllowable;
+  final void Function(int) onChanged;
+  final Color trackColor;   // トラック（背景の薄いバー）の色
+  final Color fillColor;    // フィル（塗り部分）の色
+  final Color thumbColor;   // サム（丸いハンドル）の色
+
+  const BudgetBar({
+    super.key,
+    required this.value,
+    required this.maxAllowable,
+    required this.onChanged,
+    this.trackColor = AppColors.actionDisabled,
+    this.fillColor = AppColors.actionPrimary,
+    this.thumbColor = AppColors.actionPrimary,
+  });
+
+  @override
+  State<BudgetBar> createState() => _BudgetBarState();
+}
+
+class _BudgetBarState extends State<BudgetBar> {
+  double _barWidth = 0;
+
+  void _handleDrag(double localX) {
+    if (_barWidth <= 0) return;
+    final ratio = (localX / _barWidth).clamp(0.0, 1.0);
+    final newVal = (ratio * 100).round().clamp(0, widget.maxAllowable);
+    widget.onChanged(newVal);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // 0〜100スケールで表示、maxAllowableを上限にドラッグ
+    final fillRatio = (widget.value / 100).clamp(0.0, 1.0);
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        _barWidth = constraints.maxWidth;
+        final thumbLeft = (_barWidth * fillRatio - 12).clamp(0.0, _barWidth - 24);
+
+        return GestureDetector(
+          onHorizontalDragUpdate: (d) => _handleDrag(d.localPosition.dx),
+          onTapDown: (d) => _handleDrag(d.localPosition.dx),
+          child: SizedBox(
+            height: 36,
+            child: Stack(
+              alignment: Alignment.centerLeft,
+              children: [
+                // トラック（背景）
+                Container(
+                  height: 12,
+                  decoration: BoxDecoration(
+                    color: widget.trackColor,
+                    borderRadius: BorderRadius.circular(3),
+                  ),
+                ),
+                // フィル（塗り）
+                FractionallySizedBox(
+                  widthFactor: fillRatio,
+                  child: Container(
+                    height: 12,
+                    decoration: BoxDecoration(
+                      color: widget.fillColor,
+                      borderRadius: BorderRadius.circular(3),
+                    ),
+                  ),
+                ),
+                // サム（ドラッグハンドル）
+                Positioned(
+                  left: thumbLeft,
+                  child: Container(
+                    width: 24,
+                    height: 24,
+                    decoration: BoxDecoration(
+                      color: widget.thumbColor,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: widget.trackColor.withAlpha(150), 
+                        width: 2
+                      ),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black26,
+                          blurRadius: 4,
+                          offset: Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

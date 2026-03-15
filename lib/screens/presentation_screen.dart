@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/player.dart';
 import '../models/game_settings.dart';
-import 'settings_screen.dart';
+import '../widgets/common_app_bar.dart';
 import '../constants/texts.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_text_styles.dart';
@@ -16,6 +16,8 @@ class PresentationScreen extends StatelessWidget {
   final VoidCallback onHomePressed;
   final VoidCallback toggleTimer;
   final VoidCallback proceedToNextStep;
+  final VoidCallback onResetTimer;
+  final bool isLastPresenter;
 
   const PresentationScreen({
     super.key,
@@ -28,115 +30,237 @@ class PresentationScreen extends StatelessWidget {
     required this.onHomePressed,
     required this.toggleTimer,
     required this.proceedToNextStep,
+    required this.onResetTimer,
+    this.isLastPresenter = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    final activeTextStyle = AppTextStyles.valueDisplayMedium;
-    final inactiveTextStyle = AppTextStyles.valueDisplayMuted;
-    final activeLabelStyle = AppTextStyles.labelField;
-    final inactiveLabelStyle = AppTextStyles.labelMutedSmall;
+    final int activeTime = isPresentationMode ? timeLeft : qaTimeLeft;
+
+    final String timerLabel = isPresentationMode
+        ? AppTexts.presentationTimerLabel
+        : AppTexts.qaTimerLabel;
+    final String goNextText = isPresentationMode
+        ? AppTexts.goFeedback
+        : (isLastPresenter ? AppTexts.goToVoting : AppTexts.goToQa);
+
+    final Color backgroundColor = isPresentationMode 
+        ? AppColors.themePrimary
+        : AppColors.themePrimaryDark;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(AppTexts.presentationTitle(player.name)),
-        automaticallyImplyLeading: false,
-        leading: IconButton(
-          icon: const Icon(Icons.home),
-          onPressed: onHomePressed,
+      appBar: CommonAppBar(
+        title: "",
+        backgroundColor: backgroundColor,
+        onHomePressed: onHomePressed,
+      ),
+      body:Container(
+        decoration:BoxDecoration(
+          image: DecorationImage(
+            image: isPresentationMode 
+              ? AssetImage('assets/images/GND_presentation.png') 
+              : AssetImage('assets/images/GND_presentation_2.png'),
+            fit: BoxFit.cover
+          ),  
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings),
-            tooltip: AppTexts.goSettings,
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const SettingsScreen()),
-              );
-            },
+        child:Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              // --- タイマーカード ---
+              Container(
+                width: 400,
+                height: 160,
+                padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceAccent,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.black26,
+                      offset: Offset(0, 2),
+                      blurRadius: 4,
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      timerLabel, 
+                      style: AppTextStyles.headingPrimaryLarge
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // リセットボタン
+                        IconButton(
+                          icon: const Icon(Icons.replay),
+                          iconSize: 56,
+                          color: AppColors.textPrimary,
+                          onPressed: onResetTimer,
+                          tooltip: "リセット",
+                        ),
+                        Expanded(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: AppColors.surface,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child:Center(
+                            child: SizedBox(
+                              width: 240,
+                              child: Center(
+                                child: Text(
+                                  AppTexts.timerFormat(activeTime),
+                                  style: AppTextStyles.timeValue.copyWith(
+                                    fontSize: 48,
+                                    color: AppColors.textPrimary,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          )
+                        ),
+                        // 再生/一時停止ボタン
+                        IconButton(
+                          icon: Icon(
+                            isTimerRunning
+                                ? Icons.pause_circle_filled
+                                : Icons.play_circle_outline,
+                          ),
+                          iconSize: 56,
+                          color: AppColors.textPrimary,
+                          onPressed: toggleTimer,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+              // --- 研究タイトルエリア ---
+              Expanded(
+                child: Container(
+                  width: 400,
+                  height: 300,
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: isPresentationMode
+                          ? AssetImage('assets/images/presentation_background.png')
+                          : AssetImage('assets/images/question_background.png'), 
+                       //fit: BoxFit.fill,
+                    ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 20, bottom: 60, left: 40, right: 40),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        // 吹き出し上部
+                        const SizedBox(height: 88),
+                        Text(
+                          AppTexts.presentationTitle(player.name),
+                          style: AppTextStyles.headingSection.copyWith(
+                            fontWeight: FontWeight.w200,
+                          ),
+                        ),
+                        // タイトルを残りスペースの中央に
+                        Expanded(
+                          child: Center(
+                            child: Text(
+                              player.researchTitle,
+                              textAlign: TextAlign.center,
+                              style: AppTextStyles.valueDisplayLarge,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 88),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              // --- バナー（矢印形状） ---
+              Center(
+                child:GestureDetector(
+                  onTap: proceedToNextStep,
+                  child: CustomPaint(
+                    painter: ArrowShadowPainter(arrowDepth: 28),
+                    child: ClipPath(
+                      clipper: ArrowClipper(),
+                      child: Container(
+                          width: 400,
+                          height: 60,
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 15
+
+                            ),
+                          decoration: BoxDecoration(
+                            color: AppColors.accent,
+                          ),
+                          child: Text(
+                            goNextText,
+                            textAlign: TextAlign.center,
+                            style: AppTextStyles.buttonPrimaryBold.copyWith(
+                              fontSize: 20,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                ),
+              ),
+              const SizedBox(height: 20),
+            ],
           ),
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 10),
-              decoration: BoxDecoration(
-                color: AppColors.surfaceMuted,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Column(
-                    children: [
-                      Text("発表時間", style: isPresentationMode ? activeLabelStyle : inactiveLabelStyle),
-                      Text(AppTexts.secondsUnit(timeLeft), style: isPresentationMode ? activeTextStyle : inactiveTextStyle),
-                      const SizedBox(height: 5),
-                      if (isPresentationMode)
-                        IconButton(
-                          icon: Icon(isTimerRunning ? Icons.pause_circle_filled : Icons.play_circle_fill),
-                          iconSize: 56,
-                          color: AppColors.actionAccent,
-                          onPressed: toggleTimer,
-                        )
-                      else
-                        const SizedBox(height: 56 + 16),
-                    ],
-                  ),
-                  Container(width: 1, height: 100, color: AppColors.dividerStrong),
-                  Column(
-                    children: [
-                      Text("質疑応答", style: !isPresentationMode ? activeLabelStyle : inactiveLabelStyle),
-                      Text(AppTexts.secondsUnit(qaTimeLeft), style: !isPresentationMode ? activeTextStyle : inactiveTextStyle),
-                      const SizedBox(height: 5),
-                      if (!isPresentationMode)
-                        IconButton(
-                          icon: Icon(isTimerRunning ? Icons.pause_circle_filled : Icons.play_circle_fill),
-                          iconSize: 56,
-                          color: AppColors.actionPrimary,
-                          onPressed: toggleTimer,
-                        )
-                      else
-                        const SizedBox(height: 56 + 16),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 40),
-            const Text("【研究課題】", style: AppTextStyles.headingSectionLarge),
-            const SizedBox(height: 20),
-            Expanded(
-              child: Center(
-                child: Text(
-                  player.researchTitle,
-                  textAlign: TextAlign.center,
-                  style: AppTextStyles.valueDisplayLarge,
-                ),
-              ),
-            ),
-            SizedBox(
-              width: double.infinity,
-              height: 60,
-              child: ElevatedButton(
-                onPressed: proceedToNextStep,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: isPresentationMode ? AppColors.actionAccent : AppColors.actionPrimary,
-                  foregroundColor: AppColors.textOnDark,
-                  elevation: 4,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                ),
-                child: Text(isPresentationMode ? "質疑応答へ進む" : "終了して次の人へ", style: AppTextStyles.buttonPrimaryBold),
-              ),
-            ),
-            const SizedBox(height: 20),
-          ],
         ),
-      ),
-    );
+        ),
+      );
   }
+}
+
+/// 矢印形状の影を描くPainter
+class ArrowShadowPainter extends CustomPainter {
+  final double arrowDepth;
+  ArrowShadowPainter({this.arrowDepth = 28});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final path = Path();
+    path.moveTo(0, 0);
+    path.lineTo(size.width - arrowDepth, 0);
+    path.lineTo(size.width, size.height / 2);
+    path.lineTo(size.width - arrowDepth, size.height);
+    path.lineTo(0, size.height);
+    path.close();
+    canvas.drawShadow(path, Colors.black38, 6, true);
+  }
+
+  @override
+  bool shouldRepaint(ArrowShadowPainter oldDelegate) =>
+      oldDelegate.arrowDepth != arrowDepth;
+}
+
+/// 右側が矢印（▶）の形状になるClipper
+class ArrowClipper extends CustomClipper<Path> {
+  final double arrowDepth;
+  ArrowClipper({this.arrowDepth = 28});
+
+  @override
+  Path getClip(Size size) {
+    final path = Path();
+    path.moveTo(0, 0);
+    path.lineTo(size.width - arrowDepth, 0);
+    path.lineTo(size.width, size.height / 2);
+    path.lineTo(size.width - arrowDepth, size.height);
+    path.lineTo(0, size.height);
+    path.close();
+    return path;
+  }
+
+  @override
+  bool shouldReclip(ArrowClipper oldClipper) => oldClipper.arrowDepth != arrowDepth;
 }

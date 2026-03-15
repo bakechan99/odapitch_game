@@ -4,16 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../models/card_data.dart';
 import '../models/card_preset.dart';
+import '../models/odai_preset.dart';
 import '../models/player.dart';
 import '../models/game_settings.dart';
 import '../data/local_db.dart';
 import '../features/setup/application/setup_controller.dart';
 import '../features/setup/data/setup_repository_impl.dart';
 import 'game_loop_screen.dart';
-import 'help_screen.dart';
-import 'settings_screen.dart';
+import 'passing_confirm_screen.dart';
+import '../widgets/common_app_bar.dart';
 import '../constants/texts.dart';
-import '../widgets/custom_confirm_dialog.dart';
 import '../widgets/setting_stepper_control.dart';
 import '../widgets/time_setting_control.dart';
 import '../constants/app_colors.dart';
@@ -34,7 +34,10 @@ class _SetupScreenState extends State<SetupScreen> {
   int qaTime = GameSettings.defaultQaTimeSec;
   final List<TextEditingController> _controllers = [];
   List<CardPreset> _presets = const [];
+  List<OdaiPreset> _odaiPresets = const [];
   String _selectedPresetId = LocalDb.defaultPresetId;
+  String _selectedOdaiPresetId = LocalDb.defaultOdaiPresetId;
+  bool _isAiEnabled = false;
   late final SetupController _setupController;
 
   @override
@@ -42,7 +45,6 @@ class _SetupScreenState extends State<SetupScreen> {
     super.initState();
     _setupController = SetupController(SetupRepositoryImpl());
     _loadInitialData();
-    _loadCardPresets();
   }
 
   @override
@@ -61,6 +63,7 @@ class _SetupScreenState extends State<SetupScreen> {
 
     setState(() {
       _selectedPresetId = initialData.selectedPresetId;
+      _selectedOdaiPresetId = initialData.selectedOdaiPresetId;
       presentationTime = initialData.settings.presentationTimeSec;
       qaTime = initialData.settings.qaTimeSec;
 
@@ -77,6 +80,8 @@ class _SetupScreenState extends State<SetupScreen> {
         _syncControllerCount(); // 保存がない場合はデフォルト
       }
     });
+
+    await _loadCardPresets();
   }
 
   Future<void> _loadCardPresets() async {
@@ -86,19 +91,23 @@ class _SetupScreenState extends State<SetupScreen> {
         .map((entry) => CardPreset.fromJson(entry as Map<String, dynamic>))
         .toList();
 
-    final selected = await _setupController.loadSelectedPresetId();
-    final hasSelected = presets.any((preset) => preset.id == selected);
+    final hasSelected = presets.any((preset) => preset.id == _selectedPresetId);
 
     if (!mounted) return;
 
     setState(() {
       _presets = presets;
-      _selectedPresetId = hasSelected ? selected : LocalDb.defaultPresetId;
+      _selectedPresetId = hasSelected ? _selectedPresetId : LocalDb.defaultPresetId;
     });
 
     if (!hasSelected) {
       await _setupController.saveSelectedPresetId(_selectedPresetId);
     }
+
+    await _loadOdaiPresets(
+      _resolveSelectedPresetOdaiPath(),
+      preferredId: _selectedOdaiPresetId,
+    );
   }
 
   Future<String> _resolveSelectedPresetPath() async {
@@ -114,34 +123,58 @@ class _SetupScreenState extends State<SetupScreen> {
     return _presets.first.path;
   }
 
-  Future<String> _resolveSelectedPresetOdai() async {
-    CardPreset? selectedPreset;
+  String _resolveSelectedPresetOdaiPath() {
+    if (_presets.isEmpty) {
+      return 'assets/odai_presets/odai_cards.json';
+    }
 
-    if (_presets.isNotEmpty) {
-      for (final preset in _presets) {
-        if (preset.id == _selectedPresetId) {
-          selectedPreset = preset;
-          break;
-        }
-      }
-      selectedPreset ??= _presets.first;
-    } else {
-      final jsonText = await rootBundle.loadString('assets/card_presets.json');
-      final List<dynamic> decoded = json.decode(jsonText) as List<dynamic>;
-      final presets = decoded
-          .map((entry) => CardPreset.fromJson(entry as Map<String, dynamic>))
-          .toList();
-
-      for (final preset in presets) {
-        if (preset.id == _selectedPresetId) {
-          selectedPreset = preset;
-          break;
-        }
-      }
-      if (selectedPreset == null && presets.isNotEmpty) {
-        selectedPreset = presets.first;
+    for (final preset in _presets) {
+      if (preset.id == _selectedPresetId) {
+        return preset.odaiPath;
       }
     }
+
+    return _presets.first.odaiPath;
+  }
+
+  Future<void> _loadOdaiPresets(String odaiPath, {String? preferredId}) async {
+    final jsonText = await rootBundle.loadString(odaiPath);
+    final List<dynamic> decoded = json.decode(jsonText) as List<dynamic>;
+    final presets = decoded
+        .map((entry) => OdaiPreset.fromJson(entry as Map<String, dynamic>))
+        .toList();
+
+    final String targetId = preferredId ?? _selectedOdaiPresetId;
+    final hasSelected = presets.any((preset) => preset.id == targetId);
+    final fallbackId = presets.isNotEmpty ? presets.first.id : LocalDb.defaultOdaiPresetId;
+    final resolvedId = hasSelected ? targetId : fallbackId;
+
+    if (!mounted) return;
+
+    setState(() {
+      _odaiPresets = presets;
+      _selectedOdaiPresetId = resolvedId;
+    });
+
+    await _setupController.saveSelectedOdaiPresetId(resolvedId);
+  }
+
+  Future<String> _resolveSelectedOdaiTheme() async {
+    if (_odaiPresets.isEmpty) {
+      await _loadOdaiPresets(
+        _resolveSelectedPresetOdaiPath(),
+        preferredId: _selectedOdaiPresetId,
+      );
+    }
+
+    OdaiPreset? selectedPreset;
+    for (final preset in _odaiPresets) {
+      if (preset.id == _selectedOdaiPresetId) {
+        selectedPreset = preset;
+        break;
+      }
+    }
+    selectedPreset ??= _odaiPresets.isNotEmpty ? _odaiPresets.first : null;
 
     final odai = selectedPreset?.odai.trim() ?? '';
     return odai.isEmpty ? '科研費を取れる研究テーマ' : odai;
@@ -191,6 +224,7 @@ class _SetupScreenState extends State<SetupScreen> {
         playerCount: playerCount,
       ),
       selectedPresetId: _selectedPresetId,
+      selectedOdaiPresetId: _selectedOdaiPresetId,
     );
 
     final presetPath = await _resolveSelectedPresetPath();
@@ -217,7 +251,7 @@ class _SetupScreenState extends State<SetupScreen> {
       playerCount: playerCount,
     );
 
-    final selectedOdai = await _resolveSelectedPresetOdai();
+    final selectedOdai = await _resolveSelectedOdaiTheme();
 
     Navigator.push(
       context,
@@ -232,59 +266,42 @@ class _SetupScreenState extends State<SetupScreen> {
   }
 
   // タイトルへ戻る確認ダイアログ
-  void _showBackToTitleDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => CustomConfirmDialog(
-        title: AppTexts.checkPop,
-        content: AppTexts.cautionBackHome,
-        onConfirm: () {
-          Navigator.of(context).popUntil((route) => route.isFirst);
-        },
-        cancelText: AppTexts.cancel,
+  Future<void> _showBackToTitleDialog() async {
+    final confirmed = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PassingConfirmScreen(
+          title: AppTexts.checkPop,
+          content: AppTexts.cautionBackHome,
+        ),
       ),
     );
+
+    if (confirmed == true && mounted) {
+      Navigator.of(context).popUntil((route) => route.isFirst);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: AppColors.transparent,
-        title: const Text(AppTexts.setupTitle),
-        centerTitle: true,
-        automaticallyImplyLeading: false, // 自動の戻るボタンを削除
-        leading: IconButton(
-          icon: const Icon(Icons.home),
-          onPressed: _showBackToTitleDialog,
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.help_outline),
-            tooltip: AppTexts.goHelp,
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const HelpScreen()),
-              );
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.settings),
-            tooltip: AppTexts.goSettings,
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const SettingsScreen()),
-              );
-            },
-          ),
-        ],
+      appBar: CommonAppBar(
+        title: AppTexts.setupTitle,
+        onHomePressed: _showBackToTitleDialog,
+        showHelp: true,
       ),
-      body: SingleChildScrollView( // 画面からはみ出ないようにスクロール可能に
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [ 
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: Image.asset(
+              'assets/images/GND_setup.png',
+              fit: BoxFit.cover,
+            ),
+          ),
+          SingleChildScrollView( // 画面からはみ出ないようにスクロール可能に
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [ 
             // 時間設定セクション（統合）
             //_buildSectionTitle(AppTexts.presentationTimeSection),
             //const SizedBox(height: 10),
@@ -295,7 +312,7 @@ class _SetupScreenState extends State<SetupScreen> {
                 padding: const EdgeInsets.all(30),
                 margin: const EdgeInsets.symmetric(vertical: 6),
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
+                  color: AppColors.surfaceAccent,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: AppColors.borderLight),
                 ),
@@ -320,6 +337,143 @@ class _SetupScreenState extends State<SetupScreen> {
                 )
               ),
             ),
+
+            
+            const SizedBox(height: 20),
+
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _buildSectionTitle(AppTexts.cardPresetSection),
+                      const SizedBox(height: 8),
+                      DropdownButtonFormField<String>(
+                        isExpanded: true,
+                        value: _presets.any((p) => p.id == _selectedPresetId) ? _selectedPresetId : null,
+                        decoration: const InputDecoration(
+                          filled: true,
+                          fillColor: AppColors.surface,
+                          labelText: AppTexts.cardPresetLabel,
+                          border: OutlineInputBorder(),
+                        ),
+                        items: _presets
+                            .map(
+                              (preset) => DropdownMenuItem<String>(
+                                value: preset.id,
+                                child: Text(preset.name),
+                              ),
+                            )
+                            .toList(),
+                        onChanged: (value) async {
+                          if (value == null) return;
+                          setState(() {
+                            _selectedPresetId = value;
+                          });
+                          await _setupController.saveSelectedPresetId(value);
+                          await _loadOdaiPresets(_resolveSelectedPresetOdaiPath());
+                        },
+                      ),
+                      const SizedBox(height: 12),
+                      DropdownButtonFormField<String>(
+                        isExpanded: true,
+                        value: _odaiPresets.any((p) => p.id == _selectedOdaiPresetId)
+                            ? _selectedOdaiPresetId
+                            : null,
+                        decoration: const InputDecoration(
+                          filled: true,
+                          fillColor: AppColors.surface,
+                          labelText: AppTexts.odaiPresetLabel,
+                          border: OutlineInputBorder(),
+                        ),
+                        items: _odaiPresets
+                            .map(
+                              (preset) => DropdownMenuItem<String>(
+                                value: preset.id,
+                                child: Text(preset.name),
+                              ),
+                            )
+                            .toList(),
+                        onChanged: (value) async {
+                          if (value == null) return;
+                          setState(() {
+                            _selectedOdaiPresetId = value;
+                          });
+                          await _setupController.saveSelectedOdaiPresetId(value);
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 20),
+                SizedBox(
+                  width: 100,
+                  child: Column(
+                    children: [
+                      Text(
+                        "AI使用\n(開発中)",
+                        style: AppTextStyles.headingSection,
+                      ),
+                      const SizedBox(height: 8),
+                      InkWell(
+                        borderRadius: BorderRadius.circular(999),
+                        onTap: () {
+                          setState(() {
+                            _isAiEnabled = !_isAiEnabled;
+                          });
+                        },
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 160),
+                          curve: Curves.easeOut,
+                          width: 84,
+                          height: 84,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: _isAiEnabled
+                                ? AppColors.highlights
+                                : AppColors.iconMuted,
+                            border: Border.all(
+                              color: AppColors.textStrong,
+                              width: 1.6,
+                            ),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: AppColors.shadowLight,
+                                blurRadius: 6,
+                                offset: Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Container(
+                            width: 66,
+                            height: 66,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: AppColors.textOnDark,
+                                width: 1.4,
+                              ),
+                            ),
+                            child: Text(
+                              _isAiEnabled ? 'ON' : 'OFF',
+                              style: AppTextStyles.headingSection.copyWith(
+                                fontSize: 32,
+                                color: AppColors.textOnDark,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
 
             // プレイヤー数セクション
             FractionallySizedBox(
@@ -361,7 +515,14 @@ class _SetupScreenState extends State<SetupScreen> {
                           decoration: BoxDecoration(
                             color: AppColors.surface,
                             borderRadius: BorderRadius.circular(4),
-                            border: Border.all(color: AppColors.textStrong, width: 1.5),
+                            border: Border.all(color: AppColors.transparent, width: 1.5),
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppColors.shadow,
+                                offset: const Offset(0, 2),
+                                blurRadius: 4,
+                              ),
+                            ],
                           ),
                           child: Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -377,34 +538,6 @@ class _SetupScreenState extends State<SetupScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 20),
-
-            // カードプリセットセクション
-            _buildSectionTitle(AppTexts.cardPresetSection),
-            const SizedBox(height: 8),
-            DropdownButtonFormField<String>(
-              value: _presets.any((p) => p.id == _selectedPresetId) ? _selectedPresetId : null,
-              decoration: const InputDecoration(
-                labelText: AppTexts.cardPresetLabel,
-                border: OutlineInputBorder(),
-              ),
-              items: _presets
-                  .map(
-                    (preset) => DropdownMenuItem<String>(
-                      value: preset.id,
-                      child: Text(preset.name),
-                    ),
-                  )
-                  .toList(),
-              onChanged: (value) async {
-                if (value == null) return;
-                setState(() {
-                  _selectedPresetId = value;
-                });
-                await _setupController.saveSelectedPresetId(value);
-              },
-            ),
-            const SizedBox(height: 20),
 
             // "③ プレイヤー名（ドラッグで入替）" -> AppTexts.setupPlayerNameSection
             _buildSectionTitle(AppTexts.setupPlayerNameSection),
@@ -465,8 +598,10 @@ class _SetupScreenState extends State<SetupScreen> {
                 ),
               )
             ),
-          ],  
-        ),
+              ],  
+            ),
+          ),
+        ],
       ),
     );
   }

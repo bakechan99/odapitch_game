@@ -42,8 +42,8 @@ class SettingStepperControl extends StatelessWidget {
         children: [
           SizedBox(width: sideSpacing),
           Container(
-            width: 30,
-            height: 30,
+            width: 60,
+            height: 60,
             decoration: BoxDecoration(
               color: AppColors.surfaceMuted,
               shape: BoxShape.circle,
@@ -53,8 +53,8 @@ class SettingStepperControl extends StatelessWidget {
               padding: EdgeInsets.zero,
               icon: const Icon(
                 Icons.remove,
-                size: 16,
-                color: AppColors.textMuted,
+                size: 48,
+                color: AppColors.textPrimary,
               ),
               onPressed: onDecrement,
             ),
@@ -65,8 +65,8 @@ class SettingStepperControl extends StatelessWidget {
           ),
           SizedBox(width: middleSpacing),
           Container(
-            width: 30,
-            height: 30,
+            width: 60,
+            height: 60,
             decoration: BoxDecoration(
               color: AppColors.surfaceMuted,
               shape: BoxShape.circle,
@@ -76,8 +76,8 @@ class SettingStepperControl extends StatelessWidget {
               padding: EdgeInsets.zero,
               icon: const Icon(
                 Icons.add,
-                size: 16,
-                color: AppColors.textMuted,
+                size: 48,
+                color: AppColors.textPrimary,
               ),
               onPressed: onIncrement,
             ),

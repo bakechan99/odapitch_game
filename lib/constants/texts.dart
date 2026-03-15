@@ -3,14 +3,16 @@ class AppTexts {
   
   // Common
   static const String appTitle = "カケンヒゲーム";
-  static const String cancel = "キャンセル";
+  static const String cancel = "戻る";
   static const String ok = "OK";
   static const String san = "さん";
   static const String checkPop = "確認";
   static const String cautionBackHome = "タイトル画面に戻りますか？\n\n現在のデータは失われます。";
   static const String goHome = "ホームへ";
   static const String goHelp = "せつめい";
+  static const String goHistory = "りれき";
   static const String goSettings = "設定へ";
+  static const String goTerms = "利用規約";
 
   // Title Screen
   static const String gameTitle = "オダピチ";
@@ -18,23 +20,25 @@ class AppTexts {
 
   // Setup Screen
   static const String setupTitle = "設定";
-  static const String playerCountSection = "プレイヤー";
+  static const String playerCountSection = "ープレイヤー数ー";
   static const String presentationTimeSection = "② 時間設定";
   static const String presentationTimeLabel = "プレゼン時間";
   static const String presentationFeedbackLabel = "質疑応答時間";
-  static const String cardPresetSection = "③ カードプリセット";
-  static const String cardPresetLabel = "使用するカードセット";
-  static const String setupPlayerNameSection = "④ プレイヤー名（ドラッグで入替）";
+  static const String cardPresetSection = "ーカードプリセットー";
+  static const String cardPresetLabel = "カードセット";
+  static const String odaiPresetSection = "④ お題プリセット";
+  static const String odaiPresetLabel = "お題";
+  static const String setupPlayerNameSection = "ープレイヤー名（ドラッグで入れ替え）ー";
   static const String defaultPlayerName = "プレイヤー";
 
   static const String startGameButton = "スタート";
   
   // Help Screen
-  static const String helpTitle = "ヘルプ";
-  static const String helpSetupOverview = "この画面では、ゲーム開始前の設定を行います。";
-  static const String helpPlayerCount = "① プレイヤー数：3〜8人で設定できます。";
-  static const String helpTimeSettings = "② 時間設定：プレゼン時間と質疑応答時間を10秒刻みで設定できます。";
-  static const String helpCardPreset = "③ カードプリセット：使用するカードセットを選択できます。";
+  static const String helpTitle = "せつめい";
+  static const String helpSetupOverview = "配られたカードに書かれている\n単語を組み合わせて\nお題に沿った文章を作ろう！";
+  static const String helpPlayerCount = "（カードは全て使わなくてもOK）";
+  static const String helpTimeSettings = "全員の文章が完成したら\n みんなに発表！\n発表を聞いたらほかの人に\n持ち点を分配しよう！";
+  static const String helpCardPreset = "もらった点数の合計によって\n順位を決定！\n1位目指して頑張ろう！";
   static const String helpPlayerNames = "④ プレイヤー名：名前を編集し、ドラッグで順番を入れ替えられます。";
   static const String helpStartGame = "設定後、「ゲーム開始」を押すとゲームが始まります。";
 
@@ -43,8 +47,8 @@ class AppTexts {
   static const String settingsAudioSection = "音声設定";
   static const String settingsBgmEnabled = "BGMを有効にする";
   static const String settingsSeEnabled = "効果音を有効にする";
-  static const String settingsBgmVolume = "BGM音量";
-  static const String settingsSeVolume = "効果音音量";
+  static const String settingsBgmVolume = "BGM";
+  static const String settingsSeVolume = "効果音";
 
   // Game Loop Screen
   static const String dragInstruction = "研究タイトルを決めてください";
@@ -74,21 +78,34 @@ class AppTexts {
   static const String resultHeader = "採択された研究課題は...";
   static const String checkBudget = "この配分で投票しますか？";
   static const String startVoteButton = "START";
-  static const String decideBudget = "投票を確定する";
+  static const String decideBudget = "次へ";
   static const String feedbackTitle = "質疑応答";
+  static const String presentationLabel = "発表時間";
+  static const String qaLabel = "質疑応答";
   static const String goFeedback = "質疑応答へ進む";
   static const String goNextPlayer = "終了して次の人へ";
+  static const String goToQa = "次のプレイヤーに進む";
+  static const String goToVoting = "投票画面に進む";
+  static const String presentationTimerLabel = "プレゼン時間";
+  static const String qaTimerLabel = "質疑応答時間";
   static const String madeTitleHeader = "【研究課題】";
+  static const String rankFirstEmoji = "🥇 ";
+  static const String rankSecondEmoji = "🥈 ";
+  static const String rankThirdEmoji = "🥉 ";
+  static const String aiEvaluationPrefix = "AI評価 : ";
+  static const String aiFeedbackPrefix = "講評";
+  static const String aiNoFeedback = "評価なし";
 
   // Pop-up messages 
-  static const String confirmTitle = "本人確認";
+  static const String confirmTitle = "このタイトルでよろしいですか？";
 
   // --- Methods (変数を埋め込む動的な文字列) ---
   
   // Setup Screen
   static String defaultPlayerNameWithIndex(int index) => "$defaultPlayerName$index";
-  static String playerCountUnit(int count) => "$count人";
+  static String playerCountUnit(int count) => "$count 人";
   static String secondsUnit(int sec) => "${sec}秒";
+  static String timerFormat(int sec) => "${(sec ~/ 60).toString().padLeft(2, '0')}:${(sec % 60).toString().padLeft(2, '0')}";
 
   // Game Loop Screen
   static String nextPlayerMessage(String name) => " $name さんの番です";
@@ -106,6 +123,12 @@ class AppTexts {
   static String voteCount(int votes) => "獲得票数: $votes 票";
   static String remainBudget(int remainingBudget) => "残り予算: $remainingBudget 万円 / 100 万円";
   static String odaitheme(String odai) => "お題：$odai";
+  static String researcherName(String name) => "$name";
+  static String budgetAmount(int amount) => "$amount\u00A0万円";
+  static String rankPosition(int rank) => "${rank}";
+  static String amountOnly(int amount) => "$amount";
+  static String aiScoreLabel(Object score) => " × $score 倍";
+  static String aiFeedbackLabel(String feedback) => "$aiFeedbackPrefix: $feedback";
   // 研究タイトルを整形して返す
   static String researchTitle(String title) => "【研究課題】$title";
 }

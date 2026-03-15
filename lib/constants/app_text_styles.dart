@@ -103,7 +103,7 @@ class AppTextStyles {
   );
 
   static const TextStyle buttonPrimaryBold = TextStyle(
-    fontSize: 20,
+    fontSize: 28,
     fontWeight: FontWeight.bold,
   );
 
@@ -132,9 +132,9 @@ class AppTextStyles {
   );
 
   static final TextStyle timeValue = GoogleFonts.orbitron(
-    color: AppColors.titleButtonText,
+    color: AppColors.textPrimary,
     fontSize: 100,
-    fontWeight: FontWeight.w700,
+    fontWeight: FontWeight.w100,
   );
 
   // Dialog
@@ -144,9 +144,9 @@ class AppTextStyles {
     color: AppColors.textPrimary,
   );
 
-  static const TextStyle dialogBody = TextStyle(
-    fontSize: 16,
-    color: AppColors.textSecondary,
+  static final TextStyle dialogBody = GoogleFonts.zenMaruGothic(
+    fontSize: 24,
+    color: AppColors.textPrimary,
     height: 1.5,
   );
 
@@ -215,13 +215,13 @@ class AppTextStyles {
   static const TextStyle amountTotal = TextStyle(
     fontSize: 24,
     fontWeight: FontWeight.bold,
-    color: AppColors.themeAccent,
+    color: AppColors.themePrimaryDark,
   );
 
-  static const TextStyle amountAccent = TextStyle(
-    fontSize: 20,
-    fontWeight: FontWeight.bold,
+  static final TextStyle amountAccent = GoogleFonts.zenMaruGothic(
+    fontSize: 28,
     color: AppColors.textAccent,
+    fontWeight: FontWeight.bold,
   );
 
   static const TextStyle amountTinyOnDark = TextStyle(

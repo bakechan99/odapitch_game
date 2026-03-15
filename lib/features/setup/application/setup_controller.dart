@@ -6,11 +6,13 @@ import '../../setup/domain/setup_repository.dart';
 class SetupInitialData {
   final List<String> playerNames;
   final String selectedPresetId;
+  final String selectedOdaiPresetId;
   final GameSettings settings;
 
   const SetupInitialData({
     required this.playerNames,
     required this.selectedPresetId,
+    required this.selectedOdaiPresetId,
     required this.settings,
   });
 }
@@ -23,11 +25,13 @@ class SetupController {
   Future<SetupInitialData> loadInitialData() async {
     final playerNames = await _repository.loadPlayerNames();
     final selectedPresetId = await _repository.loadSelectedPresetId();
+    final selectedOdaiPresetId = await _repository.loadSelectedOdaiPresetId();
     final settings = await _repository.loadGameSettings();
 
     return SetupInitialData(
       playerNames: playerNames,
       selectedPresetId: selectedPresetId,
+      selectedOdaiPresetId: selectedOdaiPresetId,
       settings: settings,
     );
   }
@@ -40,13 +44,23 @@ class SetupController {
     return _repository.saveSelectedPresetId(presetId);
   }
 
+  Future<String> loadSelectedOdaiPresetId() {
+    return _repository.loadSelectedOdaiPresetId();
+  }
+
+  Future<void> saveSelectedOdaiPresetId(String presetId) {
+    return _repository.saveSelectedOdaiPresetId(presetId);
+  }
+
   Future<void> saveSetup({
     required List<String> playerNames,
     required GameSettings settings,
     required String selectedPresetId,
+    required String selectedOdaiPresetId,
   }) async {
     await _repository.savePlayerNames(playerNames);
     await _repository.saveSelectedPresetId(selectedPresetId);
+    await _repository.saveSelectedOdaiPresetId(selectedOdaiPresetId);
     await _repository.saveGameSettings(settings);
   }
 

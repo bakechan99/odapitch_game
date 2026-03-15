@@ -35,6 +35,16 @@ class SetupRepositoryImpl implements SetupRepository {
   }
 
   @override
+  Future<String> loadSelectedOdaiPresetId() {
+    return _localDb.loadSelectedOdaiPresetId();
+  }
+
+  @override
+  Future<void> saveSelectedOdaiPresetId(String presetId) {
+    return _localDb.saveSelectedOdaiPresetId(presetId);
+  }
+
+  @override
   Future<GameSettings> loadGameSettings() {
     return _gameSettingsRepository.loadGameSettings();
   }

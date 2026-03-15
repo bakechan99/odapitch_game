@@ -102,6 +102,17 @@ class ResultSessionController extends ChangeNotifier {
     });
   }
 
+  void resetTimer() {
+    _timer?.cancel();
+    isTimerRunning = false;
+    if (isPresentationMode) {
+      _timeLeft = presentationTimeSec;
+    } else {
+      _qaTimeLeft = qaTimeSec;
+    }
+    notifyListeners();
+  }
+
   void proceedToNextStep() {
     _timer?.cancel();
     isTimerRunning = false;

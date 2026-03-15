@@ -1,11 +1,12 @@
 import 'package:audioplayers/audioplayers.dart'; // 音楽用
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'setup_screen.dart'; // 「新規ゲーム」を押した後の行き先
 import 'help_screen.dart';
+import 'history_screen.dart';
 import 'settings_screen.dart';
 import '../constants/texts.dart'; // 追加: 定数テキストのインポート
 import '../widgets/title_button.dart'; // 追加: カスタムボタンのインポート
-import '../widgets/decorative_band.dart';
 import '../constants/app_colors.dart';
   
 
@@ -19,6 +20,7 @@ class TitleScreen extends StatefulWidget {
 class _TitleScreenState extends State<TitleScreen> {
   // 音楽プレイヤーの作成
   final AudioPlayer _audioPlayer = AudioPlayer();
+  static final Uri _termsUri = Uri.parse('https://example.com/terms');
 
   @override
   void initState() {
@@ -47,181 +49,146 @@ class _TitleScreenState extends State<TitleScreen> {
     super.dispose();
   }
 
+  Future<void> _openTerms() async {
+    final launched = await launchUrl(_termsUri, mode: LaunchMode.externalApplication);
+    if (!launched && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('利用規約ページを開けませんでした')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Stackを使うと、要素を「重ねて」表示できます（背景の上にボタン、など）
       body: LayoutBuilder(
         builder: (context, constraints) {
-          const topBandHeight = 18.0;
-          const bottomBandHeight = 18.0;
-          const accentBandHeight = 12.0;
-          const middleBandHeight = 10.0;
-          const middleBandToTitleGap = 20.0;
-          const titleToButtonGap = 28.0;
-          const buttonGap = 14.0;
-          const bottomGap = 28.0;
-          final fillColor = AppColors.surfaceTheme;
-          final accentFillColor = AppColors.actionPrimary.withValues(alpha: 0.55);
-
-          final titleFontSize = (constraints.maxWidth * 0.09).clamp(28.0, 56.0);
-          final startButtonHeight = (constraints.maxWidth * 0.5) / 3.0;
-          final helpButtonHeight = (constraints.maxWidth * 0.4) / 3.0;
-          final titleHeight = titleFontSize * 1.0; // タイトルの高さをフォントサイズから推定（行間込み）
-
-          final contentHeight =
-              topBandHeight +
-              middleBandHeight +
-              middleBandToTitleGap +
-              titleHeight +
-              titleToButtonGap +
-              startButtonHeight +
-              buttonGap +
-              helpButtonHeight +
-              bottomGap +
-              bottomBandHeight;
-
-          final topFillHeight = ((constraints.maxHeight - contentHeight) / 2).clamp(0.0, constraints.maxHeight);
-          final accentOffset = (topFillHeight - accentBandHeight).clamp(0.0, constraints.maxHeight);
-
-          return Stack(
+          return Column(
             children: [
-              IgnorePointer(
-                child: Align(
-                  alignment: Alignment.topCenter,
-                  child: SizedBox(
-                    width: double.infinity,
-                    height: topFillHeight,
-                    child: ColoredBox(
-                      color: fillColor,
+              Expanded(
+                flex: 6,
+                child: Stack(
+                  children: [
+                    Align(
+                      alignment: Alignment.topCenter,
+                      child: SizedBox.expand(
+                        child: Image.asset(
+                          'assets/images/GND_title_up.png',
+                          fit: BoxFit.cover,
+                          alignment: Alignment.bottomCenter,
+                        ),
+                      ),
                     ),
+                    Align(
+                      alignment: Alignment.bottomCenter,
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: FractionallySizedBox(
+                          widthFactor: 0.5,
+                          child: AspectRatio(
+                            aspectRatio: 3.0,
+                            child: TitleButton(
+                              label: AppTexts.newGameButton,
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const SetupScreen(),
+                                  ),
+                                );
+                              },
+                              borderColor: AppColors.titleStartButtonBorder,
+                              fillColor: AppColors.titleStartButtonNormalTop,
+                              textColor: AppColors.titleStartButtonText,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      top: 30,
+                      right: 0,
+                      child: SafeArea(
+                        child: Row(
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.error_outline_outlined),
+                              iconSize: 48,
+                              color: AppColors.textOnDark,
+                              tooltip: AppTexts.goTerms,
+                              onPressed: _openTerms,
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.settings),
+                              iconSize: 48,
+                              color: AppColors.textOnDark,
+                              tooltip: AppTexts.goSettings,
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => const SettingsScreen()),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                flex: 1,
+                child: Center(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SizedBox(
+                        width: constraints.maxWidth * 0.4,
+                        child: AspectRatio(
+                          aspectRatio: 3.0,
+                          child: TitleButton(
+                            label: AppTexts.goHelp,
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => const HelpScreen()),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      SizedBox(
+                        width: constraints.maxWidth * 0.4,
+                        child: AspectRatio(
+                          aspectRatio: 3.0,
+                          child: TitleButton(
+                            label: AppTexts.goHistory,
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => const HistoryScreen()),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
-              Positioned(
-                top: accentOffset,
-                left: 0,
-                right: 0,
-                child: IgnorePointer(
-                  child: SizedBox(
-                    height: accentBandHeight,
-                    child: ColoredBox(color: accentFillColor),
-                  ),
-                ),
-              ),
-              IgnorePointer(
+              Expanded(
+                flex: 2,
                 child: Align(
                   alignment: Alignment.bottomCenter,
-                  child: SizedBox(
-                    width: double.infinity,
-                    height: topFillHeight,
-                    child: ColoredBox(
-                      color: fillColor,
+                  child: SizedBox.expand(
+                    child: Image.asset(
+                      'assets/images/GND_title_down.png',
+                      fit: BoxFit.cover,
+                      alignment: Alignment.bottomCenter,
                     ),
                   ),
-                ),
-              ),
-              Positioned(
-                bottom: accentOffset,
-                left: 0,
-                right: 0,
-                child: IgnorePointer(
-                  child: SizedBox(
-                    height: accentBandHeight,
-                    child: ColoredBox(color: accentFillColor),
-                  ),
-                ),
-              ),
-              Positioned(
-                top: 0,
-                right: 0,
-                child: SafeArea(
-                  child: IconButton(
-                    icon: const Icon(Icons.settings),
-                    color: AppColors.textOnDark,
-                    tooltip: AppTexts.goSettings,
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const SettingsScreen()),
-                      );
-                    },
-                  ),
-                ),
-              ),
-              Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const DecorativeBand(
-                      showBadge: true,
-                      badgeIcon: Icons.style,
-                      bandHeight: topBandHeight,
-                    ),
-                    SizedBox(
-                      width: constraints.maxWidth,
-                      child: ColoredBox(
-                        color: fillColor, // レイヤーと同じ色
-                        child: const SizedBox(height: middleBandHeight), // 帯の太さ
-                      ),
-                    ),
-                    const SizedBox(height: middleBandToTitleGap),
-                    Text(
-                      AppTexts.gameTitle,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: titleFontSize,
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.textTitle,
-                      ),
-                    ),
-                    const SizedBox(height: titleToButtonGap),
-                    FractionallySizedBox(
-                      widthFactor: 0.5,
-                      child: AspectRatio(
-                        aspectRatio: 3.0,
-                        child: TitleButton(
-                          label: AppTexts.newGameButton,
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const SetupScreen(),
-                              ),
-                            );
-                          },
-                          borderColor: AppColors.titleStartButtonBorder,
-                          fillColor: AppColors.titleStartButtonNormalTop,
-                          textColor: AppColors.titleStartButtonText,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: buttonGap),
-                    FractionallySizedBox(
-                      widthFactor: 0.4,
-                      child: AspectRatio(
-                        aspectRatio: 3.0,
-                        child: TitleButton(
-                          label: AppTexts.goHelp,
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => const HelpScreen()),
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: bottomGap),
-                    SizedBox(
-                      width: constraints.maxWidth,
-                      child: ColoredBox(
-                        color: fillColor, // レイヤーと同じ色
-                        child: const SizedBox(height: middleBandHeight), // 帯の太さ
-                      ),
-                    ),
-                    const DecorativeBand(bandHeight: bottomBandHeight),
-                  ],
                 ),
               ),
             ],
