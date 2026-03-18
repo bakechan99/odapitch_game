@@ -24,11 +24,13 @@ class ResultScreen extends StatefulWidget {
   final List<Player> players;
   final GameSettings settings;
   final String odaiTheme;
+  final String odaiId;
   const ResultScreen({
     super.key,
     required this.players,
     required this.settings,
     required this.odaiTheme,
+    required this.odaiId,
   });
 
   @override
@@ -48,7 +50,8 @@ class _ResultScreenState extends State<ResultScreen> {
       players: widget.players,
       presentationTimeSec: widget.settings.presentationTimeSec,
       qaTimeSec: widget.settings.qaTimeSec,
-      titleScorer: ApiService.getTitleScore,
+      titleScorer: (title) =>
+          ApiService.getTitleScore(title, mode: widget.odaiId),
       onTimeUp: _playSound,
     );
   }
@@ -61,14 +64,16 @@ class _ResultScreenState extends State<ResultScreen> {
     super.dispose();
   }
 
-  Future<void> _showConfirmDialog({required String title, String? content, required VoidCallback onConfirm}) async {
+  Future<void> _showConfirmDialog({
+    required String title,
+    String? content,
+    required VoidCallback onConfirm,
+  }) async {
     final confirmed = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
-        builder: (context) => PassingConfirmScreen(
-          title: title,
-          content: content ?? "",
-        ),
+        builder: (context) =>
+            PassingConfirmScreen(title: title, content: content ?? ""),
       ),
     );
 
@@ -99,7 +104,7 @@ class _ResultScreenState extends State<ResultScreen> {
       animation: _controller,
       builder: (context, _) {
         if (_controller.isFetchingAI) {
-        //if (true) {
+          //if (true) {
           return Scaffold(
             appBar: CommonAppBar(
               title: "",
@@ -118,19 +123,19 @@ class _ResultScreenState extends State<ResultScreen> {
                       SizedBox(
                         width: 60,
                         height: 60,
-                        child:CircularProgressIndicator(
+                        child: CircularProgressIndicator(
                           strokeWidth: 10,
-                          color: AppColors.themePrimaryDark 
+                          color: AppColors.themePrimaryDark,
                         ),
                       ),
-                      
+
                       SizedBox(width: 16),
                       Text(
                         'AI採点中...',
                         style: AppTextStyles.headingPrimaryLarge.copyWith(
                           fontSize: 48,
                           fontStyle: FontStyle.normal,
-                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -141,12 +146,19 @@ class _ResultScreenState extends State<ResultScreen> {
                       LayoutBuilder(
                         builder: (context, constraints) {
                           final int count = widget.players.length;
-                          final double cardsWidth = (count * 400) + ((count > 0 ? count - 1 : 0) * 16);
+                          final double cardsWidth =
+                              (count * 400) +
+                              ((count > 0 ? count - 1 : 0) * 16);
                           final double horizontalPadding = 32; // 左右16ずつ
                           final double trailingSpace = 100;
-                          final double contentWidth = cardsWidth + horizontalPadding + trailingSpace;
-                          final double minScrollableWidth = constraints.maxWidth + 120;
-                          final double rowWidth = math.max(contentWidth, minScrollableWidth);
+                          final double contentWidth =
+                              cardsWidth + horizontalPadding + trailingSpace;
+                          final double minScrollableWidth =
+                              constraints.maxWidth + 120;
+                          final double rowWidth = math.max(
+                            contentWidth,
+                            minScrollableWidth,
+                          );
 
                           return PrimaryScrollController(
                             controller: _aiHorizontalScrollController,
@@ -159,64 +171,99 @@ class _ResultScreenState extends State<ResultScreen> {
                                 controller: _aiHorizontalScrollController,
                                 physics: const AlwaysScrollableScrollPhysics(),
                                 scrollDirection: Axis.horizontal,
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 8,
+                                ),
                                 child: SizedBox(
                                   width: rowWidth - horizontalPadding,
                                   child: Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      ...List.generate(widget.players.length, (idx) {
+                                      ...List.generate(widget.players.length, (
+                                        idx,
+                                      ) {
                                         final p = widget.players[idx];
                                         final List<CardData> allCards = [
                                           ...p.hand,
-                                          ...p.selectedCards.map((pc) => pc.card),
+                                          ...p.selectedCards.map(
+                                            (pc) => pc.card,
+                                          ),
                                         ];
-                                        allCards.sort((a, b) => a.id.compareTo(b.id));
+                                        allCards.sort(
+                                          (a, b) => a.id.compareTo(b.id),
+                                        );
 
                                         return Container(
                                           width: 400,
                                           height: 600,
                                           margin: EdgeInsets.only(
-                                            right: idx == widget.players.length-1  ? 0 : 16
+                                            right:
+                                                idx == widget.players.length - 1
+                                                ? 0
+                                                : 16,
                                           ),
                                           child: Card(
                                             color: AppColors.surfacePanel,
                                             child: Padding(
                                               padding: const EdgeInsets.all(12),
                                               child: Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
                                                 children: [
                                                   SizedBox(
                                                     height: 200,
                                                     child: Column(
-                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
                                                       children: [
                                                         SizedBox(height: 12),
                                                         Text(
                                                           "${p.name}さんの回答",
-                                                          style: AppTextStyles.headingPrimaryMedium.copyWith(
-                                                            fontSize: 20,
-                                                          ),
-                                                          textAlign: TextAlign.left,
+                                                          style: AppTextStyles
+                                                              .headingPrimaryMedium
+                                                              .copyWith(
+                                                                fontSize: 20,
+                                                              ),
+                                                          textAlign:
+                                                              TextAlign.left,
                                                         ),
-                                                        const SizedBox(height: 4),
+                                                        const SizedBox(
+                                                          height: 4,
+                                                        ),
                                                         Expanded(
                                                           child: Center(
                                                             child: SizedBox(
-                                                              width: double.infinity,
+                                                              width: double
+                                                                  .infinity,
                                                               child: CustomPaint(
                                                                 painter: _BracketCornerPainter(
-                                                                  color: AppColors.textPrimary,
+                                                                  color: AppColors
+                                                                      .textPrimary,
                                                                 ),
                                                                 child: Padding(
-                                                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                                                                  padding:
+                                                                      const EdgeInsets.symmetric(
+                                                                        horizontal:
+                                                                            10,
+                                                                        vertical:
+                                                                            8,
+                                                                      ),
                                                                   child: Text(
                                                                     p.researchTitle,
-                                                                    textAlign: TextAlign.center,
-                                                                    style: AppTextStyles.headingPrimaryLarge.copyWith(
-                                                                      fontSize: 32,
-                                                                      fontStyle: FontStyle.normal,
-                                                                    ),
+                                                                    textAlign:
+                                                                        TextAlign
+                                                                            .center,
+                                                                    style: AppTextStyles
+                                                                        .headingPrimaryLarge
+                                                                        .copyWith(
+                                                                          fontSize:
+                                                                              32,
+                                                                          fontStyle:
+                                                                              FontStyle.normal,
+                                                                        ),
                                                                   ),
                                                                 ),
                                                               ),
@@ -226,24 +273,33 @@ class _ResultScreenState extends State<ResultScreen> {
                                                       ],
                                                     ),
                                                   ),
-                                                  
+
                                                   const SizedBox(height: 20),
 
                                                   Wrap(
                                                     spacing: 24,
                                                     runSpacing: 16,
-                                                    children: allCards.map((cardData) {
+                                                    children: allCards.map((
+                                                      cardData,
+                                                    ) {
                                                       int? selectedSection;
-                                                      for (final placedCard in p.selectedCards) {
-                                                        if (placedCard.card.id == cardData.id) {
-                                                          selectedSection = placedCard.selectedSection;
+                                                      for (final placedCard
+                                                          in p.selectedCards) {
+                                                        if (placedCard
+                                                                .card
+                                                                .id ==
+                                                            cardData.id) {
+                                                          selectedSection =
+                                                              placedCard
+                                                                  .selectedSection;
                                                           break;
                                                         }
                                                       }
 
                                                       return ResultCardWidget(
                                                         card: cardData,
-                                                        selectedSection: selectedSection,
+                                                        selectedSection:
+                                                            selectedSection,
                                                       );
                                                     }).toList(),
                                                   ),
@@ -290,7 +346,9 @@ class _ResultScreenState extends State<ResultScreen> {
               toggleTimer: _controller.toggleTimer,
               proceedToNextStep: _controller.proceedToNextStep,
               onResetTimer: _controller.resetTimer,
-              isLastPresenter: _controller.currentPresenterIndex == widget.players.length - 1,
+              isLastPresenter:
+                  _controller.currentPresenterIndex ==
+                  widget.players.length - 1,
             );
           case ScreenPhase.votingStandby:
             return _buildStandbyScreen(
@@ -329,15 +387,15 @@ class _ResultScreenState extends State<ResultScreen> {
     );
   }
 
-  Widget _buildStandbyScreen({required Player player, required String message, required VoidCallback onReady}) {
+  Widget _buildStandbyScreen({
+    required Player player,
+    required String message,
+    required VoidCallback onReady,
+  }) {
     return Scaffold(
       body: Stack(
         children: [
-          Container(
-            decoration: BoxDecoration(
-              color: AppColors.surfaceTheme,
-            ),
-          ),
+          Container(decoration: BoxDecoration(color: AppColors.surfaceTheme)),
           Center(
             child: PassingStyleCard(
               title: AppTexts.nextPlayerStandby(player.name),
@@ -357,7 +415,9 @@ class _ResultScreenState extends State<ResultScreen> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const SettingsScreen()),
+                    MaterialPageRoute(
+                      builder: (context) => const SettingsScreen(),
+                    ),
                   );
                 },
               ),
@@ -392,16 +452,8 @@ class _BracketCornerPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;
 
-    canvas.drawLine(
-      const Offset(0, 0),
-      Offset(cornerLength, 0),
-      paint,
-    );
-    canvas.drawLine(
-      const Offset(0, 0),
-      Offset(0, cornerLength),
-      paint,
-    );
+    canvas.drawLine(const Offset(0, 0), Offset(cornerLength, 0), paint);
+    canvas.drawLine(const Offset(0, 0), Offset(0, cornerLength), paint);
 
     canvas.drawLine(
       Offset(size.width, size.height),
