@@ -432,10 +432,7 @@ class _SetupScreenState extends State<SetupScreen> {
                       width: 100,
                       child: Column(
                         children: [
-                          Text(
-                            "AI使用\n(開発中)",
-                            style: AppTextStyles.headingSection,
-                          ),
+                          Text("AI使用", style: AppTextStyles.headingSection),
                           const SizedBox(height: 8),
                           InkWell(
                             borderRadius: BorderRadius.circular(999),
