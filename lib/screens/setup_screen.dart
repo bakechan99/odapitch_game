@@ -76,7 +76,9 @@ class _SetupScreenState extends State<SetupScreen> {
         }
         _syncControllerCount();
       } else {
-        playerCount = _setupController.clampPlayerCount(initialData.settings.playerCount);
+        playerCount = _setupController.clampPlayerCount(
+          initialData.settings.playerCount,
+        );
         _syncControllerCount(); // 保存がない場合はデフォルト
       }
     });
@@ -97,7 +99,9 @@ class _SetupScreenState extends State<SetupScreen> {
 
     setState(() {
       _presets = presets;
-      _selectedPresetId = hasSelected ? _selectedPresetId : LocalDb.defaultPresetId;
+      _selectedPresetId = hasSelected
+          ? _selectedPresetId
+          : LocalDb.defaultPresetId;
     });
 
     if (!hasSelected) {
@@ -146,7 +150,9 @@ class _SetupScreenState extends State<SetupScreen> {
 
     final String targetId = preferredId ?? _selectedOdaiPresetId;
     final hasSelected = presets.any((preset) => preset.id == targetId);
-    final fallbackId = presets.isNotEmpty ? presets.first.id : LocalDb.defaultOdaiPresetId;
+    final fallbackId = presets.isNotEmpty
+        ? presets.first.id
+        : LocalDb.defaultOdaiPresetId;
     final resolvedId = hasSelected ? targetId : fallbackId;
 
     if (!mounted) return;
@@ -187,9 +193,11 @@ class _SetupScreenState extends State<SetupScreen> {
   void _syncControllerCount() {
     while (_controllers.length < playerCount) {
       // AppTexts.defaultPlayerNameWithIndex を使用
-      _controllers.add(TextEditingController(
-        text: AppTexts.defaultPlayerNameWithIndex(_controllers.length + 1)
-      ));
+      _controllers.add(
+        TextEditingController(
+          text: AppTexts.defaultPlayerNameWithIndex(_controllers.length + 1),
+        ),
+      );
     }
     while (_controllers.length > playerCount) {
       final controller = _controllers.removeLast();
@@ -243,7 +251,7 @@ class _SetupScreenState extends State<SetupScreen> {
     }
 
     if (!mounted) return;
-    
+
     // 設定をまとめて次の画面へ渡す
     GameSettings settings = GameSettings(
       presentationTimeSec: presentationTime,
@@ -260,6 +268,7 @@ class _SetupScreenState extends State<SetupScreen> {
           players: players,
           settings: settings,
           odaiTheme: selectedOdai,
+          odaiId: _selectedOdaiPresetId,
         ),
       ),
     );
@@ -298,307 +307,329 @@ class _SetupScreenState extends State<SetupScreen> {
               fit: BoxFit.cover,
             ),
           ),
-          SingleChildScrollView( // 画面からはみ出ないようにスクロール可能に
+          SingleChildScrollView(
+            // 画面からはみ出ないようにスクロール可能に
             padding: const EdgeInsets.all(16.0),
             child: Column(
-              children: [ 
-            // 時間設定セクション（統合）
-            //_buildSectionTitle(AppTexts.presentationTimeSection),
-            //const SizedBox(height: 10),
-            
-            FractionallySizedBox(
-              widthFactor: 0.9, // 横幅の80%に広げる
-              child: Container(
-                padding: const EdgeInsets.all(30),
-                margin: const EdgeInsets.symmetric(vertical: 6),
-                decoration: BoxDecoration(
-                  color: AppColors.surfaceAccent,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.borderLight),
-                ),
-                child:Column(
-                  children: [
-                    _buildTimeSlider(
-                      label: AppTexts.presentationTimeLabel,
-                      value: presentationTime,
-                      valueWidthRatio: 0.5,
-                      onDecrement: () => _changeTime(-10),
-                      onIncrement: () => _changeTime(10),
-                    ),
-                    const SizedBox(height: 30),
-                    _buildTimeSlider(
-                      label: AppTexts.presentationFeedbackLabel,
-                      value: qaTime,
-                      valueWidthRatio: 0.5,
-                      onDecrement: () => _changeQaTime(-10),
-                      onIncrement: () => _changeQaTime(10),
-                    ),
-                  ],
-                )
-              ),
-            ),
-
-            
-            const SizedBox(height: 20),
-
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      _buildSectionTitle(AppTexts.cardPresetSection),
-                      const SizedBox(height: 8),
-                      DropdownButtonFormField<String>(
-                        isExpanded: true,
-                        value: _presets.any((p) => p.id == _selectedPresetId) ? _selectedPresetId : null,
-                        decoration: const InputDecoration(
-                          filled: true,
-                          fillColor: AppColors.surface,
-                          labelText: AppTexts.cardPresetLabel,
-                          border: OutlineInputBorder(),
+                // 時間設定セクション（統合）
+                //_buildSectionTitle(AppTexts.presentationTimeSection),
+                //const SizedBox(height: 10),
+                FractionallySizedBox(
+                  widthFactor: 0.9, // 横幅の80%に広げる
+                  child: Container(
+                    padding: const EdgeInsets.all(30),
+                    margin: const EdgeInsets.symmetric(vertical: 6),
+                    decoration: BoxDecoration(
+                      color: AppColors.surfaceAccent,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppColors.borderLight),
+                    ),
+                    child: Column(
+                      children: [
+                        _buildTimeSlider(
+                          label: AppTexts.presentationTimeLabel,
+                          value: presentationTime,
+                          valueWidthRatio: 0.5,
+                          onDecrement: () => _changeTime(-10),
+                          onIncrement: () => _changeTime(10),
                         ),
-                        items: _presets
-                            .map(
-                              (preset) => DropdownMenuItem<String>(
-                                value: preset.id,
-                                child: Text(preset.name),
-                              ),
-                            )
-                            .toList(),
-                        onChanged: (value) async {
-                          if (value == null) return;
-                          setState(() {
-                            _selectedPresetId = value;
-                          });
-                          await _setupController.saveSelectedPresetId(value);
-                          await _loadOdaiPresets(_resolveSelectedPresetOdaiPath());
-                        },
-                      ),
-                      const SizedBox(height: 12),
-                      DropdownButtonFormField<String>(
-                        isExpanded: true,
-                        value: _odaiPresets.any((p) => p.id == _selectedOdaiPresetId)
-                            ? _selectedOdaiPresetId
-                            : null,
-                        decoration: const InputDecoration(
-                          filled: true,
-                          fillColor: AppColors.surface,
-                          labelText: AppTexts.odaiPresetLabel,
-                          border: OutlineInputBorder(),
+                        const SizedBox(height: 30),
+                        _buildTimeSlider(
+                          label: AppTexts.presentationFeedbackLabel,
+                          value: qaTime,
+                          valueWidthRatio: 0.5,
+                          onDecrement: () => _changeQaTime(-10),
+                          onIncrement: () => _changeQaTime(10),
                         ),
-                        items: _odaiPresets
-                            .map(
-                              (preset) => DropdownMenuItem<String>(
-                                value: preset.id,
-                                child: Text(preset.name),
-                              ),
-                            )
-                            .toList(),
-                        onChanged: (value) async {
-                          if (value == null) return;
-                          setState(() {
-                            _selectedOdaiPresetId = value;
-                          });
-                          await _setupController.saveSelectedOdaiPresetId(value);
-                        },
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-                const SizedBox(width: 20),
-                SizedBox(
-                  width: 100,
-                  child: Column(
-                    children: [
-                      Text(
-                        "AI使用\n(開発中)",
-                        style: AppTextStyles.headingSection,
-                      ),
-                      const SizedBox(height: 8),
-                      InkWell(
-                        borderRadius: BorderRadius.circular(999),
-                        onTap: () {
-                          setState(() {
-                            _isAiEnabled = !_isAiEnabled;
-                          });
-                        },
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 160),
-                          curve: Curves.easeOut,
-                          width: 84,
-                          height: 84,
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: _isAiEnabled
-                                ? AppColors.highlights
-                                : AppColors.iconMuted,
-                            border: Border.all(
-                              color: AppColors.textStrong,
-                              width: 1.6,
-                            ),
-                            boxShadow: const [
-                              BoxShadow(
-                                color: AppColors.shadowLight,
-                                blurRadius: 6,
-                                offset: Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: Container(
-                            width: 66,
-                            height: 66,
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: AppColors.textOnDark,
-                                width: 1.4,
-                              ),
-                            ),
-                            child: Text(
-                              _isAiEnabled ? 'ON' : 'OFF',
-                              style: AppTextStyles.headingSection.copyWith(
-                                fontSize: 32,
-                                color: AppColors.textOnDark,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
 
-            // プレイヤー数セクション
-            FractionallySizedBox(
-              widthFactor: 0.9,
-              child: Container(
-                padding: const EdgeInsets.all(30),
-                margin: const EdgeInsets.symmetric(vertical: 6),
-                decoration: BoxDecoration(
-                  color: AppColors.transparent,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.transparent),
-                ),
-                child: Column(
+                const SizedBox(height: 20),
+
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildSectionTitle(AppTexts.playerCountSection),
-                    const SizedBox(height: 10),
-                    SettingStepperControl(
-                      onDecrement: playerCount > 3
-                          ? () {
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          _buildSectionTitle(AppTexts.cardPresetSection),
+                          const SizedBox(height: 8),
+                          DropdownButtonFormField<String>(
+                            isExpanded: true,
+                            value:
+                                _presets.any((p) => p.id == _selectedPresetId)
+                                ? _selectedPresetId
+                                : null,
+                            decoration: const InputDecoration(
+                              filled: true,
+                              fillColor: AppColors.surface,
+                              labelText: AppTexts.cardPresetLabel,
+                              border: OutlineInputBorder(),
+                            ),
+                            items: _presets
+                                .map(
+                                  (preset) => DropdownMenuItem<String>(
+                                    value: preset.id,
+                                    child: Text(preset.name),
+                                  ),
+                                )
+                                .toList(),
+                            onChanged: (value) async {
+                              if (value == null) return;
                               setState(() {
-                                playerCount--;
-                                _updateControllers();
+                                _selectedPresetId = value;
                               });
-                            }
-                          : null,
-                      onIncrement: playerCount < 6
-                          ? () {
-                              setState(() {
-                                playerCount++;
-                                _updateControllers();
-                              });
-                            }
-                          : null,
-                      valueChild: SizedBox(
-                        width: 300,
-                        child: Container(
-                          height: 60,
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                            color: AppColors.surface,
-                            borderRadius: BorderRadius.circular(4),
-                            border: Border.all(color: AppColors.transparent, width: 1.5),
-                            boxShadow: [
-                              BoxShadow(
-                                color: AppColors.shadow,
-                                offset: const Offset(0, 2),
-                                blurRadius: 4,
-                              ),
-                            ],
+                              await _setupController.saveSelectedPresetId(
+                                value,
+                              );
+                              await _loadOdaiPresets(
+                                _resolveSelectedPresetOdaiPath(),
+                              );
+                            },
                           ),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: Text(
-                              AppTexts.playerCountUnit(playerCount),
-                              style: AppTextStyles.valueLarge,
+                          const SizedBox(height: 12),
+                          DropdownButtonFormField<String>(
+                            isExpanded: true,
+                            value:
+                                _odaiPresets.any(
+                                  (p) => p.id == _selectedOdaiPresetId,
+                                )
+                                ? _selectedOdaiPresetId
+                                : null,
+                            decoration: const InputDecoration(
+                              filled: true,
+                              fillColor: AppColors.surface,
+                              labelText: AppTexts.odaiPresetLabel,
+                              border: OutlineInputBorder(),
+                            ),
+                            items: _odaiPresets
+                                .map(
+                                  (preset) => DropdownMenuItem<String>(
+                                    value: preset.id,
+                                    child: Text(preset.name),
+                                  ),
+                                )
+                                .toList(),
+                            onChanged: (value) async {
+                              if (value == null) return;
+                              setState(() {
+                                _selectedOdaiPresetId = value;
+                              });
+                              await _setupController.saveSelectedOdaiPresetId(
+                                value,
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 20),
+                    SizedBox(
+                      width: 100,
+                      child: Column(
+                        children: [
+                          Text(
+                            "AI使用\n(開発中)",
+                            style: AppTextStyles.headingSection,
+                          ),
+                          const SizedBox(height: 8),
+                          InkWell(
+                            borderRadius: BorderRadius.circular(999),
+                            onTap: () {
+                              setState(() {
+                                _isAiEnabled = !_isAiEnabled;
+                              });
+                            },
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 160),
+                              curve: Curves.easeOut,
+                              width: 84,
+                              height: 84,
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: _isAiEnabled
+                                    ? AppColors.highlights
+                                    : AppColors.iconMuted,
+                                border: Border.all(
+                                  color: AppColors.textStrong,
+                                  width: 1.6,
+                                ),
+                                boxShadow: const [
+                                  BoxShadow(
+                                    color: AppColors.shadowLight,
+                                    blurRadius: 6,
+                                    offset: Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: Container(
+                                width: 66,
+                                height: 66,
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: AppColors.textOnDark,
+                                    width: 1.4,
+                                  ),
+                                ),
+                                child: Text(
+                                  _isAiEnabled ? 'ON' : 'OFF',
+                                  style: AppTextStyles.headingSection.copyWith(
+                                    fontSize: 32,
+                                    color: AppColors.textOnDark,
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
-                        ),
+                        ],
                       ),
                     ),
                   ],
                 ),
-              ),
-            ),
+                const SizedBox(height: 20),
 
-            // "③ プレイヤー名（ドラッグで入替）" -> AppTexts.setupPlayerNameSection
-            _buildSectionTitle(AppTexts.setupPlayerNameSection),
-            
-            // 高さ制限(SizedBox)を削除し、リストが中身に応じて伸びるように変更
-            ReorderableListView(
-              shrinkWrap: true, // 中身に合わせて高さを決定
-              physics: const NeverScrollableScrollPhysics(), // 親のスクロール(SingleChildScrollView)に任せる
-              buildDefaultDragHandles: false, // デフォルトのドラッグハンドルを無効化
-              onReorder: (oldIndex, newIndex) {
-                setState(() {
-                  if (oldIndex < newIndex) newIndex -= 1;
-                  final item = _controllers.removeAt(oldIndex);
-                  _controllers.insert(newIndex, item);
-                });
-              },
-              children: [
-                for (int i = 0; i < _controllers.length; i++)
-                  Card(
-                    key: ValueKey(_controllers[i]),
-                    margin: const EdgeInsets.symmetric(vertical: 4),
-                    elevation: 6,
-                    shape: RoundedRectangleBorder(
+                // プレイヤー数セクション
+                FractionallySizedBox(
+                  widthFactor: 0.9,
+                  child: Container(
+                    padding: const EdgeInsets.all(30),
+                    margin: const EdgeInsets.symmetric(vertical: 6),
+                    decoration: BoxDecoration(
+                      color: AppColors.transparent,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppColors.transparent),
+                    ),
+                    child: Column(
+                      children: [
+                        _buildSectionTitle(AppTexts.playerCountSection),
+                        const SizedBox(height: 10),
+                        SettingStepperControl(
+                          onDecrement: playerCount > 3
+                              ? () {
+                                  setState(() {
+                                    playerCount--;
+                                    _updateControllers();
+                                  });
+                                }
+                              : null,
+                          onIncrement: playerCount < 6
+                              ? () {
+                                  setState(() {
+                                    playerCount++;
+                                    _updateControllers();
+                                  });
+                                }
+                              : null,
+                          valueChild: SizedBox(
+                            width: 300,
+                            child: Container(
+                              height: 60,
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                color: AppColors.surface,
+                                borderRadius: BorderRadius.circular(4),
+                                border: Border.all(
+                                  color: AppColors.transparent,
+                                  width: 1.5,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: AppColors.shadow,
+                                    offset: const Offset(0, 2),
+                                    blurRadius: 4,
+                                  ),
+                                ],
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                ),
+                                child: Text(
+                                  AppTexts.playerCountUnit(playerCount),
+                                  style: AppTextStyles.valueLarge,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                // "③ プレイヤー名（ドラッグで入替）" -> AppTexts.setupPlayerNameSection
+                _buildSectionTitle(AppTexts.setupPlayerNameSection),
+
+                // 高さ制限(SizedBox)を削除し、リストが中身に応じて伸びるように変更
+                ReorderableListView(
+                  shrinkWrap: true, // 中身に合わせて高さを決定
+                  physics:
+                      const NeverScrollableScrollPhysics(), // 親のスクロール(SingleChildScrollView)に任せる
+                  buildDefaultDragHandles: false, // デフォルトのドラッグハンドルを無効化
+                  onReorder: (oldIndex, newIndex) {
+                    setState(() {
+                      if (oldIndex < newIndex) newIndex -= 1;
+                      final item = _controllers.removeAt(oldIndex);
+                      _controllers.insert(newIndex, item);
+                    });
+                  },
+                  children: [
+                    for (int i = 0; i < _controllers.length; i++)
+                      Card(
+                        key: ValueKey(_controllers[i]),
+                        margin: const EdgeInsets.symmetric(vertical: 4),
+                        elevation: 6,
+                        shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                           side: BorderSide(color: AppColors.borderLight),
-                    ),
-                    color: AppColors.surface,
-                    child: ListTile(
-                      title: TextField(
-                        controller: _controllers[i],
-                        decoration: const InputDecoration(border: InputBorder.none),
+                        ),
+                        color: AppColors.surface,
+                        child: ListTile(
+                          title: TextField(
+                            controller: _controllers[i],
+                            decoration: const InputDecoration(
+                              border: InputBorder.none,
+                            ),
+                          ),
+                          trailing: ReorderableDragStartListener(
+                            index: i,
+                            child: const Icon(
+                              Icons.drag_handle,
+                              color: AppColors.textMuted,
+                            ),
+                          ),
+                        ),
                       ),
-                      trailing: ReorderableDragStartListener(
-                        index: i,
-                        child: const Icon(Icons.drag_handle, color: AppColors.textMuted),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                const SizedBox(height: 30),
+
+                // "ゲーム開始" -> AppTexts.startGameButton
+                Center(
+                  child: FractionallySizedBox(
+                    widthFactor: 0.5, // 横幅の80%に広げる)
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: 60,
+                      child: ElevatedButton(
+                        onPressed: _startGame,
+                        child: const Text(
+                          AppTexts.startGameButton,
+                          style: AppTextStyles.buttonPrimary,
+                        ),
                       ),
                     ),
                   ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            const SizedBox(height: 30),
-
-            // "ゲーム開始" -> AppTexts.startGameButton
-            Center(
-              child:FractionallySizedBox(
-                widthFactor: 0.5, // 横幅の80%に広げる)
-                child:SizedBox(
-                  width: double.infinity, 
-                  height: 60, 
-                  child: ElevatedButton(
-                    onPressed: _startGame, 
-                    child: const Text(
-                      AppTexts.startGameButton,
-                      style: AppTextStyles.buttonPrimary
-                    )
-                  )
                 ),
-              )
-            ),
-              ],  
+              ],
             ),
           ),
         ],
@@ -608,11 +639,8 @@ class _SetupScreenState extends State<SetupScreen> {
 
   Widget _buildSectionTitle(String title) {
     return Align(
-      alignment: Alignment.center, 
-      child: Text(
-        title, 
-        style: AppTextStyles.headingSection
-      )
+      alignment: Alignment.center,
+      child: Text(title, style: AppTextStyles.headingSection),
     );
   }
 

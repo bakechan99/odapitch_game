@@ -19,11 +19,13 @@ class GameLoopScreen extends StatefulWidget {
   final List<Player> players;
   final GameSettings settings; // 設定を受け取る
   final String odaiTheme;
+  final String odaiId;
   const GameLoopScreen({
     super.key,
     required this.players,
     required this.settings,
     required this.odaiTheme,
+    required this.odaiId,
   });
 
   @override
@@ -67,6 +69,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                 players: widget.players,
                 settings: widget.settings,
                 odaiTheme: widget.odaiTheme,
+                odaiId: widget.odaiId,
               ),
             ),
           );
@@ -76,14 +79,16 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
   }
 
   // --- 共通確認ダイアログ ---
-  Future<void> _showConfirmDialog({required String title, required String content, required VoidCallback onConfirm}) async {
+  Future<void> _showConfirmDialog({
+    required String title,
+    required String content,
+    required VoidCallback onConfirm,
+  }) async {
     final confirmed = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
-        builder: (context) => PassingConfirmScreen(
-          title: title,
-          content: content,
-        ),
+        builder: (context) =>
+            PassingConfirmScreen(title: title, content: content),
       ),
     );
 
@@ -92,7 +97,10 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
     }
   }
 
-  Future<void> _showResearchTitleConfirmDialog({required String content, required VoidCallback onConfirm}) async {
+  Future<void> _showResearchTitleConfirmDialog({
+    required String content,
+    required VoidCallback onConfirm,
+  }) async {
     final confirmed = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
@@ -110,11 +118,8 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          
           // 背景
-          Container(
-           color: AppColors.surfaceTheme,
-          ),
+          Container(color: AppColors.surfaceTheme),
           Center(
             child: PassingStyleCard(
               title: AppTexts.nextPlayerMessage(player.name),
@@ -136,7 +141,6 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
               ),
             ),
           ),
-          
         ],
       ),
     );
@@ -151,7 +155,8 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
           _showConfirmDialog(
             title: AppTexts.checkPop,
             content: AppTexts.cautionBackHome,
-            onConfirm: () => Navigator.of(context).popUntil((route) => route.isFirst),
+            onConfirm: () =>
+                Navigator.of(context).popUntil((route) => route.isFirst),
           );
         },
       ),
@@ -179,7 +184,9 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                         padding: const EdgeInsets.all(10),
                         child: Text(
                           AppTexts.nextPlayerStandby(player.name),
-                          style: AppTextStyles.headingSection.copyWith(fontSize: 14),
+                          style: AppTextStyles.headingSection.copyWith(
+                            fontSize: 14,
+                          ),
                         ),
                       ),
                       Padding(
@@ -189,7 +196,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                           style: AppTextStyles.themeTitlelarge,
                         ),
                       ),
-                      
+
                       // 横スクロールエリア
                       Expanded(
                         child: PrimaryScrollController(
@@ -203,13 +210,16 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                               controller: _fieldScrollController,
                               physics: const AlwaysScrollableScrollPhysics(),
                               scrollDirection: Axis.horizontal,
-                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
                               child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.center, // 縦方向中央揃え
+                                crossAxisAlignment:
+                                    CrossAxisAlignment.center, // 縦方向中央揃え
                                 children: [
                                   // カード配置エリア (Rowの中身)
                                   ..._buildFieldItems(player),
-                                  
+
                                   // 領域が空の時のメッセージ（カードがない場合のみ表示）
                                   if (player.selectedCards.isEmpty)
                                     Container(
@@ -221,7 +231,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                                         style: AppTextStyles.bodyPlaceholder,
                                       ),
                                     ),
-                                    
+
                                   // 末尾に余白を持たせてドロップしやすくする
                                   const SizedBox(width: 100),
                                 ],
@@ -243,28 +253,30 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
             child: DragTarget<CardData>(
               onWillAcceptWithDetails: (details) {
                 return _isCardOnField(player, details.data);
-              }, 
+              },
               onAcceptWithDetails: (details) {
                 _returnToHand(player, details.data);
               },
               builder: (context, candidates, rejected) {
                 return Container(
                   width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: AppColors.surfaceTheme,
-                  ),
+                  decoration: BoxDecoration(color: AppColors.surfaceTheme),
                   child: Column(
-                    
                     children: [
                       // 手札エリアのヘッダー
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
                         child: const Align(
                           alignment: Alignment.centerLeft,
-                          child: Text(AppTexts.hands, style: AppTextStyles.headingSection),
+                          child: Text(
+                            AppTexts.hands,
+                            style: AppTextStyles.headingSection,
+                          ),
                         ),
-                      ),// 区切り線
-
+                      ), // 区切り線
                       // 手札を固定 2x3 で表示
                       Expanded(
                         child: Center(
@@ -274,7 +286,8 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                             child: Column(
                               children: [
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     _buildHandGridSlot(player, 0),
                                     _buildHandGridSlot(player, 1),
@@ -283,7 +296,8 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                                 ),
                                 const SizedBox(height: 12),
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     _buildHandGridSlot(player, 3),
                                     _buildHandGridSlot(player, 4),
@@ -305,14 +319,16 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                               shadowColor: AppColors.shadowBase,
                               elevation: 5,
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 60, 
-                                vertical: 15
+                                horizontal: 60,
+                                vertical: 15,
                               ),
                             ),
-                            onPressed: player.selectedCards.isEmpty ? null : _nextPlayer,
+                            onPressed: player.selectedCards.isEmpty
+                                ? null
+                                : _nextPlayer,
                             child: const Text(
-                              AppTexts.decideButton, 
-                              style: AppTextStyles.buttonPrimaryBold
+                              AppTexts.decideButton,
+                              style: AppTextStyles.buttonPrimaryBold,
                             ),
                           ),
                         ),
@@ -331,12 +347,12 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
   // --- フィールドアイテムの構築 (Row Children) ---
   List<Widget> _buildFieldItems(Player player) {
     List<Widget> items = [];
-    
+
     // カードの間に挿入ポイント(Gap)を作る
     for (int i = 0; i < player.selectedCards.length; i++) {
       // 1. 挿入ポイント (Gap)
       items.add(_buildGapTarget(player, i));
-      
+
       // 2. 配置済みカード
       final placedCard = player.selectedCards[i];
       items.add(
@@ -383,7 +399,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
           return Container(
             // 判定エリアが小さくなるとちらつき（Enter/Leaveのループ）が発生するため、
             // 透明なコンテナで幅を確保しつつ、中央にカーソル線を描画します。
-            width: 40, 
+            width: 40,
             height: 140,
             color: AppColors.transparent,
             child: Center(
@@ -416,8 +432,11 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
       if (player.hand.contains(card)) {
         player.hand.remove(card);
         // 新規配置 (デフォルトは中段選択など)
-        player.selectedCards.insert(insertIndex, PlacedCard(card: card, selectedSection: 1));
-      } 
+        player.selectedCards.insert(
+          insertIndex,
+          PlacedCard(card: card, selectedSection: 1),
+        );
+      }
       // 2. フィールド内の移動の場合
       else {
         // 元の場所を探す
@@ -432,15 +451,15 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
         if (oldIndex != -1) {
           // 移動するカードを保持
           final movingCard = player.selectedCards[oldIndex];
-          
+
           // 削除してから挿入
           player.selectedCards.removeAt(oldIndex);
-          
+
           // 削除した分、インデックスがずれる場合の補正
           if (oldIndex < insertIndex) {
             insertIndex -= 1;
           }
-          
+
           player.selectedCards.insert(insertIndex, movingCard);
         }
       }
@@ -490,10 +509,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
           data: card,
           feedback: Material(
             color: AppColors.transparent,
-            child: Opacity(
-              opacity: 0.8,
-              child: HandCardWidget(card: card),
-            ),
+            child: Opacity(opacity: 0.8, child: HandCardWidget(card: card)),
           ),
           childWhenDragging: Opacity(
             opacity: 0.3,

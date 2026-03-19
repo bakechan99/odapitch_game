@@ -1,27 +1,29 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:flutter/foundation.dart'; // kIsWeb用
+import 'dart:io'; // Platform用
+import 'package:sqflite_common_ffi/sqflite_ffi.dart'; // FFI初期化用
+import 'package:sqflite/sqflite.dart'; // databaseFactory設定用
+
 import 'screens/title_screen.dart'; // 設定画面を呼び出す
 import 'constants/texts.dart';
 import 'constants/app_colors.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart'; 
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
-void main()async {
-  WidgetsFlutterBinding.ensureInitialized();
-  // デスクトップ環境で sqflite を初期化
-  if (!kIsWeb) {
+void main() {
+  WidgetsFlutterBinding.ensureInitialized(); // 必須
+
+  // ▼ ここから：追加するFFIの初期化コード ▼
+  if (!kIsWeb && (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
     sqfliteFfiInit();
     databaseFactory = databaseFactoryFfi;
-
-    await MobileAds.instance.initialize(); // Google Mobile Ads SDK の初期化
   }
-  
-  
-  runApp(const KakenhiGameApp());
+  // ▲ ここまで ▲
+
+  runApp(const MyApp());
 }
 
-class KakenhiGameApp extends StatelessWidget {
-  const KakenhiGameApp({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -43,9 +45,4 @@ class KakenhiGameApp extends StatelessWidget {
       home: const TitleScreen(), // ここで最初の画面を指定
     );
   }
-}
-
-// 互換性のためのエイリアスクラス: テストなどで `MyApp` を参照している箇所に対応
-class MyApp extends KakenhiGameApp {
-  const MyApp({super.key});
 }

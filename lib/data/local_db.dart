@@ -1,7 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import '../models/game_settings.dart';
+import 'dart:io'; // 追加
 
 /// Local SQLite gateway for simple persistence (player names for now).
 class LocalDb {
@@ -22,6 +24,14 @@ class LocalDb {
     if (existing != null) return existing;
 
     final dbPath = await getDatabasesPath();
+
+    // ▼ 以下を追加：ディレクトリが存在しない場合は作成する ▼
+    final dir = Directory(dbPath);
+    if (!await dir.exists()) {
+      await dir.create(recursive: true);
+    }
+    // ▲ ここまで ▲
+
     final path = join(dbPath, 'odapitch.sqlite');
 
     final db = await openDatabase(
@@ -95,91 +105,54 @@ class LocalDb {
             ')',
           );
 
-          await db.insert(
-            'app_settings',
-            {
-              'key': 'selected_preset_id',
-              'value': defaultPresetId,
-            },
-            conflictAlgorithm: ConflictAlgorithm.ignore,
-          );
+          await db.insert('app_settings', {
+            'key': 'selected_preset_id',
+            'value': defaultPresetId,
+          }, conflictAlgorithm: ConflictAlgorithm.ignore);
 
-          await db.insert(
-            'app_settings',
-            {
-              'key': _keyPresentationTimeSec,
-              'value': GameSettings.defaultPresentationTimeSec.toString(),
-            },
-            conflictAlgorithm: ConflictAlgorithm.ignore,
-          );
+          await db.insert('app_settings', {
+            'key': _keyPresentationTimeSec,
+            'value': GameSettings.defaultPresentationTimeSec.toString(),
+          }, conflictAlgorithm: ConflictAlgorithm.ignore);
 
-          await db.insert(
-            'app_settings',
-            {
-              'key': _keyQaTimeSec,
-              'value': GameSettings.defaultQaTimeSec.toString(),
-            },
-            conflictAlgorithm: ConflictAlgorithm.ignore,
-          );
+          await db.insert('app_settings', {
+            'key': _keyQaTimeSec,
+            'value': GameSettings.defaultQaTimeSec.toString(),
+          }, conflictAlgorithm: ConflictAlgorithm.ignore);
 
-          await db.insert(
-            'app_settings',
-            {
-              'key': _keyPlayerCount,
-              'value': GameSettings.defaultPlayerCount.toString(),
-            },
-            conflictAlgorithm: ConflictAlgorithm.ignore,
-          );
+          await db.insert('app_settings', {
+            'key': _keyPlayerCount,
+            'value': GameSettings.defaultPlayerCount.toString(),
+          }, conflictAlgorithm: ConflictAlgorithm.ignore);
 
-          await db.insert(
-            'app_settings',
-            {
-              'key': _keySelectedOdaiPresetId,
-              'value': defaultOdaiPresetId,
-            },
-            conflictAlgorithm: ConflictAlgorithm.ignore,
-          );
+          await db.insert('app_settings', {
+            'key': _keySelectedOdaiPresetId,
+            'value': defaultOdaiPresetId,
+          }, conflictAlgorithm: ConflictAlgorithm.ignore);
         }
 
         if (oldVersion < 3) {
-          await db.insert(
-            'app_settings',
-            {
-              'key': _keyPresentationTimeSec,
-              'value': GameSettings.defaultPresentationTimeSec.toString(),
-            },
-            conflictAlgorithm: ConflictAlgorithm.ignore,
-          );
+          await db.insert('app_settings', {
+            'key': _keyPresentationTimeSec,
+            'value': GameSettings.defaultPresentationTimeSec.toString(),
+          }, conflictAlgorithm: ConflictAlgorithm.ignore);
 
-          await db.insert(
-            'app_settings',
-            {
-              'key': _keyQaTimeSec,
-              'value': GameSettings.defaultQaTimeSec.toString(),
-            },
-            conflictAlgorithm: ConflictAlgorithm.ignore,
-          );
+          await db.insert('app_settings', {
+            'key': _keyQaTimeSec,
+            'value': GameSettings.defaultQaTimeSec.toString(),
+          }, conflictAlgorithm: ConflictAlgorithm.ignore);
 
-          await db.insert(
-            'app_settings',
-            {
-              'key': _keyPlayerCount,
-              'value': GameSettings.defaultPlayerCount.toString(),
-            },
-            conflictAlgorithm: ConflictAlgorithm.ignore,
-          );
-
+          await db.insert('app_settings', {
+            'key': _keyPlayerCount,
+            'value': GameSettings.defaultPlayerCount.toString(),
+          }, conflictAlgorithm: ConflictAlgorithm.ignore);
         }
 
         if (oldVersion < 4) {
-          await db.insert(
-            'app_settings',
-            {
-              'key': _keySelectedOdaiPresetId,
-              'value': defaultOdaiPresetId,
-            },
-            conflictAlgorithm: ConflictAlgorithm.ignore,
-          );
+          await db.insert('app_settings', {
+            'key': _keySelectedOdaiPresetId,
+            'value': defaultOdaiPresetId,
+          }, conflictAlgorithm: ConflictAlgorithm.ignore);
         }
       },
     );
@@ -193,10 +166,7 @@ class LocalDb {
       return [];
     }
     final db = await database;
-    final rows = await db.query(
-      'player_names',
-      orderBy: 'position ASC',
-    );
+    final rows = await db.query('player_names', orderBy: 'position ASC');
 
     return rows.map((row) => row['name'] as String).toList();
   }
@@ -209,15 +179,14 @@ class LocalDb {
     await db.transaction((txn) async {
       await txn.delete('player_names');
       for (int i = 0; i < names.length; i++) {
-        await txn.insert('player_names', {
-          'name': names[i],
-          'position': i,
-        });
+        await txn.insert('player_names', {'name': names[i], 'position': i});
       }
     });
   }
 
-  Future<String> loadSelectedPresetId({String fallback = defaultPresetId}) async {
+  Future<String> loadSelectedPresetId({
+    String fallback = defaultPresetId,
+  }) async {
     if (kIsWeb) {
       return fallback;
     }
@@ -245,17 +214,15 @@ class LocalDb {
     }
 
     final db = await database;
-    await db.insert(
-      'app_settings',
-      {
-        'key': 'selected_preset_id',
-        'value': presetId,
-      },
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+    await db.insert('app_settings', {
+      'key': 'selected_preset_id',
+      'value': presetId,
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
-  Future<String> loadSelectedOdaiPresetId({String fallback = defaultOdaiPresetId}) async {
+  Future<String> loadSelectedOdaiPresetId({
+    String fallback = defaultOdaiPresetId,
+  }) async {
     if (kIsWeb) {
       return fallback;
     }
@@ -283,14 +250,10 @@ class LocalDb {
     }
 
     final db = await database;
-    await db.insert(
-      'app_settings',
-      {
-        'key': _keySelectedOdaiPresetId,
-        'value': presetId,
-      },
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+    await db.insert('app_settings', {
+      'key': _keySelectedOdaiPresetId,
+      'value': presetId,
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   Future<String?> loadAppSetting(String key) async {
@@ -320,14 +283,10 @@ class LocalDb {
     }
 
     final db = await database;
-    await db.insert(
-      'app_settings',
-      {
-        'key': key,
-        'value': value,
-      },
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+    await db.insert('app_settings', {
+      'key': key,
+      'value': value,
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   Future<GameSettings> loadGameSettings() async {
@@ -394,16 +353,12 @@ class LocalDb {
     final now = DateTime.now().millisecondsSinceEpoch;
     final expiresAt = ttl == null ? null : now + ttl.inMilliseconds;
 
-    await db.insert(
-      'app_cache',
-      {
-        'key': key,
-        'value': value,
-        'expires_at': expiresAt,
-        'updated_at': now,
-      },
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+    await db.insert('app_cache', {
+      'key': key,
+      'value': value,
+      'expires_at': expiresAt,
+      'updated_at': now,
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   Future<void> clearExpiredCache() async {
