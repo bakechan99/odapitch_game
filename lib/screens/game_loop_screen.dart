@@ -17,15 +17,18 @@ import '../constants/app_text_styles.dart';
 
 class GameLoopScreen extends StatefulWidget {
   final List<Player> players;
-  final GameSettings settings; // 設定を受け取る
+  final GameSettings settings;
   final String odaiTheme;
   final String odaiId;
+  final bool isAiEnabled; // 追加
+
   const GameLoopScreen({
     super.key,
     required this.players,
     required this.settings,
     required this.odaiTheme,
     required this.odaiId,
+    this.isAiEnabled = false, // デフォルト値を設定
   });
 
   @override
