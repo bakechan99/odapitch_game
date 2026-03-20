@@ -25,12 +25,15 @@ class ResultScreen extends StatefulWidget {
   final GameSettings settings;
   final String odaiTheme;
   final String odaiId;
+  final bool isAiEnabled; // ← 追加
+
   const ResultScreen({
     super.key,
     required this.players,
     required this.settings,
     required this.odaiTheme,
     required this.odaiId,
+    this.isAiEnabled = false, // ← 追加
   });
 
   @override
@@ -50,6 +53,7 @@ class _ResultScreenState extends State<ResultScreen> {
       players: widget.players,
       presentationTimeSec: widget.settings.presentationTimeSec,
       qaTimeSec: widget.settings.qaTimeSec,
+      isAiEnabled: widget.isAiEnabled, // ← コントローラへ渡す
       titleScorer: (title) =>
           ApiService.getTitleScore(title, mode: widget.odaiId),
       onTimeUp: _playSound,
@@ -100,27 +104,21 @@ class _ResultScreenState extends State<ResultScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
+    return ListenableBuilder(
+      listenable: _controller,
       builder: (context, _) {
+        // AI採点中（通信中）は元のリッチなローディング画面を表示
         if (_controller.isFetchingAI) {
-          //if (true) {
           return Scaffold(
-            appBar: CommonAppBar(
-              title: "",
-              onHomePressed: _onHomePressed,
-              backgroundColor: AppColors.themePrimaryLight,
-            ),
             backgroundColor: AppColors.themePrimaryLight,
-            body: Column(
-              children: [
-                Padding(
-                  padding: EdgeInsets.symmetric(vertical: 24),
-                  child: Row(
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Row(
                     mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      SizedBox(
+                      const SizedBox(
                         width: 60,
                         height: 60,
                         child: CircularProgressIndicator(
@@ -128,201 +126,22 @@ class _ResultScreenState extends State<ResultScreen> {
                           color: AppColors.themePrimaryDark,
                         ),
                       ),
-
-                      SizedBox(width: 16),
+                      const SizedBox(width: 24),
                       Text(
                         'AI採点中...',
                         style: AppTextStyles.headingPrimaryLarge.copyWith(
                           fontSize: 48,
-                          fontStyle: FontStyle.normal,
                         ),
                       ),
                     ],
                   ),
-                ),
-                Expanded(
-                  child: Column(
-                    children: [
-                      LayoutBuilder(
-                        builder: (context, constraints) {
-                          final int count = widget.players.length;
-                          final double cardsWidth =
-                              (count * 400) +
-                              ((count > 0 ? count - 1 : 0) * 16);
-                          final double horizontalPadding = 32; // 左右16ずつ
-                          final double trailingSpace = 100;
-                          final double contentWidth =
-                              cardsWidth + horizontalPadding + trailingSpace;
-                          final double minScrollableWidth =
-                              constraints.maxWidth + 120;
-                          final double rowWidth = math.max(
-                            contentWidth,
-                            minScrollableWidth,
-                          );
-
-                          return PrimaryScrollController(
-                            controller: _aiHorizontalScrollController,
-                            child: Scrollbar(
-                              controller: _aiHorizontalScrollController,
-                              thumbVisibility: true,
-                              trackVisibility: true,
-                              interactive: true,
-                              child: SingleChildScrollView(
-                                controller: _aiHorizontalScrollController,
-                                physics: const AlwaysScrollableScrollPhysics(),
-                                scrollDirection: Axis.horizontal,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 8,
-                                ),
-                                child: SizedBox(
-                                  width: rowWidth - horizontalPadding,
-                                  child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      ...List.generate(widget.players.length, (
-                                        idx,
-                                      ) {
-                                        final p = widget.players[idx];
-                                        final List<CardData> allCards = [
-                                          ...p.hand,
-                                          ...p.selectedCards.map(
-                                            (pc) => pc.card,
-                                          ),
-                                        ];
-                                        allCards.sort(
-                                          (a, b) => a.id.compareTo(b.id),
-                                        );
-
-                                        return Container(
-                                          width: 400,
-                                          height: 600,
-                                          margin: EdgeInsets.only(
-                                            right:
-                                                idx == widget.players.length - 1
-                                                ? 0
-                                                : 16,
-                                          ),
-                                          child: Card(
-                                            color: AppColors.surfacePanel,
-                                            child: Padding(
-                                              padding: const EdgeInsets.all(12),
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  SizedBox(
-                                                    height: 200,
-                                                    child: Column(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      children: [
-                                                        SizedBox(height: 12),
-                                                        Text(
-                                                          "${p.name}さんの回答",
-                                                          style: AppTextStyles
-                                                              .headingPrimaryMedium
-                                                              .copyWith(
-                                                                fontSize: 20,
-                                                              ),
-                                                          textAlign:
-                                                              TextAlign.left,
-                                                        ),
-                                                        const SizedBox(
-                                                          height: 4,
-                                                        ),
-                                                        Expanded(
-                                                          child: Center(
-                                                            child: SizedBox(
-                                                              width: double
-                                                                  .infinity,
-                                                              child: CustomPaint(
-                                                                painter: _BracketCornerPainter(
-                                                                  color: AppColors
-                                                                      .textPrimary,
-                                                                ),
-                                                                child: Padding(
-                                                                  padding:
-                                                                      const EdgeInsets.symmetric(
-                                                                        horizontal:
-                                                                            10,
-                                                                        vertical:
-                                                                            8,
-                                                                      ),
-                                                                  child: Text(
-                                                                    p.researchTitle,
-                                                                    textAlign:
-                                                                        TextAlign
-                                                                            .center,
-                                                                    style: AppTextStyles
-                                                                        .headingPrimaryLarge
-                                                                        .copyWith(
-                                                                          fontSize:
-                                                                              32,
-                                                                          fontStyle:
-                                                                              FontStyle.normal,
-                                                                        ),
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-
-                                                  const SizedBox(height: 20),
-
-                                                  Wrap(
-                                                    spacing: 24,
-                                                    runSpacing: 16,
-                                                    children: allCards.map((
-                                                      cardData,
-                                                    ) {
-                                                      int? selectedSection;
-                                                      for (final placedCard
-                                                          in p.selectedCards) {
-                                                        if (placedCard
-                                                                .card
-                                                                .id ==
-                                                            cardData.id) {
-                                                          selectedSection =
-                                                              placedCard
-                                                                  .selectedSection;
-                                                          break;
-                                                        }
-                                                      }
-
-                                                      return ResultCardWidget(
-                                                        card: cardData,
-                                                        selectedSection:
-                                                            selectedSection,
-                                                      );
-                                                    }).toList(),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                        );
-                                      }),
-                                      const SizedBox(width: 100),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                      SizedBox(height: 10),
-                    ],
+                  const SizedBox(height: 30),
+                  Text(
+                    "サーバーと通信しています。しばらくお待ちください。",
+                    style: AppTextStyles.headingSection.copyWith(fontSize: 20),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           );
         }

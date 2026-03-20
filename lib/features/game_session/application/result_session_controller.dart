@@ -4,7 +4,13 @@ import 'package:flutter/foundation.dart';
 
 import '../../../models/player.dart';
 
-enum ScreenPhase { presentationStandby, presentation, votingStandby, voting, result }
+enum ScreenPhase {
+  presentationStandby,
+  presentation,
+  votingStandby,
+  voting,
+  result,
+}
 
 typedef TitleScorer = Future<Map<String, dynamic>?> Function(String title);
 typedef TimeUpCallback = Future<void> Function();
@@ -17,6 +23,7 @@ class ResultSessionController extends ChangeNotifier {
     required this.players,
     required this.presentationTimeSec,
     required this.qaTimeSec,
+    required this.isAiEnabled, // 追加
     required this.titleScorer,
     required this.onTimeUp,
   }) {
@@ -31,6 +38,7 @@ class ResultSessionController extends ChangeNotifier {
   final List<Player> players;
   final int presentationTimeSec;
   final int qaTimeSec;
+  final bool isAiEnabled; // 追加
   final TitleScorer titleScorer;
   final TimeUpCallback onTimeUp;
 
@@ -160,29 +168,69 @@ class ResultSessionController extends ChangeNotifier {
     await calcResult();
   }
 
+  /// AI採点または集計を実行する
   Future<void> calcResult() async {
     isFetchingAI = true;
-    notifyListeners();
+    notifyListeners(); // ローディング開始をUIに通知
 
-    for (int index = 0; index < players.length; index++) {
-      final title = players[index].researchTitle;
-      final result = await titleScorer(title);
-      if (result != null) {
-        aiResults[index] = result;
+    try {
+      if (isAiEnabled) {
+        // AIが有効な場合：各プレイヤーのタイトルをAPIに送信
+        for (int index = 0; index < players.length; index++) {
+          final title = players[index].researchTitle;
+
+          // 1人目以外のリクエスト前に1秒のインターバルを置く（レート制限対策）
+          if (index > 0) {
+            debugPrint(
+              'Waiting 1 second before next request (Scoring for Player $index)...',
+            );
+            await Future.delayed(const Duration(seconds: 1));
+          }
+
+          try {
+            debugPrint('Requesting AI score for: $title');
+
+            // 順番に1人ずつリクエストを送信
+            final result = await titleScorer(
+              title,
+            ).timeout(const Duration(seconds: 30));
+
+            if (result != null) {
+              aiResults[index] = result;
+              debugPrint('Success: AI Score received for Player $index');
+            } else {
+              throw Exception("Null response from API");
+            }
+          } catch (e) {
+            // エラー（502, タイムアウト等）が発生してもループを止めない
+            debugPrint("AI Scoring Error for Player $index: $e");
+            aiResults[index] = {
+              'score': 1.0, // フォールバック：スコア倍率1.0
+              'feedback': 'サーバー混雑のため、AI採点に失敗しました。標準スコアで集計します。',
+              'isFallback': true,
+            };
+          }
+        }
       } else {
-        aiResults[index] = {
-          'score': fixedFailedAiMultiplier,
-          'feedback': 'AIサーバーと通信できませんでした。',
-          'isFallback': true,
-        };
+        // ... (AI無効時の処理は変更なし)
+        for (int index = 0; index < players.length; index++) {
+          aiResults[index] = {
+            'score': 1.0,
+            'feedback': 'AI採点はオフに設定されています。',
+            'isAiDisabled': true,
+          };
+        }
       }
+    } catch (globalError) {
+      debugPrint("Critical Error in calcResult: $globalError");
+    } finally {
+      isFetchingAI = false;
+      currentPhase = ScreenPhase.result;
+      notifyListeners(); // UIを結果表示へ
     }
-
-    isFetchingAI = false;
-    currentPhase = ScreenPhase.result;
-    notifyListeners();
   }
 
+  // --- 投票ロジックの続き ---
   void setAllocation(int index, int newValue) {
     currentAllocation[index] = newValue;
     notifyListeners();
@@ -192,7 +240,7 @@ class ResultSessionController extends ChangeNotifier {
     final current = currentAllocation[index] ?? 0;
     final total = currentAllocation.values.fold(0, (sum, value) => sum + value);
     if (total < 100) {
-      currentAllocation[index] = current + 1;
+      currentAllocation[index] = current + 10;
       notifyListeners();
     }
   }
@@ -200,8 +248,8 @@ class ResultSessionController extends ChangeNotifier {
   void decrementAllocation(int index) {
     final current = currentAllocation[index] ?? 0;
     if (current > 0) {
-      currentAllocation[index] = current - 1;
+      currentAllocation[index] = current - 10;
       notifyListeners();
     }
   }
-}
+} // クラスの閉じ括弧

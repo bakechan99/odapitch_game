@@ -65,19 +65,24 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
           });
         } else {
           // 全員終了 -> 結果発表画面へ（設定も渡す）
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ResultScreen(
-                players: widget.players,
-                settings: widget.settings,
-                odaiTheme: widget.odaiTheme,
-                odaiId: widget.odaiId,
-              ),
-            ),
-          );
+          _finishGame();
         }
       },
+    );
+  }
+
+  void _finishGame() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ResultScreen(
+          players: widget.players,
+          settings: widget.settings,
+          odaiTheme: widget.odaiTheme,
+          odaiId: widget.odaiId,
+          isAiEnabled: widget.isAiEnabled, // ← 修正：フラグを引き継ぐ
+        ),
+      ),
     );
   }
 
