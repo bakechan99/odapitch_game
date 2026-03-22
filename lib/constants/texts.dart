@@ -1,6 +1,6 @@
 class AppTexts {
   // --- Static Constants (固定の文字列) ---
-  
+
   // Common
   static const String appTitle = "カケンヒゲーム";
   static const String cancel = "戻る";
@@ -13,6 +13,20 @@ class AppTexts {
   static const String goHistory = "りれき";
   static const String goSettings = "設定へ";
   static const String goTerms = "利用規約";
+  static const String goPrivacyPolicy = "プライバシーポリシー";
+  static const String legalMenuTitle = "規約・プライバシーポリシー";
+
+  // URL（リリース前に実際のURLへ差し替えてください）
+  static const String termsUrl =
+      'https://aged-tang-ba3.notion.site/31f5dfc57a728092b5bdc6f33f6dc9e2?source=copy_link';
+  static const String privacyPolicyUrl =
+      'https://aged-tang-ba3.notion.site/31f5dfc57a7280498570c56e9eaaf875?source=copy_link';
+
+  // 同意画面
+  static const String consentDescription =
+      'ゲームを開始する前に、以下の書類をご確認ください。\n'
+      '「同意してはじめる」を押すと、利用規約および\nプライバシーポリシーに同意したものとみなします。';
+  static const String consentAgreeButton = '同意してはじめる';
 
   // Title Screen
   static const String gameTitle = "オダピチ";
@@ -32,12 +46,14 @@ class AppTexts {
   static const String defaultPlayerName = "プレイヤー";
 
   static const String startGameButton = "スタート";
-  
+
   // Help Screen
   static const String helpTitle = "せつめい";
-  static const String helpSetupOverview = "配られたカードに書かれている\n単語を組み合わせて\nお題に沿った文章を作ろう！";
+  static const String helpSetupOverview =
+      "配られたカードに書かれている\n単語を組み合わせて\nお題に沿った文章を作ろう！";
   static const String helpPlayerCount = "（カードは全て使わなくてもOK）";
-  static const String helpTimeSettings = "全員の文章が完成したら\n みんなに発表！\n発表を聞いたらほかの人に\n持ち点を分配しよう！";
+  static const String helpTimeSettings =
+      "全員の文章が完成したら\n みんなに発表！\n発表を聞いたらほかの人に\n持ち点を分配しよう！";
   static const String helpCardPreset = "もらった点数の合計によって\n順位を決定！\n1位目指して頑張ろう！";
   static const String helpPlayerNames = "④ プレイヤー名：名前を編集し、ドラッグで順番を入れ替えられます。";
   static const String helpStartGame = "設定後、「ゲーム開始」を押すとゲームが始まります。";
@@ -63,9 +79,8 @@ class AppTexts {
   static const String researchAreaHeader = "【研究タイトル】 ドラッグで並び替え  タップで文字選択";
   static const String decideButton = "決定";
   static const String hands = "ドラッグで並び替え  タップで文字選択";
-  
-  // Presentation Screen
 
+  // Presentation Screen
 
   // Result Screen
   static const String resultTitle = "結果発表";
@@ -96,16 +111,18 @@ class AppTexts {
   static const String aiFeedbackPrefix = "講評";
   static const String aiNoFeedback = "評価なし";
 
-  // Pop-up messages 
+  // Pop-up messages
   static const String confirmTitle = "このタイトルでよろしいですか？";
 
   // --- Methods (変数を埋め込む動的な文字列) ---
-  
+
   // Setup Screen
-  static String defaultPlayerNameWithIndex(int index) => "$defaultPlayerName$index";
+  static String defaultPlayerNameWithIndex(int index) =>
+      "$defaultPlayerName$index";
   static String playerCountUnit(int count) => "$count 人";
   static String secondsUnit(int sec) => "${sec}秒";
-  static String timerFormat(int sec) => "${(sec ~/ 60).toString().padLeft(2, '0')}:${(sec % 60).toString().padLeft(2, '0')}";
+  static String timerFormat(int sec) =>
+      "${(sec ~/ 60).toString().padLeft(2, '0')}:${(sec % 60).toString().padLeft(2, '0')}";
 
   // Game Loop Screen
   static String nextPlayerMessage(String name) => " $name さんの番です";
@@ -121,14 +138,16 @@ class AppTexts {
   static String confirmVote(String name) => "$name さんに投票しますか？";
   static String winnerName(String name) => "👑 $name";
   static String voteCount(int votes) => "獲得票数: $votes 票";
-  static String remainBudget(int remainingBudget) => "残り予算: $remainingBudget 万円 / 100 万円";
+  static String remainBudget(int remainingBudget) =>
+      "残り予算: $remainingBudget 万円 / 100 万円";
   static String odaitheme(String odai) => "お題：$odai";
   static String researcherName(String name) => "$name";
   static String budgetAmount(int amount) => "$amount\u00A0万円";
   static String rankPosition(int rank) => "${rank}";
   static String amountOnly(int amount) => "$amount";
   static String aiScoreLabel(Object score) => " × $score 倍";
-  static String aiFeedbackLabel(String feedback) => "$aiFeedbackPrefix: $feedback";
+  static String aiFeedbackLabel(String feedback) =>
+      "$aiFeedbackPrefix: $feedback";
   // 研究タイトルを整形して返す
   static String researchTitle(String title) => "【研究課題】$title";
 }

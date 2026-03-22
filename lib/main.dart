@@ -4,9 +4,11 @@ import 'dart:io'; // Platform用
 import 'package:sqflite_common_ffi/sqflite_ffi.dart'; // FFI初期化用
 import 'package:sqflite/sqflite.dart'; // databaseFactory設定用
 
-import 'screens/title_screen.dart'; // 設定画面を呼び出す
+import 'screens/title_screen.dart';
+import 'screens/consent_screen.dart';
 import 'constants/texts.dart';
 import 'constants/app_colors.dart';
+import 'utils/consent_manager.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 void main() {
@@ -42,7 +44,29 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         fontFamily: 'Roboto',
       ),
-      home: const TitleScreen(), // ここで最初の画面を指定
+      home: const _ConsentGate(),
+    );
+  }
+}
+
+/// 起動時に同意状態をチェックし、未同意なら ConsentScreen へ、
+/// 同意済みなら TitleScreen へ振り分けるゲートウィジェット。
+class _ConsentGate extends StatelessWidget {
+  const _ConsentGate();
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<bool>(
+      future: ConsentManager.hasAccepted(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          // 同意状態を確認中はスプラッシュ的なローディングを表示
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+        return snapshot.data! ? const TitleScreen() : const ConsentScreen();
+      },
     );
   }
 }

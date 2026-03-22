@@ -18,15 +18,61 @@ class TitleScreen extends StatefulWidget {
 }
 
 class _TitleScreenState extends State<TitleScreen> {
-  static final Uri _termsUri = Uri.parse('https://example.com/terms');
-
-  Future<void> _openTerms() async {
-    final launched = await launchUrl(_termsUri, mode: LaunchMode.externalApplication);
+  Future<void> _openUrl(String url) async {
+    final uri = Uri.parse(url);
+    final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
     if (!launched && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('利用規約ページを開けませんでした')),
+        const SnackBar(content: Text('URLを開けませんでした')),
       );
     }
+  }
+
+  /// 利用規約・プライバシーポリシーの両リンクをボトムシートで表示する。
+  void _showLegalMenu() {
+    showModalBottomSheet<void>(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (sheetContext) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              child: Text(
+                AppTexts.legalMenuTitle,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            const Divider(height: 1),
+            ListTile(
+              leading: const Icon(Icons.article_outlined),
+              title: const Text(AppTexts.goTerms),
+              trailing: const Icon(Icons.open_in_new, size: 18),
+              onTap: () {
+                Navigator.pop(sheetContext);
+                _openUrl(AppTexts.termsUrl);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.policy_outlined),
+              title: const Text(AppTexts.goPrivacyPolicy),
+              trailing: const Icon(Icons.open_in_new, size: 18),
+              onTap: () {
+                Navigator.pop(sheetContext);
+                _openUrl(AppTexts.privacyPolicyUrl);
+              },
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -85,11 +131,11 @@ class _TitleScreenState extends State<TitleScreen> {
                         child: Row(
                           children: [
                             IconButton(
-                              icon: const Icon(Icons.error_outline_outlined),
+                              icon: const Icon(Icons.policy_outlined),
                               iconSize: 48,
                               color: AppColors.textOnDark,
-                              tooltip: AppTexts.goTerms,
-                              onPressed: _openTerms,
+                              tooltip: AppTexts.legalMenuTitle,
+                              onPressed: _showLegalMenu,
                             ),
                             IconButton(
                               icon: const Icon(Icons.settings),
