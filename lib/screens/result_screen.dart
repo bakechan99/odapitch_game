@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:math' as math;
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import '../models/game_settings.dart';
 import '../models/player.dart';
@@ -21,6 +20,7 @@ import '../models/card_data.dart';
 //import '../models/placed_card.dart';
 import '../widgets/custom_banner_ad.dart';
 import '../data/local_db.dart';
+import '../utils/audio_manager.dart';
 
 class ResultScreen extends StatefulWidget {
   final List<Player> players;
@@ -45,7 +45,6 @@ class ResultScreen extends StatefulWidget {
 class _ResultScreenState extends State<ResultScreen> {
   late final ResultSessionController _controller;
 
-  final AudioPlayer _audioPlayer = AudioPlayer();
   final ScrollController _aiHorizontalScrollController = ScrollController();
   bool _historySaved = false;
 
@@ -59,7 +58,7 @@ class _ResultScreenState extends State<ResultScreen> {
       isAiEnabled: widget.isAiEnabled, // ← コントローラへ渡す
       titleScorer: (title) =>
           ApiService.getTitleScore(title, mode: widget.odaiId),
-      onTimeUp: _playSound,
+      onTimeUp: _onTimeUp,
     );
     _controller.addListener(_onControllerChanged);
   }
@@ -94,7 +93,6 @@ class _ResultScreenState extends State<ResultScreen> {
   void dispose() {
     _controller.removeListener(_onControllerChanged);
     _controller.dispose();
-    _audioPlayer.dispose();
     _aiHorizontalScrollController.dispose();
     super.dispose();
   }
@@ -125,11 +123,11 @@ class _ResultScreenState extends State<ResultScreen> {
     );
   }
 
-  Future<void> _playSound() async {
-    try {
-      await _audioPlayer.play(AssetSource('audio/timeup.mp3'));
-    } catch (e) {
-      debugPrint("音声ファイルエラー: $e");
+  Future<void> _onTimeUp(bool isPresentationMode) async {
+    if (isPresentationMode) {
+      await AudioManager.instance.playSingleBell();
+    } else {
+      await AudioManager.instance.playDoubleBell();
     }
   }
 

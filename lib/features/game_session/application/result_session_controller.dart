@@ -13,7 +13,8 @@ enum ScreenPhase {
 }
 
 typedef TitleScorer = Future<Map<String, dynamic>?> Function(String title);
-typedef TimeUpCallback = Future<void> Function();
+// isPresentationMode: true=発表タイマー終了, false=質疑応答タイマー終了
+typedef TimeUpCallback = Future<void> Function(bool isPresentationMode);
 
 class ResultSessionController extends ChangeNotifier {
   // AIスコアが取得できなかった場合のスコア倍率
@@ -106,7 +107,7 @@ class ResultSessionController extends ChangeNotifier {
       _timer?.cancel();
       isTimerRunning = false;
       notifyListeners();
-      await onTimeUp();
+      await onTimeUp(isPresentationMode);
     });
   }
 

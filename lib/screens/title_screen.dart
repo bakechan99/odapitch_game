@@ -1,4 +1,3 @@
-import 'package:audioplayers/audioplayers.dart'; // 音楽用
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'setup_screen.dart'; // 「新規ゲーム」を押した後の行き先
@@ -19,36 +18,7 @@ class TitleScreen extends StatefulWidget {
 }
 
 class _TitleScreenState extends State<TitleScreen> {
-  // 音楽プレイヤーの作成
-  final AudioPlayer _audioPlayer = AudioPlayer();
   static final Uri _termsUri = Uri.parse('https://example.com/terms');
-
-  @override
-  void initState() {
-    super.initState();
-    _playBGM();
-  }
-
-  // BGMを再生する関数
-  void _playBGM() async {
-    // ※ assets/audio/title_bgm.mp3 がある場合のみ再生されます
-    // ループ再生の設定
-    await _audioPlayer.setReleaseMode(ReleaseMode.loop);
-    // 再生開始 (ファイルがないとエラーになるのでtry-catchしています)
-    try {
-      await _audioPlayer.play(AssetSource('audio/title_bgm.mp3'));
-    } catch (e) {
-      debugPrint("BGMファイルが見つかりません: $e");
-    }
-  }
-
-  // 画面が閉じるとき（ゲーム開始時など）に音楽を止める
-  @override
-  void dispose() {
-    _audioPlayer.stop();
-    _audioPlayer.dispose();
-    super.dispose();
-  }
 
   Future<void> _openTerms() async {
     final launched = await launchUrl(_termsUri, mode: LaunchMode.externalApplication);
