@@ -172,10 +172,8 @@ class _ResultScreenState extends State<ResultScreen> {
                   ),
                 ),
                 Expanded(
-                  child: Column(
-                    children: [
-                      LayoutBuilder(
-                        builder: (context, constraints) {
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
                           final int count = widget.players.length;
                           final double cardsWidth =
                               (count * 400) +
@@ -349,10 +347,7 @@ class _ResultScreenState extends State<ResultScreen> {
                               ),
                             ),
                           );
-                        },
-                      ),
-                      SizedBox(height: 10),
-                    ],
+                    },
                   ),
                 ),
               ],

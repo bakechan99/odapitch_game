@@ -80,9 +80,11 @@ class _TitleScreenState extends State<TitleScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          LayoutBuilder(
-            builder: (context, constraints) {
-              return Column(
+          SafeArea(
+            top: false,
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return Column(
             children: [
               Expanded(
                 flex: 6,
@@ -211,8 +213,9 @@ class _TitleScreenState extends State<TitleScreen> {
                 ),
               ),
             ],
-              );
-            },
+                );
+              },
+            ),
           ),
           const CustomBannerAd(),
         ],

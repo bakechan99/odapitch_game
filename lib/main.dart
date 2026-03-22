@@ -11,7 +11,7 @@ import 'constants/app_colors.dart';
 import 'utils/consent_manager.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // 必須
 
   // ▼ ここから：追加するFFIの初期化コード ▼
@@ -20,6 +20,11 @@ void main() {
     databaseFactory = databaseFactoryFfi;
   }
   // ▲ ここまで ▲
+
+  // AdMob SDK初期化（iOS / Android のみ）
+  if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
+    await MobileAds.instance.initialize();
+  }
 
   runApp(const MyApp());
 }
