@@ -8,6 +8,7 @@ import 'settings_screen.dart';
 import '../constants/texts.dart'; // 追加: 定数テキストのインポート
 import '../widgets/title_button.dart'; // 追加: カスタムボタンのインポート
 import '../constants/app_colors.dart';
+import '../widgets/custom_banner_ad.dart';
   
 
 class TitleScreen extends StatefulWidget {
@@ -61,9 +62,11 @@ class _TitleScreenState extends State<TitleScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          return Column(
+      body: Stack(
+        children: [
+          LayoutBuilder(
+            builder: (context, constraints) {
+              return Column(
             children: [
               Expanded(
                 flex: 6,
@@ -192,8 +195,11 @@ class _TitleScreenState extends State<TitleScreen> {
                 ),
               ),
             ],
-          );
-        },
+              );
+            },
+          ),
+          const CustomBannerAd(),
+        ],
       ),
     );
   }

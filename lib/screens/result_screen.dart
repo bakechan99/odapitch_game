@@ -19,6 +19,7 @@ import '../features/game_session/application/result_session_controller.dart';
 import '../services/api_service.dart';
 import '../models/card_data.dart';
 //import '../models/placed_card.dart';
+import '../widgets/custom_banner_ad.dart';
 
 class ResultScreen extends StatefulWidget {
   final List<Player> players;
@@ -351,6 +352,7 @@ class _ResultScreenState extends State<ResultScreen> {
               isLastPresenter:
                   _controller.currentPresenterIndex ==
                   widget.players.length - 1,
+              odaiTheme: widget.odaiTheme,
             );
           case ScreenPhase.votingStandby:
             return _buildStandbyScreen(
@@ -425,6 +427,7 @@ class _ResultScreenState extends State<ResultScreen> {
               ),
             ),
           ),
+          const CustomBannerAd(),
         ],
       ),
     );

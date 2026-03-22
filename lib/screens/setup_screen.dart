@@ -250,7 +250,7 @@ class _SetupScreenState extends State<SetupScreen> {
     List<Player> players = [];
     for (int i = 0; i < playerCount; i++) {
       Player p = Player(name: _controllers[i].text);
-      for (int j = 0; j < 7; j++) {
+      for (int j = 0; j < 6; j++) {
         if (deck.isNotEmpty) p.hand.add(deck.removeLast());
       }
       players.add(p);

@@ -14,6 +14,7 @@ import '../widgets/placed_card_widget.dart';
 import '../widgets/hand_card_widget.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_text_styles.dart';
+import '../widgets/custom_banner_ad.dart';
 
 class GameLoopScreen extends StatefulWidget {
   final List<Player> players;
@@ -149,6 +150,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
               ),
             ),
           ),
+          const CustomBannerAd(),
         ],
       ),
     );
@@ -216,7 +218,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                             interactive: true,
                             child: SingleChildScrollView(
                               controller: _fieldScrollController,
-                              physics: const AlwaysScrollableScrollPhysics(),
+                              physics: const ClampingScrollPhysics(),
                               scrollDirection: Axis.horizontal,
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 16,
@@ -269,28 +271,28 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                 return Container(
                   width: double.infinity,
                   decoration: BoxDecoration(color: AppColors.surfaceTheme),
-                  child: Column(
-                    children: [
-                      // 手札エリアのヘッダー
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                        child: const Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            AppTexts.hands,
-                            style: AppTextStyles.headingSection,
+                  child: SingleChildScrollView(
+                    physics: const ClampingScrollPhysics(),
+                    child: Column(
+                      children: [
+                        // 手札エリアのヘッダー
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
                           ),
-                        ),
-                      ), // 区切り線
-                      // 手札を固定 2x3 で表示
-                      Expanded(
-                        child: Center(
+                          child: const Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              AppTexts.hands,
+                              style: AppTextStyles.headingSection,
+                            ),
+                          ),
+                        ), // 区切り線
+                        // 手札を固定 2x3 で表示
+                        Center(
                           child: SizedBox(
                             width: 324,
-                            height: 272,
                             child: Column(
                               children: [
                                 Row(
@@ -316,32 +318,32 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                             ),
                           ),
                         ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                        child: Center(
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.surfaceMuted,
-                              foregroundColor: AppColors.textPrimary,
-                              shadowColor: AppColors.shadowBase,
-                              elevation: 5,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 60,
-                                vertical: 15,
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                          child: Center(
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.surfaceMuted,
+                                foregroundColor: AppColors.textPrimary,
+                                shadowColor: AppColors.shadowBase,
+                                elevation: 5,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 60,
+                                  vertical: 15,
+                                ),
                               ),
-                            ),
-                            onPressed: player.selectedCards.isEmpty
-                                ? null
-                                : _nextPlayer,
-                            child: const Text(
-                              AppTexts.decideButton,
-                              style: AppTextStyles.buttonPrimaryBold,
+                              onPressed: player.selectedCards.isEmpty
+                                  ? null
+                                  : _nextPlayer,
+                              child: const Text(
+                                AppTexts.decideButton,
+                                style: AppTextStyles.buttonPrimaryBold,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 );
               },

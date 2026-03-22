@@ -18,6 +18,7 @@ class PresentationScreen extends StatelessWidget {
   final VoidCallback proceedToNextStep;
   final VoidCallback onResetTimer;
   final bool isLastPresenter;
+  final String odaiTheme;
 
   const PresentationScreen({
     super.key,
@@ -32,6 +33,7 @@ class PresentationScreen extends StatelessWidget {
     required this.proceedToNextStep,
     required this.onResetTimer,
     this.isLastPresenter = false,
+    this.odaiTheme = '',
   });
 
   @override
@@ -55,19 +57,35 @@ class PresentationScreen extends StatelessWidget {
         backgroundColor: backgroundColor,
         onHomePressed: onHomePressed,
       ),
-      body:Container(
+      body: Container(
         decoration:BoxDecoration(
           image: DecorationImage(
-            image: isPresentationMode 
-              ? AssetImage('assets/images/GND_presentation.png') 
+            image: isPresentationMode
+              ? AssetImage('assets/images/GND_presentation.png')
               : AssetImage('assets/images/GND_presentation_2.png'),
             fit: BoxFit.cover
-          ),  
+          ),
         ),
         child:Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
+              // --- お題エリア ---
+              if (odaiTheme.isNotEmpty)
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                  margin: const EdgeInsets.only(bottom: 8),
+                  decoration: BoxDecoration(
+                    color: AppColors.surface.withOpacity(0.88),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(
+                    AppTexts.odaitheme(odaiTheme),
+                    style: AppTextStyles.headingSection.copyWith(fontSize: 14),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
               // --- タイマーカード ---
               Container(
                 width: 400,
@@ -217,8 +235,8 @@ class PresentationScreen extends StatelessWidget {
             ],
           ),
         ),
-        ),
-      );
+      ),
+    );
   }
 }
 

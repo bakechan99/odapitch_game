@@ -15,8 +15,8 @@ class _CustomBannerAdState extends State<CustomBannerAd> {
 
   // OSごとにGoogle公式のテスト用バナーIDを設定
   final String adUnitId = Platform.isAndroid
-      ? 'ca-app-pub-3940256099942544/6300978111' // AndroidテストID
-      : 'ca-app-pub-3940256099942544/2934735716'; // iOSテストID
+      ? 'ca-app-pub-3940256099942544/9214589741' // AndroidテストID
+      : 'ca-app-pub-3940256099942544/5135589851'; // iOSテストID
 
   @override
   void initState() {
