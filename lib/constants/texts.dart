@@ -91,7 +91,7 @@ class AppTexts {
   static const String voteConfirmTitle = "投票確認";
   static const String voteSelectionTitle = "最も予算を与えたい研究を選んでください";
   static const String resultHeader = "採択された研究課題は...";
-  static const String checkBudget = "この配分で投票しますか？";
+  static const String checkBudget = "投票を確定しますか？";
   static const String startVoteButton = "START";
   static const String decideBudget = "次へ";
   static const String feedbackTitle = "質疑応答";
@@ -119,7 +119,7 @@ class AppTexts {
   // Setup Screen
   static String defaultPlayerNameWithIndex(int index) =>
       "$defaultPlayerName$index";
-  static String playerCountUnit(int count) => "$count 人";
+  static String playerCountUnit(int count) => "$count";
   static String secondsUnit(int sec) => "${sec}秒";
   static String timerFormat(int sec) =>
       "${(sec ~/ 60).toString().padLeft(2, '0')}:${(sec % 60).toString().padLeft(2, '0')}";
