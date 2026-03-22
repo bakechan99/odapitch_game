@@ -446,12 +446,16 @@ class _SetupScreenState extends State<SetupScreen> {
                     ),
                     const SizedBox(width: 20),
                     SizedBox(
-                      width: 100,
+                      width: 120,
                       child: Column(
                         children: [
                           Text(
-                            "AI採点/n (広告が流れます)",
-                            style: AppTextStyles.headingSection,
+                            "AI採点\n(広告が流れます)",
+                            textAlign: TextAlign.center,
+                            style: AppTextStyles.headingSection.copyWith(
+                              fontSize: 15,
+                              height: 1.2,
+                            ),
                           ),
                           const SizedBox(height: 8),
                           InkWell(
