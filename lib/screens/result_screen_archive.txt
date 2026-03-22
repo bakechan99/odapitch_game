@@ -25,15 +25,12 @@ class ResultScreen extends StatefulWidget {
   final GameSettings settings;
   final String odaiTheme;
   final String odaiId;
-  final bool isAiEnabled; // ← 追加
-
   const ResultScreen({
     super.key,
     required this.players,
     required this.settings,
     required this.odaiTheme,
     required this.odaiId,
-    this.isAiEnabled = false, // ← 追加
   });
 
   @override
@@ -53,7 +50,6 @@ class _ResultScreenState extends State<ResultScreen> {
       players: widget.players,
       presentationTimeSec: widget.settings.presentationTimeSec,
       qaTimeSec: widget.settings.qaTimeSec,
-      isAiEnabled: widget.isAiEnabled, // ← コントローラへ渡す
       titleScorer: (title) =>
           ApiService.getTitleScore(title, mode: widget.odaiId),
       onTimeUp: _playSound,
@@ -104,10 +100,11 @@ class _ResultScreenState extends State<ResultScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return ListenableBuilder(
-      listenable: _controller,
+    return AnimatedBuilder(
+      animation: _controller,
       builder: (context, _) {
         if (_controller.isFetchingAI) {
+          //if (true) {
           return Scaffold(
             appBar: CommonAppBar(
               title: "",
@@ -131,6 +128,7 @@ class _ResultScreenState extends State<ResultScreen> {
                           color: AppColors.themePrimaryDark,
                         ),
                       ),
+
                       SizedBox(width: 16),
                       Text(
                         'AI採点中...',
@@ -151,7 +149,7 @@ class _ResultScreenState extends State<ResultScreen> {
                           final double cardsWidth =
                               (count * 400) +
                               ((count > 0 ? count - 1 : 0) * 16);
-                          final double horizontalPadding = 32;
+                          final double horizontalPadding = 32; // 左右16ずつ
                           final double trailingSpace = 100;
                           final double contentWidth =
                               cardsWidth + horizontalPadding + trailingSpace;
