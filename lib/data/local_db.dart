@@ -36,7 +36,7 @@ class LocalDb {
 
     final db = await openDatabase(
       path,
-      version: 4,
+      version: 6,
       onCreate: (db, version) async {
         await db.execute(
           'CREATE TABLE player_names ('
@@ -59,6 +59,24 @@ class LocalDb {
           'value TEXT NOT NULL,'
           'expires_at INTEGER,'
           'updated_at INTEGER NOT NULL'
+          ')',
+        );
+
+        await db.execute(
+          'CREATE TABLE play_sessions ('
+          'id INTEGER PRIMARY KEY AUTOINCREMENT,'
+          'odai_theme TEXT NOT NULL,'
+          'created_at INTEGER NOT NULL'
+          ')',
+        );
+
+        await db.execute(
+          'CREATE TABLE game_history ('
+          'id INTEGER PRIMARY KEY AUTOINCREMENT,'
+          'session_id INTEGER NOT NULL,'
+          'player_name TEXT NOT NULL,'
+          'research_title TEXT NOT NULL,'
+          'ai_feedback TEXT NOT NULL'
           ')',
         );
 
@@ -153,6 +171,40 @@ class LocalDb {
             'key': _keySelectedOdaiPresetId,
             'value': defaultOdaiPresetId,
           }, conflictAlgorithm: ConflictAlgorithm.ignore);
+        }
+
+        if (oldVersion < 5) {
+          await db.execute(
+            'CREATE TABLE IF NOT EXISTS game_history ('
+            'id INTEGER PRIMARY KEY AUTOINCREMENT,'
+            'odai_theme TEXT NOT NULL,'
+            'player_name TEXT NOT NULL,'
+            'research_title TEXT NOT NULL,'
+            'ai_feedback TEXT NOT NULL,'
+            'created_at INTEGER NOT NULL'
+            ')',
+          );
+        }
+
+        if (oldVersion < 6) {
+          // 旧 game_history を削除し、新スキーマに移行（履歴はリセット）
+          await db.execute('DROP TABLE IF EXISTS game_history');
+          await db.execute(
+            'CREATE TABLE play_sessions ('
+            'id INTEGER PRIMARY KEY AUTOINCREMENT,'
+            'odai_theme TEXT NOT NULL,'
+            'created_at INTEGER NOT NULL'
+            ')',
+          );
+          await db.execute(
+            'CREATE TABLE game_history ('
+            'id INTEGER PRIMARY KEY AUTOINCREMENT,'
+            'session_id INTEGER NOT NULL,'
+            'player_name TEXT NOT NULL,'
+            'research_title TEXT NOT NULL,'
+            'ai_feedback TEXT NOT NULL'
+            ')',
+          );
         }
       },
     );
@@ -373,5 +425,97 @@ class LocalDb {
       where: 'expires_at IS NOT NULL AND expires_at <= ?',
       whereArgs: [now],
     );
+  }
+
+  // ── プレイ履歴 ──────────────────────────────────────────────
+
+  static const int _historyMaxCount = 10;
+
+  /// 1回のプレイ（セッション）分の履歴を保存する。
+  /// [players] は各プレイヤーの {'name', 'title', 'feedback'} マップのリスト。
+  /// セッション数が10を超えた場合は最古のセッションを自動削除（FIFO）。
+  Future<void> saveHistory({
+    required String odaiTheme,
+    required List<Map<String, String>> players,
+  }) async {
+    if (kIsWeb) return;
+
+    final db = await database;
+    final now = DateTime.now().millisecondsSinceEpoch;
+
+    await db.transaction((txn) async {
+      // セッション行を挿入
+      final sessionId = await txn.insert('play_sessions', {
+        'odai_theme': odaiTheme,
+        'created_at': now,
+      });
+
+      // プレイヤー行を挿入
+      for (final p in players) {
+        await txn.insert('game_history', {
+          'session_id': sessionId,
+          'player_name': p['name'] ?? '',
+          'research_title': p['title'] ?? '',
+          'ai_feedback': p['feedback'] ?? '',
+        });
+      }
+
+      // 10セッションを超えていたら最古のセッション（＋その子行）を削除
+      final countResult = await txn.rawQuery(
+        'SELECT COUNT(*) as cnt FROM play_sessions',
+      );
+      final int count = (countResult.first['cnt'] as int?) ?? 0;
+      if (count > _historyMaxCount) {
+        final oldest = await txn.query(
+          'play_sessions',
+          columns: ['id'],
+          orderBy: 'created_at ASC',
+          limit: count - _historyMaxCount,
+        );
+        for (final row in oldest) {
+          final sid = row['id'] as int;
+          await txn.delete(
+            'game_history',
+            where: 'session_id = ?',
+            whereArgs: [sid],
+          );
+          await txn.delete(
+            'play_sessions',
+            where: 'id = ?',
+            whereArgs: [sid],
+          );
+        }
+      }
+    });
+  }
+
+  /// 保存済みセッション履歴を新しい順で返す（最大10件）。
+  /// 各エントリは {'session_id', 'odai_theme', 'created_at', 'players': List} の形式。
+  Future<List<Map<String, dynamic>>> loadHistory() async {
+    if (kIsWeb) return [];
+
+    final db = await database;
+    final sessions = await db.query(
+      'play_sessions',
+      orderBy: 'created_at DESC',
+      limit: _historyMaxCount,
+    );
+
+    final List<Map<String, dynamic>> result = [];
+    for (final session in sessions) {
+      final sessionId = session['id'] as int;
+      final players = await db.query(
+        'game_history',
+        where: 'session_id = ?',
+        whereArgs: [sessionId],
+      );
+      result.add({
+        'session_id': sessionId,
+        'odai_theme': session['odai_theme'] as String,
+        'created_at': session['created_at'] as int,
+        'players': players,
+      });
+    }
+    return result;
   }
 }

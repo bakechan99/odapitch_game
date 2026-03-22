@@ -20,6 +20,7 @@ import '../services/api_service.dart';
 import '../models/card_data.dart';
 //import '../models/placed_card.dart';
 import '../widgets/custom_banner_ad.dart';
+import '../data/local_db.dart';
 
 class ResultScreen extends StatefulWidget {
   final List<Player> players;
@@ -46,6 +47,7 @@ class _ResultScreenState extends State<ResultScreen> {
 
   final AudioPlayer _audioPlayer = AudioPlayer();
   final ScrollController _aiHorizontalScrollController = ScrollController();
+  bool _historySaved = false;
 
   @override
   void initState() {
@@ -59,10 +61,38 @@ class _ResultScreenState extends State<ResultScreen> {
           ApiService.getTitleScore(title, mode: widget.odaiId),
       onTimeUp: _playSound,
     );
+    _controller.addListener(_onControllerChanged);
+  }
+
+  void _onControllerChanged() {
+    if (_controller.currentPhase == ScreenPhase.result && !_historySaved) {
+      _historySaved = true;
+      _saveHistory();
+    }
+  }
+
+  Future<void> _saveHistory() async {
+    final players = List.generate(widget.players.length, (i) {
+      final player = widget.players[i];
+      final aiData = _controller.aiResults[i];
+      final feedback = aiData != null
+          ? (aiData['feedback'] ?? AppTexts.aiNoFeedback).toString()
+          : AppTexts.aiNoFeedback;
+      return {
+        'name': player.name,
+        'title': player.researchTitle,
+        'feedback': feedback,
+      };
+    });
+    await LocalDb.instance.saveHistory(
+      odaiTheme: widget.odaiTheme,
+      players: players,
+    );
   }
 
   @override
   void dispose() {
+    _controller.removeListener(_onControllerChanged);
     _controller.dispose();
     _audioPlayer.dispose();
     _aiHorizontalScrollController.dispose();
@@ -172,7 +202,9 @@ class _ResultScreenState extends State<ResultScreen> {
                               interactive: true,
                               child: SingleChildScrollView(
                                 controller: _aiHorizontalScrollController,
-                                physics: const AlwaysScrollableScrollPhysics(),
+                                physics: const AlwaysScrollableScrollPhysics(
+                                  parent: ClampingScrollPhysics(),
+                                ),
                                 scrollDirection: Axis.horizontal,
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 16,

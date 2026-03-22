@@ -96,6 +96,7 @@ class VotingScreen extends StatelessWidget {
           // --- 投票カード一覧 + 確定ボタン ---
           Expanded(
             child: ListView.builder(
+              physics: const ClampingScrollPhysics(),
               padding: const EdgeInsets.only(top: 8, bottom: 8),
               itemCount: players.length + 1,
               itemBuilder: (context, index) {

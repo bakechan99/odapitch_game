@@ -325,7 +325,7 @@ class _SetupScreenState extends State<SetupScreen> {
             ),
           ),
           SingleChildScrollView(
-            // 画面からはみ出ないようにスクロール可能に
+            physics: const ClampingScrollPhysics(),
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: [
