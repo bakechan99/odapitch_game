@@ -1,4 +1,3 @@
-import 'package:audioplayers/audioplayers.dart'; // 音楽用
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'setup_screen.dart'; // 「新規ゲーム」を押した後の行き先
@@ -8,6 +7,7 @@ import 'settings_screen.dart';
 import '../constants/texts.dart'; // 追加: 定数テキストのインポート
 import '../widgets/title_button.dart'; // 追加: カスタムボタンのインポート
 import '../constants/app_colors.dart';
+import '../widgets/custom_banner_ad.dart';
   
 
 class TitleScreen extends StatefulWidget {
@@ -18,52 +18,73 @@ class TitleScreen extends StatefulWidget {
 }
 
 class _TitleScreenState extends State<TitleScreen> {
-  // 音楽プレイヤーの作成
-  final AudioPlayer _audioPlayer = AudioPlayer();
-  static final Uri _termsUri = Uri.parse('https://example.com/terms');
-
-  @override
-  void initState() {
-    super.initState();
-    _playBGM();
-  }
-
-  // BGMを再生する関数
-  void _playBGM() async {
-    // ※ assets/audio/title_bgm.mp3 がある場合のみ再生されます
-    // ループ再生の設定
-    await _audioPlayer.setReleaseMode(ReleaseMode.loop);
-    // 再生開始 (ファイルがないとエラーになるのでtry-catchしています)
-    try {
-      await _audioPlayer.play(AssetSource('audio/title_bgm.mp3'));
-    } catch (e) {
-      debugPrint("BGMファイルが見つかりません: $e");
-    }
-  }
-
-  // 画面が閉じるとき（ゲーム開始時など）に音楽を止める
-  @override
-  void dispose() {
-    _audioPlayer.stop();
-    _audioPlayer.dispose();
-    super.dispose();
-  }
-
-  Future<void> _openTerms() async {
-    final launched = await launchUrl(_termsUri, mode: LaunchMode.externalApplication);
+  Future<void> _openUrl(String url) async {
+    final uri = Uri.parse(url);
+    final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
     if (!launched && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('利用規約ページを開けませんでした')),
+        const SnackBar(content: Text('URLを開けませんでした')),
       );
     }
+  }
+
+  /// 利用規約・プライバシーポリシーの両リンクをボトムシートで表示する。
+  void _showLegalMenu() {
+    showModalBottomSheet<void>(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (sheetContext) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              child: Text(
+                AppTexts.legalMenuTitle,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            const Divider(height: 1),
+            ListTile(
+              leading: const Icon(Icons.article_outlined),
+              title: const Text(AppTexts.goTerms),
+              trailing: const Icon(Icons.open_in_new, size: 18),
+              onTap: () {
+                Navigator.pop(sheetContext);
+                _openUrl(AppTexts.termsUrl);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.policy_outlined),
+              title: const Text(AppTexts.goPrivacyPolicy),
+              trailing: const Icon(Icons.open_in_new, size: 18),
+              onTap: () {
+                Navigator.pop(sheetContext);
+                _openUrl(AppTexts.privacyPolicyUrl);
+              },
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          return Column(
+      body: Stack(
+        children: [
+          SafeArea(
+            top: false,
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return Column(
             children: [
               Expanded(
                 flex: 6,
@@ -112,11 +133,11 @@ class _TitleScreenState extends State<TitleScreen> {
                         child: Row(
                           children: [
                             IconButton(
-                              icon: const Icon(Icons.error_outline_outlined),
+                              icon: const Icon(Icons.policy_outlined),
                               iconSize: 48,
                               color: AppColors.textOnDark,
-                              tooltip: AppTexts.goTerms,
-                              onPressed: _openTerms,
+                              tooltip: AppTexts.legalMenuTitle,
+                              onPressed: _showLegalMenu,
                             ),
                             IconButton(
                               icon: const Icon(Icons.settings),
@@ -192,8 +213,12 @@ class _TitleScreenState extends State<TitleScreen> {
                 ),
               ),
             ],
-          );
-        },
+                );
+              },
+            ),
+          ),
+          const CustomBannerAd(),
+        ],
       ),
     );
   }

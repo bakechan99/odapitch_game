@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../constants/app_colors.dart';
 import '../constants/texts.dart';
 import '../widgets/passing_style_card.dart';
+import '../widgets/custom_banner_ad.dart';
 
 class PassingConfirmScreen extends StatelessWidget {
   final String title;
@@ -29,6 +30,7 @@ class PassingConfirmScreen extends StatelessWidget {
               onSecondaryPressed: () => Navigator.of(context).pop(false),
             ),
           ),
+          const CustomBannerAd(),
         ],
       ),
     );

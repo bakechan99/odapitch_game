@@ -18,6 +18,7 @@ import '../widgets/setting_stepper_control.dart';
 import '../widgets/time_setting_control.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_text_styles.dart';
+import '../services/reward_ad_manager.dart'; // 追加
 
 /// Setup UI for player names and time settings before starting a game.
 class SetupScreen extends StatefulWidget {
@@ -39,11 +40,14 @@ class _SetupScreenState extends State<SetupScreen> {
   String _selectedOdaiPresetId = LocalDb.defaultOdaiPresetId;
   bool _isAiEnabled = false;
   late final SetupController _setupController;
+  late final RewardAdManager _rewardAdManager; // 追加
 
   @override
   void initState() {
     super.initState();
     _setupController = SetupController(SetupRepositoryImpl());
+    _rewardAdManager = RewardAdManager(); // インスタンス化
+    _rewardAdManager.loadAd(); // 広告のプリロード
     _loadInitialData();
   }
 
@@ -224,6 +228,7 @@ class _SetupScreenState extends State<SetupScreen> {
 
   // --- ゲーム開始 ---
   Future<void> _startGame() async {
+    // 1. 設定の保存処理（既存通り）
     await _setupController.saveSetup(
       playerNames: _controllers.map((controller) => controller.text).toList(),
       settings: GameSettings(
@@ -235,6 +240,7 @@ class _SetupScreenState extends State<SetupScreen> {
       selectedOdaiPresetId: _selectedOdaiPresetId,
     );
 
+    // 2. データの準備（既存通り）
     final presetPath = await _resolveSelectedPresetPath();
     final String response = await rootBundle.loadString(presetPath);
     final List<dynamic> data = json.decode(response);
@@ -250,28 +256,39 @@ class _SetupScreenState extends State<SetupScreen> {
       players.add(p);
     }
 
-    if (!mounted) return;
+    final odaiTheme = await _resolveSelectedOdaiTheme();
 
-    // 設定をまとめて次の画面へ渡す
-    GameSettings settings = GameSettings(
-      presentationTimeSec: presentationTime,
-      qaTimeSec: qaTime,
-      playerCount: playerCount,
-    );
-
-    final selectedOdai = await _resolveSelectedOdaiTheme();
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => GameLoopScreen(
-          players: players,
-          settings: settings,
-          odaiTheme: selectedOdai,
-          odaiId: _selectedOdaiPresetId,
+    // 3. AI設定に応じた遷移ロジック
+    void navigateNext() {
+      if (!mounted) return;
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => GameLoopScreen(
+            players: players,
+            settings: GameSettings(
+              presentationTimeSec: presentationTime,
+              qaTimeSec: qaTime,
+              playerCount: playerCount,
+            ),
+            odaiTheme: odaiTheme,
+            odaiId: _selectedOdaiPresetId,
+            isAiEnabled: _isAiEnabled, // ← 修正：新規引数を渡す
+          ),
         ),
-      ),
-    );
+      );
+    }
+
+    if (_isAiEnabled) {
+      // AIがONなら広告表示
+      _rewardAdManager.showAd(
+        onRewardEarned: navigateNext, // 視聴完了時
+        onAdClosed: navigateNext, // 閉じられた時、またはエラー時（フォールバック）
+      );
+    } else {
+      // AIがOFFならそのまま遷移
+      navigateNext();
+    }
   }
 
   // タイトルへ戻る確認ダイアログ
@@ -308,7 +325,7 @@ class _SetupScreenState extends State<SetupScreen> {
             ),
           ),
           SingleChildScrollView(
-            // 画面からはみ出ないようにスクロール可能に
+            physics: const ClampingScrollPhysics(),
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: [
@@ -429,10 +446,17 @@ class _SetupScreenState extends State<SetupScreen> {
                     ),
                     const SizedBox(width: 20),
                     SizedBox(
-                      width: 100,
+                      width: 120,
                       child: Column(
                         children: [
-                          Text("AI使用", style: AppTextStyles.headingSection),
+                          Text(
+                            "AI採点\n(広告が流れます)",
+                            textAlign: TextAlign.center,
+                            style: AppTextStyles.headingSection.copyWith(
+                              fontSize: 15,
+                              height: 1.2,
+                            ),
+                          ),
                           const SizedBox(height: 8),
                           InkWell(
                             borderRadius: BorderRadius.circular(999),

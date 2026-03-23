@@ -14,18 +14,22 @@ import '../widgets/placed_card_widget.dart';
 import '../widgets/hand_card_widget.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_text_styles.dart';
+import '../widgets/custom_banner_ad.dart';
 
 class GameLoopScreen extends StatefulWidget {
   final List<Player> players;
-  final GameSettings settings; // 設定を受け取る
+  final GameSettings settings;
   final String odaiTheme;
   final String odaiId;
+  final bool isAiEnabled; // 追加
+
   const GameLoopScreen({
     super.key,
     required this.players,
     required this.settings,
     required this.odaiTheme,
     required this.odaiId,
+    this.isAiEnabled = false, // デフォルト値を設定
   });
 
   @override
@@ -62,19 +66,24 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
           });
         } else {
           // 全員終了 -> 結果発表画面へ（設定も渡す）
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ResultScreen(
-                players: widget.players,
-                settings: widget.settings,
-                odaiTheme: widget.odaiTheme,
-                odaiId: widget.odaiId,
-              ),
-            ),
-          );
+          _finishGame();
         }
       },
+    );
+  }
+
+  void _finishGame() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ResultScreen(
+          players: widget.players,
+          settings: widget.settings,
+          odaiTheme: widget.odaiTheme,
+          odaiId: widget.odaiId,
+          isAiEnabled: widget.isAiEnabled, // ← 修正：フラグを引き継ぐ
+        ),
+      ),
     );
   }
 
@@ -141,6 +150,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
               ),
             ),
           ),
+          const CustomBannerAd(),
         ],
       ),
     );
@@ -208,7 +218,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                             interactive: true,
                             child: SingleChildScrollView(
                               controller: _fieldScrollController,
-                              physics: const AlwaysScrollableScrollPhysics(),
+                              physics: const ClampingScrollPhysics(),
                               scrollDirection: Axis.horizontal,
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 16,
@@ -261,79 +271,105 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                 return Container(
                   width: double.infinity,
                   decoration: BoxDecoration(color: AppColors.surfaceTheme),
-                  child: Column(
-                    children: [
-                      // 手札エリアのヘッダー
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                        child: const Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            AppTexts.hands,
-                            style: AppTextStyles.headingSection,
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      return SingleChildScrollView(
+                        physics: const ClampingScrollPhysics(),
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            minHeight: constraints.maxHeight,
                           ),
-                        ),
-                      ), // 区切り線
-                      // 手札を固定 2x3 で表示
-                      Expanded(
-                        child: Center(
-                          child: SizedBox(
-                            width: 324,
-                            height: 272,
-                            child: Column(
-                              children: [
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    _buildHandGridSlot(player, 0),
-                                    _buildHandGridSlot(player, 1),
-                                    _buildHandGridSlot(player, 2),
-                                  ],
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              // 手札エリアのヘッダー
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 8,
                                 ),
-                                const SizedBox(height: 12),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    _buildHandGridSlot(player, 3),
-                                    _buildHandGridSlot(player, 4),
-                                    _buildHandGridSlot(player, 5),
-                                  ],
+                                child: const Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    AppTexts.hands,
+                                    style: AppTextStyles.headingSection,
+                                  ),
                                 ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                        child: Center(
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.surfaceMuted,
-                              foregroundColor: AppColors.textPrimary,
-                              shadowColor: AppColors.shadowBase,
-                              elevation: 5,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 60,
-                                vertical: 15,
                               ),
-                            ),
-                            onPressed: player.selectedCards.isEmpty
-                                ? null
-                                : _nextPlayer,
-                            child: const Text(
-                              AppTexts.decideButton,
-                              style: AppTextStyles.buttonPrimaryBold,
-                            ),
+                              // 手札を固定 2x3 で表示（高さを制限してコンパクトに）
+                              Center(
+                                child: SizedBox(
+                                  width: 324,
+                                  height: 240,
+                                  child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    alignment: Alignment.center,
+                                    child: SizedBox(
+                                      width: 324,
+                                      child: Column(
+                                        children: [
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              _buildHandGridSlot(player, 0),
+                                              _buildHandGridSlot(player, 1),
+                                              _buildHandGridSlot(player, 2),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 12),
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              _buildHandGridSlot(player, 3),
+                                              _buildHandGridSlot(player, 4),
+                                              _buildHandGridSlot(player, 5),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(
+                                  16,
+                                  8,
+                                  16,
+                                  0,
+                                ),
+                                child: Center(
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: AppColors.surfaceMuted,
+                                      foregroundColor: AppColors.textPrimary,
+                                      shadowColor: AppColors.shadowBase,
+                                      elevation: 5,
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 60,
+                                        vertical: 15,
+                                      ),
+                                    ),
+                                    onPressed: player.selectedCards.isEmpty
+                                        ? null
+                                        : _nextPlayer,
+                                    child: const Text(
+                                      AppTexts.decideButton,
+                                      style: AppTextStyles.buttonPrimaryBold,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              // ボタン下の余白：コンテンツを中央寄せしたとき上に引き上げる効果 + ホームインジケーター対策
+                              const SizedBox(height: 100),
+                            ],
                           ),
                         ),
-                      ),
-                    ],
+                      );
+                    },
                   ),
                 );
               },

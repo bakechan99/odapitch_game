@@ -12,14 +12,14 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  static const String _keyBgmEnabled = 'bgm_enabled';
+  // static const String _keyBgmEnabled = 'bgm_enabled'; // BGM未使用
   static const String _keySeEnabled = 'se_enabled';
-  static const String _keyBgmVolume = 'bgm_volume';
+  // static const String _keyBgmVolume = 'bgm_volume';   // BGM未使用
   static const String _keySeVolume = 'se_volume';
 
-  bool _bgmEnabled = true;
+  // bool _bgmEnabled = true; // BGM未使用
   bool _seEnabled = true;
-  double _bgmVolume = 0.8;
+  // double _bgmVolume = 0.8; // BGM未使用
   double _seVolume = 0.8;
   bool _isLoading = true;
 
@@ -30,17 +30,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Future<void> _loadSettings() async {
-    final bgmEnabled = await LocalDb.instance.loadAppSetting(_keyBgmEnabled);
+    // final bgmEnabled = await LocalDb.instance.loadAppSetting(_keyBgmEnabled); // BGM未使用
     final seEnabled = await LocalDb.instance.loadAppSetting(_keySeEnabled);
-    final bgmVolume = await LocalDb.instance.loadAppSetting(_keyBgmVolume);
+    // final bgmVolume = await LocalDb.instance.loadAppSetting(_keyBgmVolume);   // BGM未使用
     final seVolume = await LocalDb.instance.loadAppSetting(_keySeVolume);
 
     if (!mounted) return;
 
     setState(() {
-      _bgmEnabled = (bgmEnabled ?? '1') == '1';
+      // _bgmEnabled = (bgmEnabled ?? '1') == '1'; // BGM未使用
       _seEnabled = (seEnabled ?? '1') == '1';
-      _bgmVolume = double.tryParse(bgmVolume ?? '') ?? 0.8;
+      // _bgmVolume = double.tryParse(bgmVolume ?? '') ?? 0.8; // BGM未使用
       _seVolume = double.tryParse(seVolume ?? '') ?? 0.8;
       _isLoading = false;
     });
@@ -82,14 +82,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     const SizedBox(height: 12),
                     SwitchListTile(
-                      title: const Text(AppTexts.settingsBgmEnabled),
-                      value: _bgmEnabled,
-                      onChanged: (value) async {
-                        setState(() => _bgmEnabled = value);
-                        await _saveBool(_keyBgmEnabled, value);
-                      },
-                    ),
-                    SwitchListTile(
                       title: const Text(AppTexts.settingsSeEnabled),
                       value: _seEnabled,
                       onChanged: (value) async {
@@ -98,25 +90,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       },
                     ),
                     const SizedBox(height: 20),
-                    Text(
-                      '${AppTexts.settingsBgmVolume} (${(_bgmVolume * 100).round()}%)', 
-                      style: AppTextStyles.labelField.copyWith(
-                        fontSize: 30,
-                        )
-                      ),
-                    Slider(
-                      value: _bgmVolume,
-                      min: 0,
-                      max: 1,
-                      divisions: 20,
-                      onChanged: (value) {
-                        setState(() => _bgmVolume = value);
-                      },
-                      onChangeEnd: (value) async {
-                        await _saveDouble(_keyBgmVolume, value);
-                      },
-                    ),
-                    const SizedBox(height: 30),
                     Text(
                       '${AppTexts.settingsSeVolume} (${(_seVolume * 100).round()}%)', 
                       style: AppTextStyles.labelField.copyWith(

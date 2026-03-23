@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_text_styles.dart';
 import '../constants/texts.dart';
+import '../widgets/custom_banner_ad.dart';
 
 class ResearchTitleConfirmScreen extends StatelessWidget {
   final String content;
@@ -93,6 +94,7 @@ class ResearchTitleConfirmScreen extends StatelessWidget {
               ),
             ),
           ),
+          const CustomBannerAd(),
         ],
       ),
     );

@@ -82,6 +82,7 @@ class ResultView extends StatelessWidget {
         children: [
           Expanded(
             child: ListView.builder(
+              physics: const ClampingScrollPhysics(),
               itemCount: results.length + 1, // +1 はヘッダー（画像＋テーマ）分
               padding: EdgeInsets.zero, // 画像をフルwidthにするためpadding無し
               itemBuilder: (context, index) {
@@ -370,22 +371,24 @@ class ResultView extends StatelessWidget {
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
-              child: SizedBox(
-                width: 300,
-                height: 60,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.all(15),
-                    backgroundColor: AppColors.themePrimaryLight,
-                    shadowColor: AppColors.shadowBase,
-                    elevation: 10,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 32,
+                    vertical: 14,
                   ),
-                  onPressed: onHomePressed,
+                  backgroundColor: AppColors.themePrimaryLight,
+                  shadowColor: AppColors.shadowBase,
+                  elevation: 10,
+                ),
+                onPressed: onHomePressed,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
                   child: Text(
-                    AppTexts.backToTitle, 
+                    AppTexts.backToTitle,
                     style: AppTextStyles.headingPrimaryLarge.copyWith(
                       fontSize: 28,
-                    )
+                    ),
                   ),
                 ),
               ),

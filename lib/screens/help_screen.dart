@@ -29,6 +29,7 @@ class HelpScreen extends StatelessWidget {
       body: Scrollbar(
         thumbVisibility: true,
         child: SingleChildScrollView(
+          physics: const ClampingScrollPhysics(),
           padding: const EdgeInsets.all(16),
           child: Container(
             decoration: BoxDecoration(
