@@ -2,7 +2,7 @@ class AppTexts {
   // --- Static Constants (固定の文字列) ---
 
   // Common
-  static const String appTitle = "カケンヒゲーム";
+  static const String appTitle = "オダピチ";
   static const String cancel = "戻る";
   static const String ok = "OK";
   static const String san = "さん";
