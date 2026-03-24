@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import '../models/player.dart';
 import '../models/game_settings.dart';
@@ -177,21 +178,17 @@ class PresentationScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        // 吹き出し上部
+                        // 吹き出し上部の余白
                         const SizedBox(height: 88),
-                        Text(
-                          AppTexts.presentationTitle(player.name),
-                          style: AppTextStyles.headingSection.copyWith(
-                            fontWeight: FontWeight.w200,
-                          ),
-                        ),
-                        // タイトルを残りスペースの中央に
+                        // タイトルを吹き出しコンテナ内の中央に配置
                         Expanded(
                           child: Center(
-                            child: Text(
+                            child: AutoSizeText(
                               player.researchTitle,
                               textAlign: TextAlign.center,
                               style: AppTextStyles.valueDisplayLarge,
+                              maxLines: 3,
+                              minFontSize: 12,
                             ),
                           ),
                         ),

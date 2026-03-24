@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'setup_screen.dart'; // 「新規ゲーム」を押した後の行き先
 import 'help_screen.dart';
@@ -30,17 +31,21 @@ class _TitleScreenState extends State<TitleScreen> {
 
   /// クレジットダイアログを表示する。
   void _showCreditDialog() {
-    showAboutDialog(
+    showDialog<void>(
       context: context,
-      applicationName: AppTexts.appTitle,
-      applicationVersion: AppTexts.appVersion,
-      children: [
-        const SizedBox(height: 12),
-        const Text(
+      builder: (context) => AlertDialog(
+        title: Text('${AppTexts.appTitle} ${AppTexts.appVersion}'),
+        content: const Text(
           AppTexts.creditBody,
           style: TextStyle(fontSize: 13, height: 1.6),
         ),
-      ],
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('閉じる'),
+          ),
+        ],
+      ),
     );
   }
 
@@ -101,8 +106,8 @@ class _TitleScreenState extends State<TitleScreen> {
             top: 0,
             left: 0,
             right: 0,
-            child: Image.asset(
-              'assets/images/GND_title_up.png',
+            child: SvgPicture.asset(
+              'assets/images/GND_title_up.svg',
               fit: BoxFit.fitWidth,
               alignment: Alignment.topCenter,
             ),
@@ -112,8 +117,8 @@ class _TitleScreenState extends State<TitleScreen> {
             bottom: 0,
             left: 0,
             right: 0,
-            child: Image.asset(
-              'assets/images/GND_title_down.png',
+            child: SvgPicture.asset(
+              'assets/images/GND_title_down.svg',
               fit: BoxFit.fitWidth,
               alignment: Alignment.bottomCenter,
             ),

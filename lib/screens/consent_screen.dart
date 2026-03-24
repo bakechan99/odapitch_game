@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_text_styles.dart';
@@ -39,8 +40,8 @@ class ConsentScreen extends StatelessWidget {
             top: 0,
             left: 0,
             right: 0,
-            child: Image.asset(
-              'assets/images/GND_title_up.png',
+            child: SvgPicture.asset(
+              'assets/images/GND_title_up.svg',
               fit: BoxFit.fitWidth,
               alignment: Alignment.topCenter,
             ),
