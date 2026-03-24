@@ -25,12 +25,17 @@ class AppTexts {
   // 同意画面
   static const String consentDescription =
       'ゲームを開始する前に、以下の書類をご確認ください。\n'
-      '「同意してはじめる」を押すと、利用規約および\nプライバシーポリシーに同意したものとみなします。';
+      '「同意してはじめる」を押すと、利用規約およびプライバシーポリシーに同意したものとみなします。';
   static const String consentAgreeButton = '同意してはじめる';
 
   // Title Screen
   static const String gameTitle = "オダピチ";
   static const String newGameButton = "はじめる";
+  static const String creditMenuTitle = "クレジット";
+  static const String appVersion = "1.0.0";
+  static const String creditBody =
+      '※本アプリのアイデアは、北大CoSTEPが開発した'
+      '「カケンヒカードゲーム」を参照しています。';
 
   // Setup Screen
   static const String setupTitle = "設定";

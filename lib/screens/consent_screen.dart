@@ -34,12 +34,15 @@ class ConsentScreen extends StatelessWidget {
     return Scaffold(
       body: Stack(
         children: [
-          // 背景画像
-          Positioned.fill(
+          // 背景画像：横幅に合わせて自然に縮尺
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
             child: Image.asset(
               'assets/images/GND_title_up.png',
-              fit: BoxFit.cover,
-              alignment: Alignment.bottomCenter,
+              fit: BoxFit.fitWidth,
+              alignment: Alignment.topCenter,
             ),
           ),
           // コンテンツ
@@ -76,7 +79,7 @@ class ConsentScreen extends StatelessWidget {
                         // 説明文
                         Text(
                           AppTexts.consentDescription,
-                          textAlign: TextAlign.center,
+                          textAlign: TextAlign.justify,
                           style: AppTextStyles.bodyMuted.copyWith(
                             height: 1.6,
                           ),

@@ -187,7 +187,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                   width: double.infinity,
                   color: AppColors.surfaceMuted, // 背景色
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       // ヘッダーテキスト
                       Padding(
@@ -197,6 +197,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                           style: AppTextStyles.headingSection.copyWith(
                             fontSize: 14,
                           ),
+                          textAlign: TextAlign.center,
                         ),
                       ),
                       Padding(
@@ -204,6 +205,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                         child: Text(
                           AppTexts.odaitheme(widget.odaiTheme),
                           style: AppTextStyles.themeTitlelarge,
+                          textAlign: TextAlign.center,
                         ),
                       ),
 
@@ -239,6 +241,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                                       child: Text(
                                         AppTexts.handEmpty,
                                         style: AppTextStyles.bodyPlaceholder,
+                                        textAlign: TextAlign.center,
                                       ),
                                     ),
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 import '../models/player.dart';
 import '../models/card_data.dart';
 import '../models/placed_card.dart';
@@ -196,14 +197,15 @@ class ResultView extends StatelessWidget {
                         ),
                         const SizedBox(height: 12),
                         Center(
-                          child: Text(
-                            player.researchTitle, 
+                          child: AutoSizeText(
+                            player.researchTitle,
                             textAlign: TextAlign.center,
                             style: AppTextStyles.headingPrimaryLarge.copyWith(
                               fontSize: 24,
                             ),
-                            maxLines: 1, 
-                            overflow: TextOverflow.ellipsis
+                            maxLines: 3,
+                            minFontSize: 10,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                         const SizedBox(height: 15),
