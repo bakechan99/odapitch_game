@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart'; // SystemChrome用
 import 'package:flutter/foundation.dart'; // kIsWeb用
 import 'dart:io'; // Platform用
 import 'package:sqflite_common_ffi/sqflite_ffi.dart'; // FFI初期化用
@@ -13,6 +14,9 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // 必須
+
+  // ステータスバーを非表示（スクショ用）
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
 
   // ▼ ここから：追加するFFIの初期化コード ▼
   if (!kIsWeb && (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
@@ -49,6 +53,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         fontFamily: 'Roboto',
       ),
+      debugShowCheckedModeBanner: false,
       home: const _ConsentGate(),
     );
   }
