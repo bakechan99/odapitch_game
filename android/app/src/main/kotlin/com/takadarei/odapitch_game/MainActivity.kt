@@ -1,4 +1,4 @@
-package com.example.kakenhi_game
+package com.takadarei.odapitch_game
 
 import io.flutter.embedding.android.FlutterActivity
 

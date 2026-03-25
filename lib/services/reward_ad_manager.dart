@@ -6,10 +6,9 @@ class RewardAdManager {
   RewardedAd? _rewardedAd;
   bool _isLoaded = false;
 
-  // Google 公式テスト用広告ユニットID
   final String _adUnitId = Platform.isAndroid
-      ? 'ca-app-pub-3940256099942544/5224354917'
-      : 'ca-app-pub-3940256099942544/1712485313';
+      ? 'ca-app-pub-1863882102807550/7453415032'
+      : 'ca-app-pub-1863882102807550/5421180469';
 
   bool get isLoaded => _isLoaded;
 
@@ -23,7 +22,7 @@ class RewardAdManager {
           debugPrint('RewardedAd loaded.');
           _rewardedAd = ad;
           _isLoaded = true;
-          
+
           // フルスクリーンコンテンツのコールバックを設定
           _rewardedAd!.fullScreenContentCallback = FullScreenContentCallback(
             onAdDismissedFullScreenContent: (ad) {
