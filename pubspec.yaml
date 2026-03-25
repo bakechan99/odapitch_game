@@ -58,6 +58,7 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
   flutter_launcher_icons: ^0.14.4
+  flutter_native_splash: ^2.4.6
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -112,4 +113,11 @@ flutter_launcher_icons:
   android: true
   ios: true
   image_path: "assets/odapitch_icon.png"
-  remove_alpha_ios: true 
+  remove_alpha_ios: true
+
+flutter_native_splash:
+  color: "#96E0EA"
+  image: assets/splash.png
+  android_12:
+    color: "#96E0EA"
+    image: assets/splash.png
