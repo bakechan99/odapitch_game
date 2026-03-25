@@ -3,6 +3,8 @@ PODS:
     - Flutter
     - FlutterMacOS
   - Flutter (1.0.0)
+  - flutter_native_splash (2.4.3):
+    - Flutter
   - Google-Mobile-Ads-SDK (12.14.0):
     - GoogleUserMessagingPlatform (>= 1.1)
   - google_mobile_ads (7.0.0):
@@ -28,6 +30,7 @@ PODS:
 DEPENDENCIES:
   - audioplayers_darwin (from `.symlinks/plugins/audioplayers_darwin/darwin`)
   - Flutter (from `Flutter`)
+  - flutter_native_splash (from `.symlinks/plugins/flutter_native_splash/ios`)
   - google_mobile_ads (from `.symlinks/plugins/google_mobile_ads/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
@@ -45,6 +48,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/audioplayers_darwin/darwin"
   Flutter:
     :path: Flutter
+  flutter_native_splash:
+    :path: ".symlinks/plugins/flutter_native_splash/ios"
   google_mobile_ads:
     :path: ".symlinks/plugins/google_mobile_ads/ios"
   path_provider_foundation:
@@ -61,6 +66,7 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   audioplayers_darwin: 835ced6edd4c9fc8ebb0a7cc9e294a91d99917d5
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
+  flutter_native_splash: c32d145d68aeda5502d5f543ee38c192065986cf
   Google-Mobile-Ads-SDK: 4534fd2dfcd3f705c5485a6633c5188d03d4eed2
   google_mobile_ads: df3008bafbe1f2ad6862f87334e560d2f047f902
   GoogleUserMessagingPlatform: befe603da6501006420c206222acd449bba45a9c
