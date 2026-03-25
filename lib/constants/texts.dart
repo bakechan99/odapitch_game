@@ -9,7 +9,7 @@ class AppTexts {
   static const String checkPop = "確認";
   static const String cautionBackHome = "タイトル画面に戻りますか？\n\n現在のデータは失われます。";
   static const String goHome = "ホームへ";
-  static const String goHelp = "せつめい";
+  static const String goHelp = "あそびかた";
   static const String goHistory = "りれき";
   static const String goSettings = "設定へ";
   static const String goTerms = "利用規約";
@@ -25,12 +25,17 @@ class AppTexts {
   // 同意画面
   static const String consentDescription =
       'ゲームを開始する前に、以下の書類をご確認ください。\n'
-      '「同意してはじめる」を押すと、利用規約および\nプライバシーポリシーに同意したものとみなします。';
+      '「同意してはじめる」を押すと、利用規約およびプライバシーポリシーに同意したものとみなします。';
   static const String consentAgreeButton = '同意してはじめる';
 
   // Title Screen
   static const String gameTitle = "オダピチ";
   static const String newGameButton = "はじめる";
+  static const String creditMenuTitle = "クレジット";
+  static const String appVersion = "1.0.0";
+  static const String creditBody =
+      '※本アプリのアイデアは、北大CoSTEPが開発した'
+      '「カケンヒカードゲーム」を参照しています。';
 
   // Setup Screen
   static const String setupTitle = "設定";
@@ -86,7 +91,8 @@ class AppTexts {
   static const String resultTitle = "結果発表";
   static const String backToTitle = "タイトルへ戻る";
   static const String nextPresenter = "発表の番です";
-  static const String nextVoter = "投票の番です";
+  static const String nextVoter = "投票の順番です";
+  static const String voteBudget = "資金を割り振ってください";
   static const String presentationStartTitle = "プレゼンを開始します";
   static const String voteConfirmTitle = "投票確認";
   static const String voteSelectionTitle = "最も予算を与えたい研究を選んでください";

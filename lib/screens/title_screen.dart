@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'setup_screen.dart'; // 「新規ゲーム」を押した後の行き先
 import 'help_screen.dart';
@@ -26,6 +27,26 @@ class _TitleScreenState extends State<TitleScreen> {
         const SnackBar(content: Text('URLを開けませんでした')),
       );
     }
+  }
+
+  /// クレジットダイアログを表示する。
+  void _showCreditDialog() {
+    showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('${AppTexts.appTitle} ${AppTexts.appVersion}'),
+        content: const Text(
+          AppTexts.creditBody,
+          style: TextStyle(fontSize: 13, height: 1.6),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('閉じる'),
+          ),
+        ],
+      ),
+    );
   }
 
   /// 利用規約・プライバシーポリシーの両リンクをボトムシートで表示する。
@@ -80,6 +101,28 @@ class _TitleScreenState extends State<TitleScreen> {
     return Scaffold(
       body: Stack(
         children: [
+          // 背景上：画面上部から横幅に合わせて自然に配置
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: SvgPicture.asset(
+              'assets/images/GND_title_up.svg',
+              fit: BoxFit.fitWidth,
+              alignment: Alignment.topCenter,
+            ),
+          ),
+          // 背景下：画面下部から横幅に合わせて自然に配置
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: SvgPicture.asset(
+              'assets/images/GND_title_down.svg',
+              fit: BoxFit.fitWidth,
+              alignment: Alignment.bottomCenter,
+            ),
+          ),
           SafeArea(
             top: false,
             child: LayoutBuilder(
@@ -90,16 +133,6 @@ class _TitleScreenState extends State<TitleScreen> {
                 flex: 6,
                 child: Stack(
                   children: [
-                    Align(
-                      alignment: Alignment.topCenter,
-                      child: SizedBox.expand(
-                        child: Image.asset(
-                          'assets/images/GND_title_up.png',
-                          fit: BoxFit.cover,
-                          alignment: Alignment.bottomCenter,
-                        ),
-                      ),
-                    ),
                     Align(
                       alignment: Alignment.bottomCenter,
                       child: Padding(
@@ -132,6 +165,13 @@ class _TitleScreenState extends State<TitleScreen> {
                       child: SafeArea(
                         child: Row(
                           children: [
+                            IconButton(
+                              icon: const Icon(Icons.info_outline),
+                              iconSize: 48,
+                              color: AppColors.textOnDark,
+                              tooltip: AppTexts.creditMenuTitle,
+                              onPressed: _showCreditDialog,
+                            ),
                             IconButton(
                               icon: const Icon(Icons.policy_outlined),
                               iconSize: 48,
@@ -199,18 +239,9 @@ class _TitleScreenState extends State<TitleScreen> {
                   ),
                 ),
               ),
-              Expanded(
+              const Expanded(
                 flex: 2,
-                child: Align(
-                  alignment: Alignment.bottomCenter,
-                  child: SizedBox.expand(
-                    child: Image.asset(
-                      'assets/images/GND_title_down.png',
-                      fit: BoxFit.cover,
-                      alignment: Alignment.bottomCenter,
-                    ),
-                  ),
-                ),
+                child: SizedBox(),
               ),
             ],
                 );
