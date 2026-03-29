@@ -124,7 +124,9 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
 
   // --- 画面1: 順番確認（スマホ受渡）画面 ---
   Widget _buildPassingScreen(Player player) {
-    return Scaffold(
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
       body: Stack(
         children: [
           // 背景
@@ -153,12 +155,15 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
           const CustomBannerAd(),
         ],
       ),
+      ),
     );
   }
 
   // --- 画面2: メインゲーム画面 ---
   Widget _buildGameScreen(Player player) {
-    return Scaffold(
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
       appBar: CommonAppBar(
         title: AppTexts.turnTitle(player.name),
         onHomePressed: () {
@@ -379,6 +384,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
             ),
           ),
         ],
+      ),
       ),
     );
   }

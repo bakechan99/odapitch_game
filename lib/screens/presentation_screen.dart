@@ -52,7 +52,9 @@ class PresentationScreen extends StatelessWidget {
         ? AppColors.themePrimary
         : AppColors.themePrimaryDark;
 
-    return Scaffold(
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
       appBar: CommonAppBar(
         title: "",
         backgroundColor: backgroundColor,
@@ -232,6 +234,7 @@ class PresentationScreen extends StatelessWidget {
             ],
           ),
         ),
+      ),
       ),
     );
   }

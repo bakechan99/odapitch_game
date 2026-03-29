@@ -53,7 +53,7 @@ class AppTexts {
   static const String startGameButton = "スタート";
 
   // Help Screen
-  static const String helpTitle = "せつめい";
+  static const String helpTitle = "あそびかた";
   static const String helpSetupOverview =
       "配られたカードに書かれている\n単語を組み合わせて\nお題に沿った文章を作ろう！";
   static const String helpPlayerCount = "（カードは全て使わなくてもOK）";
