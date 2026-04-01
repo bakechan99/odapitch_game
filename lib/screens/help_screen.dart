@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import '../constants/texts.dart';
 import '../constants/app_text_styles.dart';
 import 'settings_screen.dart';
@@ -41,35 +40,14 @@ class HelpScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              SvgPicture.asset(
-                'assets/images/tutorial_1.svg',
-                width: double.infinity,
-                fit: BoxFit.fitWidth,
-              ),
-              const SizedBox(height: 16),
-              SvgPicture.asset(
-                'assets/images/tutorial_2.svg',
-                width: double.infinity,
-                fit: BoxFit.fitWidth,
-              ),
-              const SizedBox(height: 16),
-              SvgPicture.asset(
-                'assets/images/tutorial_3.svg',
-                width: double.infinity,
-                fit: BoxFit.fitWidth,
-              ),
-              const SizedBox(height: 16),
-              SvgPicture.asset(
-                'assets/images/tutorial_4.svg',
-                width: double.infinity,
-                fit: BoxFit.fitWidth,
-              ),
-              const SizedBox(height: 16),
-              SvgPicture.asset(
-                'assets/images/tutorial_5.svg',
-                width: double.infinity,
-                fit: BoxFit.fitWidth,
-              ),
+              for (int i = 1; i <= 5; i++) ...[
+                Image.asset(
+                  'assets/images/tutorial_$i.png',
+                  width: double.infinity,
+                  fit: BoxFit.fitWidth,
+                ),
+                if (i < 5) const SizedBox(height: 16),
+              ],
               const SizedBox(height: 16),
             ],
           ),
