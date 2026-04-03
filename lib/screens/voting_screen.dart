@@ -58,7 +58,7 @@ class VotingScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(24),
               margin: const EdgeInsets.only(bottom: 12),
-              width: 400,
+              width: double.infinity,
               decoration: BoxDecoration(
                 color: AppColors.accent,
                 borderRadius: BorderRadius.circular(24),

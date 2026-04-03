@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import '../models/card_data.dart';
 import '../constants/app_colors.dart';
@@ -7,15 +8,25 @@ import '../constants/app_text_styles.dart';
 /// Draggable のラップは呼び出し元で行う。
 class HandCardWidget extends StatelessWidget {
   final CardData card;
+  final double width;
+  final double height;
 
-  const HandCardWidget({super.key, required this.card});
+  const HandCardWidget({
+    super.key,
+    required this.card,
+    this.width = 100,
+    this.height = 130,
+  });
 
   @override
   Widget build(BuildContext context) {
-    const textStyle = AppTextStyles.cardHandText;
+    // カード幅に比例したフォントサイズ（基準: width=100でfontSize=12）
+    final double fontSize = AppTextStyles.cardHandText.fontSize! * (width / 100);
+    final textStyle = AppTextStyles.cardHandText.copyWith(fontSize: fontSize);
+
     return Container(
-      width: 100,
-      height: 130,
+      width: width,
+      height: height,
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(8),
@@ -32,11 +43,11 @@ class HandCardWidget extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          Text(card.top, style: textStyle, textAlign: TextAlign.center, maxLines: 1, overflow: TextOverflow.ellipsis),
+          AutoSizeText(card.top, style: textStyle, textAlign: TextAlign.center, maxLines: 1, minFontSize: 8, overflow: TextOverflow.ellipsis),
           Divider(height: 1, color: AppColors.divider),
-          Text(card.middle, style: textStyle, textAlign: TextAlign.center, maxLines: 1, overflow: TextOverflow.ellipsis),
+          AutoSizeText(card.middle, style: textStyle, textAlign: TextAlign.center, maxLines: 1, minFontSize: 8, overflow: TextOverflow.ellipsis),
           Divider(height: 1, color: AppColors.divider),
-          Text(card.bottom, style: textStyle, textAlign: TextAlign.center, maxLines: 1, overflow: TextOverflow.ellipsis),
+          AutoSizeText(card.bottom, style: textStyle, textAlign: TextAlign.center, maxLines: 1, minFontSize: 8, overflow: TextOverflow.ellipsis),
         ],
       ),
     );

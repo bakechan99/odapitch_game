@@ -91,7 +91,7 @@ class PresentationScreen extends StatelessWidget {
                 ),
               // --- タイマーカード ---
               Container(
-                width: 400,
+                width: double.infinity,
                 height: 160,
                 padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
                 decoration: BoxDecoration(
@@ -165,14 +165,14 @@ class PresentationScreen extends StatelessWidget {
               // --- 研究タイトルエリア ---
               Expanded(
                 child: Container(
-                  width: 400,
+                  width: double.infinity,
                   height: 300,
                   decoration: BoxDecoration(
                     image: DecorationImage(
                       image: isPresentationMode
                           ? AssetImage('assets/images/presentation_background.png')
-                          : AssetImage('assets/images/question_background.png'), 
-                       //fit: BoxFit.fill,
+                          : AssetImage('assets/images/question_background.png'),
+                      fit: BoxFit.fill,
                     ),
                   ),
                   child: Padding(
@@ -209,7 +209,7 @@ class PresentationScreen extends StatelessWidget {
                     child: ClipPath(
                       clipper: ArrowClipper(),
                       child: Container(
-                          width: 400,
+                          width: double.infinity,
                           height: 60,
                           padding: const EdgeInsets.symmetric(
                             vertical: 15

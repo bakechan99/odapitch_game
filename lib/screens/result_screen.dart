@@ -175,8 +175,9 @@ class _ResultScreenState extends State<ResultScreen> {
                   child: LayoutBuilder(
                     builder: (context, constraints) {
                           final int count = widget.players.length;
+                          final double cardWidth = constraints.maxWidth * 0.93;
                           final double cardsWidth =
-                              (count * 400) +
+                              (count * cardWidth) +
                               ((count > 0 ? count - 1 : 0) * 16);
                           final double horizontalPadding = 32;
                           final double trailingSpace = 100;
@@ -227,8 +228,8 @@ class _ResultScreenState extends State<ResultScreen> {
                                         );
 
                                         return Container(
-                                          width: 400,
-                                          height: 600,
+                                          width: cardWidth,
+                                          height: cardWidth * 1.5,
                                           margin: EdgeInsets.only(
                                             right:
                                                 idx == widget.players.length - 1
