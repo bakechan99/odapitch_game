@@ -14,6 +14,7 @@ import 'game_loop_screen.dart';
 import 'passing_confirm_screen.dart';
 import '../widgets/common_app_bar.dart';
 import '../constants/texts.dart';
+import '../widgets/on_off_toggle_button.dart';
 import '../widgets/setting_stepper_control.dart';
 import '../widgets/time_setting_control.dart';
 import '../constants/app_colors.dart';
@@ -458,56 +459,9 @@ class _SetupScreenState extends State<SetupScreen> {
                             ),
                           ),
                           const SizedBox(height: 8),
-                          InkWell(
-                            borderRadius: BorderRadius.circular(999),
-                            onTap: () {
-                              setState(() {
-                                _isAiEnabled = !_isAiEnabled;
-                              });
-                            },
-                            child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 160),
-                              curve: Curves.easeOut,
-                              width: 84,
-                              height: 84,
-                              alignment: Alignment.center,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: _isAiEnabled
-                                    ? AppColors.highlights
-                                    : AppColors.iconMuted,
-                                border: Border.all(
-                                  color: AppColors.textStrong,
-                                  width: 1.6,
-                                ),
-                                boxShadow: const [
-                                  BoxShadow(
-                                    color: AppColors.shadowLight,
-                                    blurRadius: 6,
-                                    offset: Offset(0, 2),
-                                  ),
-                                ],
-                              ),
-                              child: Container(
-                                width: 66,
-                                height: 66,
-                                alignment: Alignment.center,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: AppColors.textOnDark,
-                                    width: 1.4,
-                                  ),
-                                ),
-                                child: Text(
-                                  _isAiEnabled ? 'ON' : 'OFF',
-                                  style: AppTextStyles.headingSection.copyWith(
-                                    fontSize: 32,
-                                    color: AppColors.textOnDark,
-                                  ),
-                                ),
-                              ),
-                            ),
+                          OnOffToggleButton(
+                            value: _isAiEnabled,
+                            onChanged: (v) => setState(() => _isAiEnabled = v),
                           ),
                         ],
                       ),

@@ -10,8 +10,8 @@ class LocalDb {
   LocalDb._();
 
   static final LocalDb instance = LocalDb._();
-  static const String defaultPresetId = 'default';
-  static const String defaultOdaiPresetId = 'default';
+  static const String defaultPresetId = 'rikei';
+  static const String defaultOdaiPresetId = 'rikei';
   static const String _keySelectedOdaiPresetId = 'selected_odai_preset_id';
   static const String _keyPresentationTimeSec = 'presentation_time_sec';
   static const String _keyQaTimeSec = 'qa_time_sec';
