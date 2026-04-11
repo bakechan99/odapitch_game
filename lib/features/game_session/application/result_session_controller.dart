@@ -12,7 +12,10 @@ enum ScreenPhase {
   result,
 }
 
-typedef TitleScorer = Future<Map<String, dynamic>?> Function(String title);
+// 全プレイヤー分のデータを一括送信して採点結果を受け取るコールバック型
+typedef BatchTitleScorer = Future<Map<String, dynamic>?> Function(
+  List<Map<String, String>> players,
+);
 // isPresentationMode: true=発表タイマー終了, false=質疑応答タイマー終了
 typedef TimeUpCallback = Future<void> Function(bool isPresentationMode);
 
@@ -24,8 +27,8 @@ class ResultSessionController extends ChangeNotifier {
     required this.players,
     required this.presentationTimeSec,
     required this.qaTimeSec,
-    required this.isAiEnabled, // 追加
-    required this.titleScorer,
+    required this.isAiEnabled,
+    required this.batchScorer,
     required this.onTimeUp,
   }) {
     for (int index = 0; index < players.length; index++) {
@@ -39,8 +42,8 @@ class ResultSessionController extends ChangeNotifier {
   final List<Player> players;
   final int presentationTimeSec;
   final int qaTimeSec;
-  final bool isAiEnabled; // 追加
-  final TitleScorer titleScorer;
+  final bool isAiEnabled;
+  final BatchTitleScorer batchScorer;
   final TimeUpCallback onTimeUp;
 
   ScreenPhase currentPhase = ScreenPhase.presentationStandby;
@@ -50,6 +53,9 @@ class ResultSessionController extends ChangeNotifier {
   final Map<int, Map<int, int>> voteMatrix = {};
   final Map<int, int> currentAllocation = {};
   final Map<int, Map<String, dynamic>> aiResults = {};
+
+  // 全体の総評（一括評価で取得）
+  String? overallReview;
 
   bool isFetchingAI = false;
   bool isPresentationMode = true;
@@ -176,44 +182,67 @@ class ResultSessionController extends ChangeNotifier {
 
     try {
       if (isAiEnabled) {
-        // AIが有効な場合：各プレイヤーのタイトルをAPIに送信
-        for (int index = 0; index < players.length; index++) {
-          final title = players[index].researchTitle;
+        // 全プレイヤーのデータを一括送信
+        final playersData = players
+            .map((p) => {'name': p.name, 'title': p.researchTitle})
+            .toList();
+        debugPrint('Requesting batch AI score for ${players.length} players...');
 
-          // 1人目以外のリクエスト前に1秒のインターバルを置く（レート制限対策）
-          if (index > 0) {
-            debugPrint(
-              'Waiting 1 second before next request (Scoring for Player $index)...',
-            );
-            await Future.delayed(const Duration(seconds: 1));
-          }
+        try {
+          final result = await batchScorer(playersData)
+              .timeout(const Duration(seconds: 60));
 
-          try {
-            debugPrint('Requesting AI score for: $title');
+          if (result != null) {
+            // 全体の総評を保存
+            overallReview = result['overall_review'] as String?;
+            debugPrint('Overall review: $overallReview');
 
-            // 順番に1人ずつリクエストを送信
-            final result = await titleScorer(
-              title,
-            ).timeout(const Duration(seconds: 30));
+            // scoresリストをプレイヤー名で突合して各Playerに代入
+            final scores = result['scores'] as List<dynamic>? ?? [];
+            for (int index = 0; index < players.length; index++) {
+              final playerName = players[index].name;
+              final scoreData = scores.firstWhere(
+                (s) => s['player_name'] == playerName,
+                orElse: () => null,
+              );
 
-            if (result != null) {
-              aiResults[index] = result;
-              debugPrint('Success: AI Score received for Player $index');
-            } else {
-              throw Exception("Null response from API");
+              if (scoreData != null) {
+                final score = (scoreData['score'] as num).toDouble();
+                final comment = scoreData['comment'] as String? ?? '';
+                players[index].aiScore = score;
+                players[index].aiFeedback = comment;
+                aiResults[index] = {'score': score, 'feedback': comment};
+                debugPrint('Player $playerName: score=$score');
+              } else {
+                debugPrint('Score data not found for: $playerName');
+                players[index].aiScore = 1.0;
+                players[index].aiFeedback = 'AI採点データが見つかりませんでした。';
+                aiResults[index] = {
+                  'score': 1.0,
+                  'feedback': 'AI採点データが見つかりませんでした。',
+                  'isFallback': true,
+                };
+              }
             }
-          } catch (e) {
-            // エラー（502, タイムアウト等）が発生してもループを止めない
-            debugPrint("AI Scoring Error for Player $index: $e");
+          } else {
+            throw Exception("Null response from batch API");
+          }
+        } catch (e) {
+          debugPrint("Batch AI Scoring Error: $e");
+          // エラー時は全プレイヤーをフォールバック
+          overallReview = 'サーバー混雑のため、AI採点に失敗しました。';
+          for (int index = 0; index < players.length; index++) {
+            players[index].aiScore = 1.0;
+            players[index].aiFeedback = 'サーバー混雑のため、AI採点に失敗しました。標準スコアで集計します。';
             aiResults[index] = {
-              'score': 1.0, // フォールバック：スコア倍率1.0
+              'score': 1.0,
               'feedback': 'サーバー混雑のため、AI採点に失敗しました。標準スコアで集計します。',
               'isFallback': true,
             };
           }
         }
       } else {
-        // ... (AI無効時の処理は変更なし)
+        // AI無効時の処理（変更なし）
         for (int index = 0; index < players.length; index++) {
           aiResults[index] = {
             'score': 1.0,

@@ -3,30 +3,30 @@
     "id": "rikei",
     "name": "理系研究カード（カケンヒカードゲーム）",
     "odaiPath": "assets/odai_presets/odai_rikei.json",
-    "path": "assets/presets/cards.json"
+    "path": "assets/presets/kakenhi.json"
   },
   {
     "id": "travel",
     "name": "旅行カード",
     "odaiPath": "assets/odai_presets/odai_travel.json",
-    "path": "assets/presets/travel_20260216.json"
+    "path": "assets/presets/travel.json"
   },
   {
     "id": "cooking",
     "name": "料理カード",
     "odaiPath": "assets/odai_presets/odai_cooking.json",
-    "path": "assets/presets/cooking_20260216.json"
+    "path": "assets/presets/cooking.json"
   },
   {
     "id": "bunkei",
     "name": "人文系研究カード",
     "odaiPath": "assets/odai_presets/odai_bunkei.json",
-    "path": "assets/presets/bunkei_20260216.json"
+    "path": "assets/presets/bunkei.json"
   },
   {
-    "id": "meme",
-    "name": "ミームカード",
-    "odaiPath": "assets/odai_presets/odai_meme.json",
-    "path": "assets/presets/meme_20260216.json"
+    "id": "haiku",
+    "name": "俳句カード",
+    "odaiPath": "assets/odai_presets/odai_haiku.json",
+    "path": "assets/presets/haiku.json"
   }
 ]

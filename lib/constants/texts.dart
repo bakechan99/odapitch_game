@@ -116,6 +116,7 @@ class AppTexts {
   static const String aiEvaluationPrefix = "AI評価 : ";
   static const String aiFeedbackPrefix = "講評";
   static const String aiNoFeedback = "評価なし";
+  static const String aiOverallReviewLabel = "AI総評";
 
   // Pop-up messages
   static const String confirmTitle = "このタイトルでよろしいですか？";

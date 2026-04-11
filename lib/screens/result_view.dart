@@ -14,6 +14,8 @@ class ResultView extends StatelessWidget {
   final Map<int, Map<int, int>> voteMatrix;
   // AIの結果を受け取る
   final Map<int, Map<String, dynamic>> aiResults;
+  // 全体の総評（一括評価で取得）
+  final String? overallReview;
   final Color Function(int) getPlayerColor;
   final VoidCallback onHomePressed;
 
@@ -22,7 +24,8 @@ class ResultView extends StatelessWidget {
     required this.players,
     required this.odaiTheme,
     required this.voteMatrix,
-    required this.aiResults, // AI用追加
+    required this.aiResults,
+    this.overallReview,
     required this.getPlayerColor,
     required this.onHomePressed,
   });
@@ -87,7 +90,7 @@ class ResultView extends StatelessWidget {
               itemCount: results.length + 1, // +1 はヘッダー（画像＋テーマ）分
               padding: EdgeInsets.zero, // 画像をフルwidthにするためpadding無し
               itemBuilder: (context, index) {
-                // index 0 はヘッダー（画像＋テーマ名）
+                // index 0 はヘッダー（画像＋テーマ名＋総評）
                 if (index == 0) {
                   return Column(
                     children: [
@@ -110,6 +113,57 @@ class ResultView extends StatelessWidget {
                           ),
                         ),
                       ),
+                      // AI総評ボックス（overallReview がある場合のみ表示）
+                      if (overallReview != null)
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                          child: SizedBox(
+                            width: double.infinity,
+                            child: Stack(
+                              clipBehavior: Clip.none,
+                              children: [
+                                Container(
+                                  width: double.infinity,
+                                  margin: const EdgeInsets.only(top: 12),
+                                  padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.surfacePanel,
+                                    borderRadius: BorderRadius.circular(16),
+                                    border: Border.all(
+                                      color: AppColors.sectionTitle,
+                                      width: 1.5,
+                                    ),
+                                    boxShadow: const [
+                                      BoxShadow(
+                                        color: Colors.black12,
+                                        blurRadius: 6,
+                                        offset: Offset(0, 3),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Text(
+                                    overallReview!,
+                                    style: const TextStyle(fontSize: 14, height: 1.6),
+                                  ),
+                                ),
+                                Positioned(
+                                  top: -2,
+                                  left: 16,
+                                  child: Container(
+                                    color: AppColors.surfacePanel,
+                                    padding: const EdgeInsets.symmetric(horizontal: 6),
+                                    child: Text(
+                                      AppTexts.aiOverallReviewLabel,
+                                      style: AppTextStyles.headingPrimaryLarge.copyWith(
+                                        fontSize: 18,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                     ],
                   );
                 }

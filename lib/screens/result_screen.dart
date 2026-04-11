@@ -55,9 +55,9 @@ class _ResultScreenState extends State<ResultScreen> {
       players: widget.players,
       presentationTimeSec: widget.settings.presentationTimeSec,
       qaTimeSec: widget.settings.qaTimeSec,
-      isAiEnabled: widget.isAiEnabled, // ← コントローラへ渡す
-      titleScorer: (title) =>
-          ApiService.getTitleScore(title, mode: widget.odaiId),
+      isAiEnabled: widget.isAiEnabled,
+      batchScorer: (players) =>
+          ApiService.getBatchTitleScore(players, mode: widget.odaiId),
       onTimeUp: _onTimeUp,
     );
     _controller.addListener(_onControllerChanged);
@@ -409,6 +409,7 @@ class _ResultScreenState extends State<ResultScreen> {
               odaiTheme: widget.odaiTheme,
               voteMatrix: _controller.voteMatrix,
               aiResults: _controller.aiResults,
+              overallReview: _controller.overallReview,
               getPlayerColor: _getPlayerColor,
               onHomePressed: _onHomePressed,
             );
