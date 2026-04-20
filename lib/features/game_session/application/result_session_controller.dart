@@ -180,6 +180,11 @@ class ResultSessionController extends ChangeNotifier {
     isFetchingAI = true;
     notifyListeners(); // ローディング開始をUIに通知
 
+    // UIのリビルドをイベントループに処理させてからAPI呼び出しを行う。
+    // これを省くと、notifyListeners()後の同期コードがフレーム描画の前に
+    // 実行され、ローディング画面が表示されないままフリーズしたように見える。
+    await Future.delayed(Duration.zero);
+
     try {
       if (isAiEnabled) {
         // 全プレイヤーのデータを一括送信

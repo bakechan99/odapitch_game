@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
 
@@ -14,7 +15,7 @@ class ApiService {
     String mode = 'academic',
   }) async {
     final url = Uri.parse(
-      'https://dxaulrcbi7apve2f6ndyzuaviu0jdisf.lambda-url.ap-northeast-1.on.aws/batch-score',
+      'https://6gcdqcmqccj37bxuuzwor6gqdy0uqglz.lambda-url.ap-northeast-1.on.aws/batch-score',
     );
 
     final requestBody = {'players': players, 'mode': mode};
@@ -45,6 +46,9 @@ class ApiService {
       }
     } on TimeoutException catch (e) {
       debugPrint('Batch API Timeout: $e');
+      return null;
+    } on SocketException catch (e) {
+      debugPrint('Batch API Network Error: $e');
       return null;
     } catch (e) {
       debugPrint('Batch API Error: $e');

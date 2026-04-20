@@ -229,7 +229,7 @@ class _ResultScreenState extends State<ResultScreen> {
 
                                         return Container(
                                           width: cardWidth,
-                                          height: cardWidth * 1.5,
+                                          height: constraints.maxHeight - 16,
                                           margin: EdgeInsets.only(
                                             right:
                                                 idx == widget.players.length - 1
@@ -240,7 +240,9 @@ class _ResultScreenState extends State<ResultScreen> {
                                             color: AppColors.surfacePanel,
                                             child: Padding(
                                               padding: const EdgeInsets.all(12),
-                                              child: Column(
+                                              child: SingleChildScrollView(
+                                                primary: false,
+                                                child: Column(
                                                 crossAxisAlignment:
                                                     CrossAxisAlignment.start,
                                                 children: [
@@ -308,9 +310,13 @@ class _ResultScreenState extends State<ResultScreen> {
 
                                                   const SizedBox(height: 20),
 
-                                                  Wrap(
-                                                    spacing: 24,
-                                                    runSpacing: 16,
+                                                  GridView.count(
+                                                    crossAxisCount: 3,
+                                                    shrinkWrap: true,
+                                                    physics: const NeverScrollableScrollPhysics(),
+                                                    crossAxisSpacing: 8,
+                                                    mainAxisSpacing: 8,
+                                                    childAspectRatio: 0.85,
                                                     children: allCards.map((
                                                       cardData,
                                                     ) {
@@ -336,6 +342,7 @@ class _ResultScreenState extends State<ResultScreen> {
                                                     }).toList(),
                                                   ),
                                                 ],
+                                              ),
                                               ),
                                             ),
                                           ),
