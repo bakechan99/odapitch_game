@@ -111,5 +111,5 @@ flutter:
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "assets/odapitch_icon.png"
+  image_path: "assets/odapitch_icon_v2.png"
   remove_alpha_ios: true 

@@ -127,6 +127,7 @@ class _TitleScreenState extends State<TitleScreen> {
             top: false,
             child: LayoutBuilder(
               builder: (context, constraints) {
+                final double iconSize = (constraints.maxWidth * 0.12).clamp(40.0, 64.0);
                 return Column(
             children: [
               Expanded(
@@ -167,21 +168,21 @@ class _TitleScreenState extends State<TitleScreen> {
                           children: [
                             IconButton(
                               icon: const Icon(Icons.info_outline),
-                              iconSize: 48,
+                              iconSize: iconSize,
                               color: AppColors.textOnDark,
                               tooltip: AppTexts.creditMenuTitle,
                               onPressed: _showCreditDialog,
                             ),
                             IconButton(
                               icon: const Icon(Icons.policy_outlined),
-                              iconSize: 48,
+                              iconSize: iconSize,
                               color: AppColors.textOnDark,
                               tooltip: AppTexts.legalMenuTitle,
                               onPressed: _showLegalMenu,
                             ),
                             IconButton(
                               icon: const Icon(Icons.settings),
-                              iconSize: 48,
+                              iconSize: iconSize,
                               color: AppColors.textOnDark,
                               tooltip: AppTexts.goSettings,
                               onPressed: () {
@@ -219,7 +220,7 @@ class _TitleScreenState extends State<TitleScreen> {
                           ),
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      SizedBox(width: constraints.maxWidth * 0.03),
                       SizedBox(
                         width: constraints.maxWidth * 0.4,
                         child: AspectRatio(

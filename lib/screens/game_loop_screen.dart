@@ -124,7 +124,9 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
 
   // --- 画面1: 順番確認（スマホ受渡）画面 ---
   Widget _buildPassingScreen(Player player) {
-    return Scaffold(
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
       body: Stack(
         children: [
           // 背景
@@ -153,12 +155,15 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
           const CustomBannerAd(),
         ],
       ),
+      ),
     );
   }
 
   // --- 画面2: メインゲーム画面 ---
   Widget _buildGameScreen(Player player) {
-    return Scaffold(
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
       appBar: CommonAppBar(
         title: AppTexts.turnTitle(player.name),
         onHomePressed: () {
@@ -300,42 +305,40 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                                   ),
                                 ),
                               ),
-                              // 手札を固定 2x3 で表示（高さを制限してコンパクトに）
-                              Center(
-                                child: SizedBox(
-                                  width: 324,
-                                  height: 240,
-                                  child: FittedBox(
-                                    fit: BoxFit.scaleDown,
-                                    alignment: Alignment.center,
+                              // 手札を 2x3 で表示（画面幅に応じてカードサイズを動的計算）
+                              Builder(
+                                builder: (context) {
+                                  final double gridWidth = constraints.maxWidth * 0.73;
+                                  final double cardWidth = (gridWidth - 24) / 3;
+                                  final double cardHeight = cardWidth * 1.3;
+                                  return Center(
                                     child: SizedBox(
-                                      width: 324,
+                                      width: gridWidth,
+                                      height: cardHeight * 2 + 12,
                                       child: Column(
                                         children: [
                                           Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                             children: [
-                                              _buildHandGridSlot(player, 0),
-                                              _buildHandGridSlot(player, 1),
-                                              _buildHandGridSlot(player, 2),
+                                              _buildHandGridSlot(player, 0, cardWidth: cardWidth, cardHeight: cardHeight),
+                                              _buildHandGridSlot(player, 1, cardWidth: cardWidth, cardHeight: cardHeight),
+                                              _buildHandGridSlot(player, 2, cardWidth: cardWidth, cardHeight: cardHeight),
                                             ],
                                           ),
                                           const SizedBox(height: 12),
                                           Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                             children: [
-                                              _buildHandGridSlot(player, 3),
-                                              _buildHandGridSlot(player, 4),
-                                              _buildHandGridSlot(player, 5),
+                                              _buildHandGridSlot(player, 3, cardWidth: cardWidth, cardHeight: cardHeight),
+                                              _buildHandGridSlot(player, 4, cardWidth: cardWidth, cardHeight: cardHeight),
+                                              _buildHandGridSlot(player, 5, cardWidth: cardWidth, cardHeight: cardHeight),
                                             ],
                                           ),
                                         ],
                                       ),
                                     ),
-                                  ),
-                                ),
+                                  );
+                                },
                               ),
                               Padding(
                                 padding: const EdgeInsets.fromLTRB(
@@ -379,6 +382,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
             ),
           ),
         ],
+      ),
       ),
     );
   }
@@ -534,27 +538,27 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
     });
   }
 
-  Widget _buildHandGridSlot(Player player, int index) {
+  Widget _buildHandGridSlot(Player player, int index, {double cardWidth = 100, double cardHeight = 130}) {
     if (index >= player.hand.length) {
-      return const SizedBox(width: 100, height: 130);
+      return SizedBox(width: cardWidth, height: cardHeight);
     }
 
     final card = player.hand[index];
     return SizedBox(
-      width: 100,
-      height: 130,
+      width: cardWidth,
+      height: cardHeight,
       child: Center(
         child: Draggable<CardData>(
           data: card,
           feedback: Material(
             color: AppColors.transparent,
-            child: Opacity(opacity: 0.8, child: HandCardWidget(card: card)),
+            child: Opacity(opacity: 0.8, child: HandCardWidget(card: card, width: cardWidth, height: cardHeight)),
           ),
           childWhenDragging: Opacity(
             opacity: 0.3,
-            child: HandCardWidget(card: card),
+            child: HandCardWidget(card: card, width: cardWidth, height: cardHeight),
           ),
-          child: HandCardWidget(card: card),
+          child: HandCardWidget(card: card, width: cardWidth, height: cardHeight),
         ),
       ),
     );

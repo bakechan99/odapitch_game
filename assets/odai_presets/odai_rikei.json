@@ -1,17 +1,12 @@
 [
   {
     "id": "roman_study",
-    "name": "ロマンのある研究",
+    "name": "ロマンのある研究テーマ",
     "odai": "ロマンのある研究テーマ"
   },
   {
-    "id": "senior_thesis",
-    "name": "学部生の卒業論文",
-    "odai": "学部生の卒業論文のテーマ"
-  },
-  {
-    "id": "kakenhi_science",
-    "name": "科研費を取れる研究",
+    "id": "kakenhi",
+    "name": "科研費をとれそうな研究テーマ",
     "odai": "科研費を取れる研究テーマ"
   }
 ]

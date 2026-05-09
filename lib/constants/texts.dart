@@ -16,7 +16,6 @@ class AppTexts {
   static const String goPrivacyPolicy = "プライバシーポリシー";
   static const String legalMenuTitle = "規約・プライバシーポリシー";
 
-  // URL（リリース前に実際のURLへ差し替えてください）
   static const String termsUrl =
       'https://aged-tang-ba3.notion.site/31f5dfc57a728092b5bdc6f33f6dc9e2?source=copy_link';
   static const String privacyPolicyUrl =
@@ -25,14 +24,15 @@ class AppTexts {
   // 同意画面
   static const String consentDescription =
       'ゲームを開始する前に、以下の書類をご確認ください。\n'
-      '「同意してはじめる」を押すと、利用規約およびプライバシーポリシーに同意したものとみなします。';
+      '「同意してはじめる」を押すと、利用規約およびプライバシーポリシーに同意したものとみなします。\n'
+      '※本アプリのアイデアは、北大CoSTEPが開発した「カケンヒカードゲーム」を参照しています。';
   static const String consentAgreeButton = '同意してはじめる';
 
   // Title Screen
   static const String gameTitle = "オダピチ";
   static const String newGameButton = "はじめる";
   static const String creditMenuTitle = "クレジット";
-  static const String appVersion = "1.0.0";
+  static const String appVersion = "1.0.1";
   static const String creditBody =
       '※本アプリのアイデアは、北大CoSTEPが開発した'
       '「カケンヒカードゲーム」を参照しています。';
@@ -53,7 +53,7 @@ class AppTexts {
   static const String startGameButton = "スタート";
 
   // Help Screen
-  static const String helpTitle = "せつめい";
+  static const String helpTitle = "あそびかた";
   static const String helpSetupOverview =
       "配られたカードに書かれている\n単語を組み合わせて\nお題に沿った文章を作ろう！";
   static const String helpPlayerCount = "（カードは全て使わなくてもOK）";
@@ -116,6 +116,7 @@ class AppTexts {
   static const String aiEvaluationPrefix = "AI評価 : ";
   static const String aiFeedbackPrefix = "講評";
   static const String aiNoFeedback = "評価なし";
+  static const String aiOverallReviewLabel = "AI総評";
 
   // Pop-up messages
   static const String confirmTitle = "このタイトルでよろしいですか？";

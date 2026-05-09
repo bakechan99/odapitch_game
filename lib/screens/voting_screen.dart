@@ -37,7 +37,9 @@ class VotingScreen extends StatelessWidget {
     int remainingBudget = 100 - usedBudget;
     bool isComplete = usedBudget == 100;
 
-    return Scaffold(
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
       appBar: CommonAppBar(
         title: "",
         onHomePressed: onHomePressed,
@@ -56,7 +58,7 @@ class VotingScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(24),
               margin: const EdgeInsets.only(bottom: 12),
-              width: 400,
+              width: double.infinity,
               decoration: BoxDecoration(
                 color: AppColors.accent,
                 borderRadius: BorderRadius.circular(24),
@@ -189,6 +191,7 @@ class VotingScreen extends StatelessWidget {
             ),
           ],
         ),
+      ),
       ),
     );
   }
