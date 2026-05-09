@@ -16,7 +16,7 @@ class _CustomBannerAdState extends State<CustomBannerAd> {
   // OSごとにGoogle公式のテスト用バナーIDを設定
   final String adUnitId = Platform.isAndroid
       ? 'ca-app-pub-3940256099942544/9214589741' // AndroidテストID
-      : 'ca-app-pub-3940256099942544/2934735716'; // iOSテストID
+      : 'ca-app-pub-1863882102807550/3234000821'; // iOSテストID
 
   @override
   void initState() {
@@ -64,6 +64,6 @@ class _CustomBannerAdState extends State<CustomBannerAd> {
       );
     }
     // 読み込み中や失敗時は空のスペース（またはグレーの枠）を返す
-    return const SizedBox(height: 50); 
+    return const SizedBox(height: 50);
   }
 }
