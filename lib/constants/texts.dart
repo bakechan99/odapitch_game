@@ -16,7 +16,6 @@ class AppTexts {
   static const String goPrivacyPolicy = "プライバシーポリシー";
   static const String legalMenuTitle = "規約・プライバシーポリシー";
 
-  // URL（リリース前に実際のURLへ差し替えてください）
   static const String termsUrl =
       'https://aged-tang-ba3.notion.site/31f5dfc57a728092b5bdc6f33f6dc9e2?source=copy_link';
   static const String privacyPolicyUrl =
