@@ -32,7 +32,7 @@ class AppTexts {
   static const String gameTitle = "オダピチ";
   static const String newGameButton = "はじめる";
   static const String creditMenuTitle = "クレジット";
-  static const String appVersion = "1.0.1";
+  static const String appVersion = "1.1.0";
   static const String creditBody =
       '※本アプリのアイデアは、北大CoSTEPが開発した'
       '「カケンヒカードゲーム」を参照しています。';
