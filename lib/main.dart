@@ -55,8 +55,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-/// 起動時に同意状態をチェックし、未同意なら ConsentScreen へ、
-/// 同意済みなら TitleScreen へ振り分けるゲートウィジェット。
 class _ConsentGate extends StatelessWidget {
   const _ConsentGate();
 
@@ -66,7 +64,6 @@ class _ConsentGate extends StatelessWidget {
       future: ConsentManager.hasAccepted(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
-          // 同意状態を確認中はスプラッシュ的なローディングを表示
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
           );
